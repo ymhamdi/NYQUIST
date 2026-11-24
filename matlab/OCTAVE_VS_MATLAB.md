@@ -30,6 +30,13 @@ The TP2 script does not depend on the answer: it computes both conventions by ha
 | `zpk(...)` returns a `zpk` object in MATLAB and a `tf` in Octave. | AE TP2 III.3. | Compared through `dcgain` and `pole`, not displayed coefficients. |
 | `tfdata(sys, 'v')` may pad the numerator with leading zeros differently. | AE TP2, TP3 (hand vs `c2d` checks). | Hand and toolbox results are compared through poles and static gains, never coefficient by coefficient. |
 | MATLAB-only functions: `xline`, `yline`, `sgtitle`, `tiledlayout`, `table`, `string`, `contains`. | — | Not used. |
+| `c2d(..., 'impulse')` when a very fast pole maps to e^{pT} = 0 (underflow): Octave's state-space conversion drops the mode and returns a lower-order H(z). | AE TP2 IV.4 with the printed L = 0.011 mH and T ≥ 1 ms. | Same transfer function either way; the engine cancels the exact z factor so its coefficients match. |
+
+## Bugs the random-slider test found in the scripts (fixed, in MATLAB too)
+
+| Script | Bug | Fix |
+|---|---|---|
+| AE TP4 III.1 | For a setpoint below 1.6 m, `-50*log(1 - 20/H_inf)` takes the log of a negative number: MATLAB and Octave return a **complex** "overflow time". | `t_debordement = Inf` when H(∞) ≤ 20 m (the tank does not overflow). |
 
 ## Differences that remain (display only)
 

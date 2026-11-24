@@ -1,7 +1,11 @@
-# Runs every TP script in GNU Octave, cell by cell, and checks that the
-# committed reference values (reference/*.json) are exactly what the scripts
-# produce. The web engine's tests compare against these files, so no
-# reference value is ever typed by hand.
+# Proves the numbers.
+# 1. Runs every TP script in GNU Octave, cell by cell, and checks that the
+#    committed reference values (reference/*.json) are exactly what the
+#    scripts produce. No reference value is ever typed by hand.
+# 2. Runs the engine's tests against those references.
+# 3. "The code follows the sliders": writes copies of the scripts at random
+#    slider positions (the same substitution the site uses), runs them in
+#    Octave, and requires the engine to reproduce every result.
 name: Octave references
 
 on:
@@ -11,10 +15,17 @@ on:
 
 jobs:
   references:
-    name: TP scripts in GNU Octave
+    name: TP scripts in GNU Octave, engine against Octave
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
 
       - name: Install GNU Octave with the control and signal packages
         run: |
@@ -28,11 +39,31 @@ jobs:
       - name: Committed references must match the scripts
         run: node tools/compare-refs.mjs reference regenerated
 
-      - name: Keep the regenerated values and the figures
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Engine tests against the references
+        run: npm test
+
+      - name: Random slider positions - write the substituted scripts
+        run: npx vitest run tests/sliders
+        env:
+          NYQ_VARIANTS: generate
+          NYQ_VARIANTS_PER_SCRIPT: 6
+
+      - name: Random slider positions - run them in Octave
+        run: octave-cli --no-gui --eval "addpath('matlab/refs'); export_refs('build/variants-out', 'build/variants/list.txt')"
+
+      - name: Random slider positions - the engine must match Octave
+        run: npx vitest run tests/sliders
+        env:
+          NYQ_VARIANTS: compare
+
+      - name: Keep the regenerated values, the variants and the figures
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: octave-references-and-figures
           path: |
             regenerated/
-            build/figures/
+            build/

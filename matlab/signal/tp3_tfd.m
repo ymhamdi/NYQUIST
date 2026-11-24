@@ -12,8 +12,8 @@ clear; close all; clc;
 %  - n = 0 ... N-1 avec N = tmax*Fe = 100 points : 100 Hz tombe sur une raie ;
 %  - t = 0:Te:tmax, soit N + 1 = 101 points : 100 Hz tombe entre deux raies.
 Fe = 1000; Te = 1/Fe;
-tmax = 0.1;                     % @param tmax [s] temps d'acquisition
-inclure_tmax = 0;               % @param inclure_tmax 1 : t = 0:Te:tmax (N+1 points)
+tmax = 0.1;                     % @param tmax [s] 0.02..0.5/0.001 temps d'acquisition
+inclure_tmax = 0;               % @param inclure_tmax {0, 1} 1 : t = 0:Te:tmax (N+1 points)
 N = round(tmax*Fe) + inclure_tmax
 n = 0:N-1;
 x1 = 3*cos(2*pi*100*n*Te);

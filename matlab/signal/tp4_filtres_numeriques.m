@@ -48,7 +48,7 @@ pause(5)
 %   h(n) = 1.3 h(n-1) - 0.7 h(n-2) + (entrées)  pour n >= 3
 b1 = [zeros(1, numel(Den1) - numel(Num1)) Num1]
 b2 = [zeros(1, numel(Den2) - numel(Num2)) Num2]
-n_imp = 30;                     % @param n_imp nombre d'échantillons calculés
+n_imp = 30;                     % @param n_imp 5..100/1 nombre d'échantillons calculés
 h1 = impz(b1, Den1, n_imp).';
 h2 = impz(b2, Den2, n_imp).';
 n = 0:n_imp-1;
@@ -67,7 +67,7 @@ pause(5)
 % Forme correcte : freqz(b, a, nPoints, Fe), axe de 0 à Fe/2 en Hz.
 % Pour H2 (instable), freqz calcule H(e^{j2pi f Te}) mais ce n'est pas une
 % réponse en régime permanent : la sortie diverge.
-n_freq = 512;                   % @param n_freq nombre de points de fréquence
+n_freq = 512;                   % @param n_freq 16..2048/1 nombre de points de fréquence
 Fe = 1/Te;
 [Hf1, f1] = freqz(b1, Den1, n_freq, Fe);
 [Hf2, f2] = freqz(b2, Den2, n_freq, Fe);
@@ -99,7 +99,7 @@ ecart_invfreqz = max(abs([b1_estime - b1, a1_estime - Den1]))
 b = [0.079 0.158 0.079];
 a_imprime = [0.516 -1.2 1];
 a_corrige = [1 -1.2 0.516];
-utiliser_imprime = 0;           % @param utiliser_imprime 1 : dénominateur tel qu'imprimé (instable)
+utiliser_imprime = 0;           % @param utiliser_imprime {0, 1} 1 : dénominateur tel qu'imprimé (instable)
 if utiliser_imprime
     a = a_imprime;
 else

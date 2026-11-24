@@ -6,7 +6,16 @@ Repository: https://github.com/ymhamdi/NYQUIST-lab
 
 ## Status
 - **Phase 0 done**: `COVERAGE.md` (inventory of every question + errata) and `PLAN.md` (stack, architecture, phases).
-- **Phase 1 done**: `matlab/automatique/tp1..tp4`, `matlab/signal/tp3, tp4`; `matlab/compat/` (stepinfo R2021a+, order); `matlab/refs/` harness → `reference/*.json`; CI `.github/workflows/octave-refs.yml` + `tools/compare-refs.mjs`; `matlab/OCTAVE_VS_MATLAB.md`. Next: Phase 2 (web engine + Vitest against `reference/*.json`).
+- **Phase 1 done**: `matlab/automatique/tp1..tp4`, `matlab/signal/tp3, tp4`; `matlab/compat/` (stepinfo R2021a+, order); `matlab/refs/` harness → `reference/*.json`; CI `.github/workflows/octave-refs.yml` + `tools/compare-refs.mjs`; `matlab/OCTAVE_VS_MATLAB.md`.
+- **Phase 2 done**: `src/engine/` (poly, complex, linalg, lti, stepinfo, dsp, matlabScript, tp/<one model per script>); tests: `tests/reference/` (engine vs Octave JSON), `tests/engine/core.test.ts` (closed forms), `tests/sliders/` (random slider positions run in Octave in CI). Next: **Phase 3**, the AE TP3 page end to end (Astro + Svelte), then **stop for the user's review**.
+
+## Engine conventions
+- Polynomials in descending powers (MATLAB order). `tf` = {num, den, Ts}; no automatic cancellation (feedback keeps cancelled poles, like MATLAB).
+- `pid(kp, ki, kd, Tf)` builds only the existing terms (integrator only if ki ≠ 0, filter only if kd ≠ 0).
+- `tf2ss` returns a **balanced** companion form (needed for the stiff motor with L = 0.011 mH).
+- No `Math.max(...bigArray)`: use `maxOf` / `minOf` (stepinfo can have 400 001 samples).
+- Each `src/engine/tp/*.ts` model mirrors its script **cell by cell with the same variable names**; tests compare by name. When a script changes, change its model and regenerate the references.
+- Test tolerances: rel 1e-9 (norm-wise for arrays); stepinfo-derived values rel 1e-6 (grid interpolation); `ecart_*` round-off measures skipped for random variants; PeakTime ignored when there is no overshoot.
 - Handouts live in `./handouts/` and are **git-ignored** (the professor's documents; never commit them).
   - Automatique fascicule: **received** (`handouts/Fascicule_TP_Automatique_Echantillonnee.pdf`, 18 pages, 2024-2025 edition). All 4 TPs (33 questions) checked word for word on 2026-11-24. There is no TP5.
   - Traitement du signal handout: **the user does not have it**. TS TP1/TP2 stay "needs handout" (no scripts, no guessing). TS TP3/TP4 are built from the second-hand transcription and flagged "énoncé non vérifié". If the PDF ever arrives, write TS TP1/TP2 and re-check TS TP3/TP4.
@@ -51,6 +60,9 @@ SettlingTime: first T such that |y − y_final| ≤ 2 % · |y_final − y_init| 
 ## Commands
 - Octave refs: `MSYS_NO_PATHCONV=1 docker run --rm -v "C:/Users/.../Nyquist:/w" -w /w nyq-octave octave-cli --eval "addpath('matlab/refs'); export_refs"` (about 15 s; figures in `build/figures/` as SVG)
 - Staleness check (what CI does): `export_refs('regenerated')`, then `node tools/compare-refs.mjs reference regenerated`
+- Engine: `npm test` (reference + core + slider generator checks), `npm run typecheck`
+- Random slider positions (what CI does, 6 per script; locally 10 takes ~6 min in Octave):
+  `NYQ_VARIANTS=generate NYQ_VARIANTS_PER_SCRIPT=10 npx vitest run tests/sliders` → Octave `export_refs('build/variants-out', 'build/variants/list.txt')` → `NYQ_VARIANTS=compare npx vitest run tests/sliders`
 - Octave in Bash: put test code in a `.m` file. Quoting `.'` inside `bash -c '...'` breaks.
 - Web: `npm ci`, `npm run dev`, `npm test`, `npm run build`, `npm run e2e`, `npm run lh`
 - Lighthouse batch: `tools/lh.sh <base-url> <outdir> mobile|desktop <routes…>`; phone/offline probe: `node tools/probe.cjs <base> <shotdir> <routes…>`

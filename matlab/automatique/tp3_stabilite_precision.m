@@ -17,8 +17,8 @@ clear; close all; clc;
 %   G0(z) = (1 - a)/(z - a)
 % En boucle fermée avec le gain K et le retour unitaire :
 %   G(z) = K G0(z) / (1 + K G0(z)) = K(1 - a) / (z - a + K(1 - a))
-T = 0.1;                        % @param T [s] période d'échantillonnage (non donnée : tau/10, tau = 1 s)
-K = 1;                          % @param K gain du contrôleur proportionnel (non donné)
+T = 0.1;                        % @param T [s] 0.01..3 période d'échantillonnage (non donnée : tau/10, tau = 1 s)
+K = 1;                          % @param K 0..30 gain du contrôleur proportionnel (non donné)
 a = exp(-T)
 G0_main = tf(1 - a, [1 -a], T);
 G_bf_main = tf(K*(1 - a), [1, -a + K*(1 - a)], T)
@@ -53,7 +53,7 @@ title(sprintf('Lieu des racines de K G0(z), T = %g s', T));
 % puis la commande maintenue attaque G1(s) en continu. Pour que le calcul
 % soit exact (et identique dans MATLAB et Octave), G1 est discrétisé avec un
 % pas 20 fois plus fin que T : la commande y est bien constante par morceaux.
-e = 1;                          % @param e consigne (échelon e(t))
+e = 1;                          % @param e 0.1..10 consigne (échelon e(t))
 duree = 5;                      % durée simulée (s)
 N = round(duree/T);
 kk = 0:N;
@@ -78,7 +78,7 @@ title(sprintf('Réponse indicielle, K = %g, T = %g s', K, T));
 % échantillonner lentement déstabilise la boucle.
 Kmax = (1 + a)/(1 - a)
 pole_a_Kmax = pole(feedback(Kmax*G0, 1))   % -1 : sur le cercle unité
-K_essais = [1, 0.5*Kmax, 0.9*Kmax, 1.1*Kmax];   % @param K_essais gains comparés
+K_essais = [1, 0.5*Kmax, 0.9*Kmax, 1.1*Kmax];   % gains comparés (relatifs à Kmax)
 poles_essais = a - K_essais*(1 - a)
 stables_essais = abs(poles_essais) < 1
 figure('Name', 'II.7 - Effet de K');
@@ -102,8 +102,8 @@ title('Gain limite de stabilité en fonction de la période d''échantillonnage'
 %   G0(z) = 12.5(1 - b)/(z - b)
 %   G(z)  = 12.5 K (1 - b) / (z - b + 12.5 K (1 - b))
 % La consigne est une hauteur (2 m), notée Qe(S) sur la figure 3.2 (errata E-AE5).
-T_r = 5;                        % @param T_r [s] période d'échantillonnage (non donnée : tau/10, tau = 50 s)
-K_r = 1;                        % @param K_r gain du contrôleur (non donné)
+T_r = 5;                        % @param T_r [s] 0.5..60 période d'échantillonnage (non donnée : tau/10, tau = 50 s)
+K_r = 1;                        % @param K_r 0.01..10 gain du contrôleur (non donné)
 b = exp(-T_r/50)
 G0r_main = tf(12.5*(1 - b), [1 -b], T_r);
 G_bf_r_main = tf(12.5*K_r*(1 - b), [1, -b + 12.5*K_r*(1 - b)], T_r)
@@ -117,7 +117,7 @@ ecart_r = abs(dcgain(G_bf_r) - dcgain(G_bf_r_main)) + abs(pole(G_bf_r) - pole(G_
 %% III.3 Réponse pour différentes périodes d'échantillonnage (Simulink)
 % Kmax(T) = (1 + b)/(12.5(1 - b)) baisse quand T augmente : avec K = 1, la
 % boucle devient instable dès que Kmax(T) < 1, c'est-à-dire T > T_limite.
-consigne = 2;                   % @param consigne [m] hauteur visée (2 m dans l'énoncé)
+consigne = 2;                   % @param consigne [m] 0.5..20 hauteur visée (2 m dans l'énoncé)
 T_liste = [1 5 10 25];          % @param T_liste [s] périodes comparées
 Kmax_liste = (1 + exp(-T_liste/50)) ./ (12.5*(1 - exp(-T_liste/50)))
 stable_liste = K_r < Kmax_liste
@@ -150,7 +150,7 @@ title(sprintf('Hauteur d''eau, consigne %g m, K = %g', consigne, K_r));
 % petit K donnant une erreur relative <= eps :
 %   1/(1 + 12.5K) <= eps  <=>  K >= (1 - eps)/(12.5 eps)
 % Ce K doit aussi rester sous Kmax(T) pour que la boucle soit stable.
-eps_tol = 0.02;                 % @param eps_tol tolérance sur la hauteur (non donnée : 2 %)
+eps_tol = 0.02;                 % @param eps_tol 0.005..0.2 tolérance sur la hauteur (non donnée : 2 %)
 K_min = (1 - eps_tol)/(12.5*eps_tol)
 Kmax_r = (1 + b)/(12.5*(1 - b))
 realisable = K_min < Kmax_r

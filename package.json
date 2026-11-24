@@ -1,0 +1,22 @@
+{
+  "name": "nyquist",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interactive companion for the INSAT IIA 3 MATLAB labs (signal processing, sampled-data control)",
+  "license": "MIT",
+  "author": "Youssef El Mhamdi",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "refs:compare": "node tools/compare-refs.mjs reference regenerated"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2",
+    "vitest": "5.1.0"
+  },
+  "dependencies": {
+    "@types/node": "24.19.2"
+  }
+}

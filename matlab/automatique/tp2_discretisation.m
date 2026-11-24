@@ -16,7 +16,7 @@ clear; close all; clc;
 % Simulink : Sine Wave (Frequency = 1 rad/sec) -> Zero-Order Hold (T) -> Scope.
 % Le bloqueur maintient x(kT) pendant toute la période [kT, (k+1)T[.
 w = 1;                          % pulsation (rad/s)
-T_sin = 0.5;                    % @param T_sin [s] période d'échantillonnage (environ 12 points par période)
+T_sin = 0.5;                    % @param T_sin [s] 0.05..4 période d'échantillonnage (environ 12 points par période)
 t = linspace(0, 4*pi, 4001);    % deux périodes, grille fine = signal « continu »
 x = sin(w*t);
 k = 0:floor(t(end)/T_sin);
@@ -86,7 +86,7 @@ title('Pôles et zéros de G (bloc Zero-Pole)');
 %   G(s)/s = 9/(s(s+9)) = 1/s - 1/(s+9)
 %   Z{.}   = z/(z-1) - z/(z-a),  avec a = exp(-9T)
 %   G(z)   = (z-1)/z * [z/(z-1) - z/(z-a)] = (1 - a)/(z - a)
-T = 0.01;                       % @param T [s] période d'échantillonnage (non donnée : tau/10 = 1/90 s)
+T = 0.01;                       % @param T [s] 0.001..0.2 période d'échantillonnage (non donnée : tau/10 = 1/90 s)
 a = exp(-9*T);
 Gz = c2d(G, T, 'zoh')
 Gz_main = tf(1 - a, [1 -a], T);
@@ -145,14 +145,14 @@ title('Réponse indicielle avec et sans bloqueur d''ordre zéro');
 % Boucle interne par kem (force contre-électromotrice) :
 %   Omega/U  = kc / ((Ls+R)(Js+f) + kc*kem)
 %   Omega/Cr = -(Ls+R) / ((Ls+R)(Js+f) + kc*kem)
-L = 0.011;                      % @param L [H] inductance (Tableau 2.1)
+L = 0.011;                      % @param L [H] {0.011, 0.000011} inductance (Tableau 2.1)
 R = 0.8;                        % résistance (ohm)
 J = 0.2;                        % moment d'inertie (kg.m^2)
 f = 1e-2;                       % frottement visqueux (N.m.s/rad ; « N.m » dans le tableau)
 kem = 1.91;                     % constante de f.c.e.m. (V.s/rad)
 kc = 1.91;                      % constante de couple (N.m/A)
-U = 200;                        % @param U [V] tension d'alimentation (Tableau 2.1)
-Cr = 0;                         % @param Cr [N.m] couple résistant (non donné : 0)
+U = 200;                        % @param U [V] 0..240 tension d'alimentation (Tableau 2.1)
+Cr = 0;                         % @param Cr [N.m] 0..50 couple résistant (non donné : 0)
 Ge = tf(1, [L R]);              % partie électrique
 Gmeca = tf(1, [J f]);           % partie mécanique
 Gm = feedback(kc * Ge * Gmeca, kem)        % Omega/U
@@ -165,7 +165,7 @@ omega_final = U*dcgain(Gm) + Cr*dcgain(Gcr)
 %% IV.2 Transformée en Z du moteur
 % T non donnée (errata E-AE24) : pôles -36.4 +/- 18.4j, tau = 1/36.4 s,
 % d'où T = tau/10 = 2.5 ms. Chaque pôle p devient exp(p*T).
-T_m = 0.0025;                   % @param T_m [s] période d'échantillonnage du moteur
+T_m = 0.0025;                   % @param T_m [s] 0.0005..0.05 période d'échantillonnage du moteur
 Gmz = c2d(Gm, T_m, 'zoh')
 poles_moteur_z = pole(Gmz)
 poles_moteur_exp = exp(poles_moteur * T_m)    % mêmes valeurs

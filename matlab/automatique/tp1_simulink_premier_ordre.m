@@ -23,8 +23,8 @@ tau = -1/pole(F)                % 1/18 s
 gain_statique_bo = dcgain(G)    % 1
 tau_bo = -1/pole(G)             % 1/9 s
 
-t_step = 1;                     % @param t_step [s] instant du saut (bloc Step : 1 s par défaut ; multiple de 5 ms)
-Uf = 1;                         % @param Uf valeur finale du bloc Step (1 par défaut)
+t_step = 1;                     % @param t_step [s] 0..5/0.005 instant du saut (bloc Step : 1 s par défaut ; multiple de 5 ms)
+Uf = 1;                         % @param Uf 0.1..10 valeur finale du bloc Step (1 par défaut)
 t = linspace(0, 10, 2001);      % durée de simulation par défaut de Simulink : 10 s
 u = Uf * (t >= t_step);         % sortie du bloc Step
 apres = t >= t_step;            % la réponse est la réponse indicielle décalée de t_step

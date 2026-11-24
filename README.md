@@ -7,9 +7,36 @@ Youssef El Mhamdi, IIA 3/1, INSAT. MIT License.
 
 [![Octave references](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/octave-refs.yml/badge.svg)](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/octave-refs.yml)
 
-> **Status: Phase 1 done: the MATLAB scripts.** Six scripts (Automatique TP1–TP4, Signal TP3–TP4) with one `%%` cell per handout question. GNU Octave runs them in CI and generates every reference value. Next: Phase 2, the web engine tested against those values.
+> **Status: Phase 2 done: the engine.** A dependency-free TypeScript engine reproduces every value of the six MATLAB scripts, as checked against GNU Octave in CI, including at random slider positions. Next: Phase 3, the Automatique TP3 page end to end, then a stop for your review.
 
-**Contents:** [Phase 1: the MATLAB scripts](#phase-1-the-matlab-scripts) · [Phase 0: what was done](#phase-0-what-was-done) · [The plan](#the-plan-what-comes-next) · [What I need from you](#what-i-need-from-you) · [Repository layout](#repository-layout)
+**Contents:** [Phase 2: the engine](#phase-2-the-engine) · [Phase 1: the MATLAB scripts](#phase-1-the-matlab-scripts) · [Phase 0: what was done](#phase-0-what-was-done) · [The plan](#the-plan-what-comes-next) · [What I need from you](#what-i-need-from-you) · [Repository layout](#repository-layout)
+
+---
+
+## Phase 2: the engine
+
+[`src/engine/`](src/engine/) is plain TypeScript with no dependencies, written from scratch. It is what the website will compute with, so every number on screen will come from here.
+
+| Module | What it does |
+|---|---|
+| [`poly.ts`](src/engine/poly.ts), [`complex.ts`](src/engine/complex.ts) | Polynomials in MATLAB's order, with roots by Aberth–Ehrlich iteration (exact conjugate pairs, exact roots at 0). |
+| [`linalg.ts`](src/engine/linalg.ts) | LU solve, matrix exponential (Padé 6 with scaling and squaring), balancing (LAPACK-style), characteristic polynomial. |
+| [`lti.ts`](src/engine/lti.ts) | Transfer functions with MATLAB's semantics: `feedback` keeps cancelled poles, and `pid` builds only the terms that exist. `c2d` by zero-order hold and by impulse invariance, exact step responses, `filter`, `impz`. |
+| [`stepinfo.ts`](src/engine/stepinfo.ts) | MATLAB R2021a+ definitions, plus TransientTime (the pre-2021 SettlingTime). |
+| [`dsp.ts`](src/engine/dsp.ts) | FFT of any length (radix-2, or Bluestein otherwise), `fftshift` axes, DTFT, `freqz`, `conv`, circular convolution. |
+| [`matlabScript.ts`](src/engine/matlabScript.ts) | Reads the TP scripts themselves: the `%%` cells and the `@param` lines (value, unit, range or choices). `substitute` rewrites values; this is what makes the shown code follow the sliders. |
+| [`tp/`](src/engine/tp/) | One model per TP script. Each mirrors its script **cell by cell, with the script's variable names**. |
+
+**How it is proven: 120 tests, in three layers**
+1. **Engine vs Octave at the scripts' defaults** ([tests/reference/](tests/reference/)). Every cell of every script is compared with `reference/*.json` at 10⁻⁹. Each cell must compare a minimum number of variables, so a renamed variable cannot skip its check. A meta-test changes T by 0.1 % and checks that the comparison **fails**.
+2. **Engine vs closed forms** ([tests/engine/core.test.ts](tests/engine/core.test.ts)), independent of Octave so that a mistake shared by both cannot hide. It covers the FFT against the DFT definition for N = 8, 50, 64, 100, 101, ZOH and impulse discretization, the matrix exponential, the root finder, `stepinfo`, and the script parser.
+3. **"The code follows the sliders"** ([tests/sliders/](tests/sliders/)). Random slider positions are drawn within each `@param` range and written into copies of the scripts with the same `substitute` the site uses. GNU Octave runs them, and the engine must reproduce every result at those positions. CI runs 36 random positions on every push; I ran 60 locally.
+
+**What the random-slider test caught** (all fixed)
+- **A bug in the TP4 script.** For a setpoint below 1.6 m, the tank never overflows, but the script computed the overflow time with the log of a negative number. MATLAB and Octave silently return a **complex** time (45.4 − 157.1j s). The script now returns Inf in that case.
+- **An engine crash.** With the printed L = 0.011 mH, `stepinfo` simulates 400,001 points, and `Math.max(...array)` overflowed the call stack. It would have frozen the page.
+- **Two engine accuracy issues with the stiff motor** (poles −22.9 and −72,700 rad/s). The companion-form realization was ill-conditioned until it was balanced. A pole mapped to e^{−3155} = 0 left an exact z/z factor that Octave cancels.
+- **Two behaviours to match MATLAB.** `pid(kp, 0, 0)` is a plain gain, not 2s/s with a spurious pole at 0. The derivative filter Tf disappears when kd = 0.
 
 ---
 
@@ -132,7 +159,7 @@ One parameter store per TP feeds the engine. Every view (figure, formula, deriva
 | Phase | Content | Estimate |
 |---|---|---|
 | **1** ✅ | MATLAB scripts for the 4 Automatique TPs and Signal TP3–TP4 (Signal TP1–TP2 once its PDF arrives) + Octave shims + the CI job that generates `reference/*.json` + the Octave vs MATLAB notes | done |
-| **2** | Engine (control + signal + derivations), tests against the JSON, "code follows sliders" check in CI | 2.5 h |
+| **2** ✅ | Engine (control + signal), tests against the JSON, "code follows sliders" check in CI (the step-by-step derivations come with each page) | done |
 | **3** | **Automatique TP3 end to end** (figures, live code, predict first, derivations, Mode DS, report), then **stop for your review** | 3 h |
 | **4** | The other TPs on the same pattern (Automatique TP1, TP2, TP4; Signal TP1–TP4), the Simulink builder, C export, PWA, themes, errata page | 10 h |
 | **5** | Deploy to GitHub Pages, Lighthouse, check every page at phone and desktop width, originality check, final scorecard | 1.5 h |
@@ -153,6 +180,8 @@ Still open:
 |---|---|
 | [matlab/](matlab/) | The TP scripts (submitted), the Octave shims (`compat/`), the reference exporter (`refs/`), [OCTAVE_VS_MATLAB.md](matlab/OCTAVE_VS_MATLAB.md) |
 | [reference/](reference/) | Reference values generated by Octave from the scripts, per question. Never edited by hand. |
+| [src/engine/](src/engine/) | The computation engine (control, signal, script parser, one model per TP) |
+| [tests/](tests/) | Engine vs Octave references, vs closed forms, and at random slider positions (`npm test`) |
 | [COVERAGE.md](COVERAGE.md) | Every handout question, its source, type and status, plus the errata list |
 | [PLAN.md](PLAN.md) | Stack, architecture, requirements → design → targets, phases, cut order |
 | [CLAUDE.md](CLAUDE.md) | Conventions, commands and decisions, for continuing the work |

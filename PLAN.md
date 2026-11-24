@@ -113,7 +113,7 @@ Honest total: **≈ 20–22 hours** for everything above. If time runs short, cu
 | Phase | Content | Estimate |
 |---|---|---|
 | 1 ✅ | MATLAB scripts for AE TP1–TP4 and TS TP3–TP4 (TS TP1–TP2 once the Signal PDF arrives): one `%%` per question, French comments, `@param` tags; `compat/` shims; `export_refs.m`; the `octave-refs` GitHub Actions job writing `reference/*.json`; `OCTAVE_VS_MATLAB.md`; commit | 3 h |
-| 2 | Engine (control + DSP + derivations); Vitest against JSON; code-follows-sliders property test in CI; commit | 2.5 h |
+| 2 ✅ | Engine (control + DSP); Vitest against JSON; code-follows-sliders property test in CI; commit (derivation generators move to Phase 3, with the pages that show them) | done |
 | 3 | **AE TP3 end to end**: SVG figures and clickable blocks, params → code, predict first, derivations, Mode DS (AE generators), report; commit; **stop for review** | 3 h |
 | 4a | Remaining TPs on the Phase 3 pattern: AE TP1, TP2, TP4 and TS TP1–TP4 | 6.5 h |
 | 4b | Feature 6: Simulink builder, C export with compile checks | 2 h |

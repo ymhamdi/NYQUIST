@@ -18,19 +18,23 @@ clear; close all; clc;
 %   C(s)G(s) = 12.5 kp/(50 s)   et   F(s) = 1/(1 + (4/kp) s)
 % boucle fermée du premier ordre : pas de dépassement, erreur nulle, tau = 4/kp.
 G = tf(12.5, [50 1]);
-consigne = 2;                   % @param consigne [m] hauteur visée
+consigne = 2;                   % @param consigne [m] 0.5..20 hauteur visée
 H_max = 20;                     % hauteur du réservoir (m)
 H_bo_final = consigne*dcgain(G)                 % 25 m
-t_debordement = -50*log(1 - H_max/H_bo_final)   % instant où H atteint 20 m
+if H_bo_final > H_max
+    t_debordement = -50*log(1 - H_max/H_bo_final)   % instant où H atteint 20 m
+else
+    t_debordement = Inf         % consigne < 1.6 m : H(inf) < 20 m, pas de débordement
+end
 F0 = feedback(G, 1)                             % sans PID : C = 1
-kp = 1;                         % @param kp gain proportionnel
-ki = 0.02;                      % @param ki gain intégral (ki/kp = 1/50 : compensation du pôle)
-kd = 0;                         % @param kd gain dérivé
+kp = 1;                         % @param kp 0..10 gain proportionnel
+ki = 0.02;                      % @param ki 0..1 gain intégral (ki/kp = 1/50 : compensation du pôle)
+kd = 0;                         % @param kd 0..30 gain dérivé
 C = pid(kp, ki, kd)
 F = feedback(C*G, 1)
 % Le bloc PID Controller de Simulink filtre la dérivée : kd*s devient
 % kd*N*s/(s + N), N = 100 par défaut (errata E-AE14). Identique si kd = 0.
-N_filtre = 100;                 % @param N_filtre coefficient de filtre du bloc PID Controller
+N_filtre = 100;                 % @param N_filtre 1..1000 coefficient de filtre du bloc PID Controller
 F_simulink = feedback(pid(kp, ki, kd, 1/N_filtre)*G, 1);
 
 t = linspace(0, 150, 1501);
@@ -111,20 +115,20 @@ cahier_des_charges_respecte = S_avec.Overshoot <= 5 && abs(erreur_avec) < 1e-9
 % Tableau 4.1 : L = 0.011 mH, alors que le Tableau 2.1 (même moteur) donne
 % 0.011 H (errata E-AE7). On prend 0.011 H par défaut : L/R = 14 ms, réaliste.
 % U = 10 est la consigne de vitesse (10 rad/s), pas une tension (errata E-AE13).
-L = 0.011;                      % @param L [H] inductance (0.011e-3 pour la valeur imprimée)
+L = 0.011;                      % @param L [H] {0.011, 0.000011} inductance (0.011e-3 pour la valeur imprimée)
 R = 0.8; J = 0.2; f = 1e-2;     % ohm, kg.m^2, N.m.s/rad
 kem = 1.91; kc = 1.91;          % V.s/rad, N.m/A
-U = 10;                         % @param U [rad/s] consigne de vitesse
-Cr = 0;                         % @param Cr [N.m] couple résistant (non donné)
-t_cr = 0.5;                     % @param t_cr [s] instant d'application du couple résistant
+U = 10;                         % @param U [rad/s] 1..50 consigne de vitesse
+Cr = 0;                         % @param Cr [N.m] 0..20 couple résistant (non donné)
+t_cr = 0.5;                     % @param t_cr [s] 0..1/0.0005 instant d'application du couple résistant
 Gm = feedback(kc*tf(1, [L R])*tf(1, [J f]), kem)   % Omega/V
 Gcr = -feedback(tf(1, [J f]), kc*kem*tf(1, [L R]));  % Omega/Cr (boucle ouverte)
 poles_moteur = pole(Gm)
 omega_bo_final = U*dcgain(Gm)                      % tension 10 V appliquée directement
 Fm0 = feedback(Gm, 1)                              % sans PID : C = 1
-kp_m = 2;                       % @param kp_m gain proportionnel
-ki_m = 60;                      % @param ki_m gain intégral
-kd_m = 0.02;                    % @param kd_m gain dérivé
+kp_m = 2;                       % @param kp_m 0..10 gain proportionnel
+ki_m = 60;                      % @param ki_m 0..200 gain intégral
+kd_m = 0.02;                    % @param kd_m 0..0.2 gain dérivé
 Cm = pid(kp_m, ki_m, kd_m)
 Fm = feedback(Cm*Gm, 1)
 Fm_cr = Gcr*feedback(tf(1, 1), Cm*Gm);             % effet de Cr en boucle fermée : Gcr/(1 + C Gm)
