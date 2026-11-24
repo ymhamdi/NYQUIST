@@ -1,0 +1,20 @@
+---
+import DsAuto from '../../components/DsAuto.svelte'
+import Base from '../../layouts/Base.astro'
+---
+
+<Base
+  title="Mode DS — Automatique"
+  description="Sujets d'entraînement générés (boucle échantillonnée, période d'échantillonnage, discrétisation), corrigés automatiquement avec la correction détaillée."
+  section="ds"
+>
+  <div class="wrap">
+    <h1>Mode DS — Automatique échantillonnée</h1>
+    <p>
+      Des sujets dans l'esprit des TP2 et TP3, avec des valeurs tirées au hasard. Répondez, puis faites corriger : chaque réponse est comparée au calcul du
+      moteur, avec une tolérance sur les arrondis, et la correction détaille le calcul à la main. Le numéro du sujet est dans l'adresse de la page : vous
+      pouvez le partager.
+    </p>
+    <DsAuto client:load />
+  </div>
+</Base>

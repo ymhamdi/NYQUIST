@@ -1,0 +1,17 @@
+---
+import Report from '../../../components/ae-tp3/Report.svelte'
+import { TP } from '../../../content/aeTp3'
+import Base from '../../../layouts/Base.astro'
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
+---
+
+<Base
+  title={`Compte rendu — TP${TP.number}`}
+  description="Compte rendu imprimable du TP3 d'automatique échantillonnée : questions, calculs, figures et script MATLAB avec les valeurs choisies."
+  section="rapport"
+>
+  <div class="wrap">
+    <Report client:load errataBase={`${base}errata/`} tpHref={`${base}automatique/tp3/`} />
+  </div>
+</Base>

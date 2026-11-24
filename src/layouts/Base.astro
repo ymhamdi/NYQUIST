@@ -1,0 +1,160 @@
+---
+import '../styles/global.css'
+
+interface Props {
+  title: string
+  description: string
+  /** current section, for the navigation */
+  section?: 'home' | 'automatique' | 'signal' | 'ds' | 'errata' | 'rapport'
+}
+const { title, description, section } = Astro.props
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
+const nav = [
+  { id: 'home', href: base, label: 'Accueil' },
+  { id: 'automatique', href: `${base}automatique/tp3/`, label: 'Automatique' },
+  { id: 'ds', href: `${base}ds/automatique/`, label: 'Mode DS' },
+  { id: 'errata', href: `${base}errata/`, label: 'Errata' },
+]
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} — Nyquist</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0b5e6b" />
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <script is:inline>
+      // theme before first paint (no flash): stored choice, else the system's
+      try {
+        const t = localStorage.getItem('nyq-theme')
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#contenu">Aller au contenu</a>
+    <header class="site no-print">
+      <div class="wrap bar">
+        <a class="brand" href={base} aria-label="Nyquist, accueil">
+          <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
+            <path d="M3 16 Q9 3 16 16 T29 16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path>
+            <circle cx="9.5" cy="9.6" r="2.4" fill="currentColor"></circle>
+            <circle cx="22.5" cy="22.4" r="2.4" fill="currentColor"></circle>
+          </svg>
+          <span>Nyquist</span>
+        </a>
+        <nav aria-label="Navigation principale">
+          <ul>
+            {
+              nav.map((n) => (
+                <li>
+                  <a href={n.href} aria-current={n.id === section ? 'page' : undefined}>
+                    {n.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+        <button class="theme" type="button" id="theme-toggle" aria-label="Changer de thème (clair / sombre)">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+    <main id="contenu" tabindex="-1">
+      <slot />
+    </main>
+    <footer class="site no-print">
+      <div class="wrap">
+        <p>
+          <strong>Nyquist</strong> · Youssef El Mhamdi · IIA 3/1 · INSAT. Chaque valeur affichée est calculée par le moteur de
+          calcul, lui-même vérifié contre GNU Octave à partir des scripts MATLAB du TP.
+        </p>
+      </div>
+    </footer>
+    <script is:inline>
+      document.getElementById('theme-toggle')?.addEventListener('click', () => {
+        const root = document.documentElement
+        const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
+        const next = dark ? 'light' : 'dark'
+        root.dataset.theme = next
+        try {
+          localStorage.setItem('nyq-theme', next)
+        } catch {}
+      })
+    </script>
+  </body>
+</html>
+
+<style>
+  header.site {
+    background: var(--surface);
+    border-bottom: 1px solid var(--rule);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 3.5rem;
+    flex-wrap: wrap;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--accent);
+    font: 700 1.2rem/1 var(--font-head);
+    text-decoration: none;
+    min-height: 2.75rem;
+  }
+  nav {
+    flex: 1;
+  }
+  nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.9rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  nav a[aria-current='page'] {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+  .theme {
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  main {
+    outline: none;
+  }
+  footer.site {
+    margin-top: 4rem;
+    border-top: 1px solid var(--rule);
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+    padding: 1rem 0 2rem;
+  }
+</style>

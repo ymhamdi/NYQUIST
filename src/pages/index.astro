@@ -1,0 +1,98 @@
+---
+import Base from '../layouts/Base.astro'
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
+const auto = [
+  { n: 1, title: 'Initialisation à Matlab Simulink', status: 'script MATLAB vérifié' },
+  { n: 2, title: "Discrétisation d'un signal à temps continu", status: 'script MATLAB vérifié' },
+  { n: 3, title: "Stabilité et précision d'un système échantillonné asservi", status: 'page interactive', href: `${base}automatique/tp3/` },
+  { n: 4, title: 'Asservissement des systèmes continus', status: 'script MATLAB vérifié' },
+]
+const signal = [
+  { n: 1, title: 'Signaux discrets', status: 'énoncé manquant' },
+  { n: 2, title: 'Convolution des signaux numériques', status: 'énoncé manquant' },
+  { n: 3, title: 'Transformée de Fourier Discrète', status: 'script MATLAB vérifié (énoncé non vérifié)' },
+  { n: 4, title: 'Analyse des filtres numériques', status: 'script MATLAB vérifié (énoncé non vérifié)' },
+]
+---
+
+<Base title="Accueil" description="Travaux pratiques MATLAB d'automatique échantillonnée et de traitement du signal (INSAT, IIA 3), interactifs et vérifiés." section="home">
+  <div class="wrap">
+    <h1>Nyquist</h1>
+    <p class="lead">
+      Les TP MATLAB de traitement du signal et d'automatique linéaire échantillonnée, question par question : prédiction, calcul à la main, figures et code
+      MATLAB qui suivent les curseurs, compte rendu imprimable.
+    </p>
+    <div class="courses">
+      <section class="card" aria-labelledby="c-auto">
+        <h2 id="c-auto">Automatique linéaire échantillonnée</h2>
+        <ul>
+          {
+            auto.map((t) => (
+              <li>
+                {t.href ? <a href={t.href}>TP{t.n} : {t.title}</a> : <span>TP{t.n} : {t.title}</span>}
+                <span class="tag">{t.status}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+      <section class="card" aria-labelledby="c-sig">
+        <h2 id="c-sig">Traitement du signal</h2>
+        <ul>
+          {
+            signal.map((t) => (
+              <li>
+                <span>TP{t.n} : {t.title}</span>
+                <span class="tag">{t.status}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+    <p class="muted">
+      Chaque valeur affichée est calculée par le moteur du site. Ce moteur est testé contre GNU Octave, qui exécute les scripts MATLAB du TP à chaque
+      modification, y compris pour des positions de curseurs tirées au hasard. Les incohérences du fascicule sont listées dans l'<a href={`${base}errata/`}
+        >errata</a
+      >.
+    </p>
+  </div>
+</Base>
+
+<style>
+  .lead {
+    font-size: 1.1rem;
+  }
+  .courses {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .courses h2 {
+    margin-top: 0;
+    border: 0;
+    padding: 0;
+    font-size: 1.3rem;
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.6rem;
+    align-items: center;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  li a,
+  li span:first-child {
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+  }
+</style>

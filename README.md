@@ -7,7 +7,7 @@ Youssef El Mhamdi, IIA 3/1, INSAT. MIT License.
 
 [![Octave references](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/octave-refs.yml/badge.svg)](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/octave-refs.yml)
 
-> **Status: Phase 2 done: the engine.** A dependency-free TypeScript engine reproduces every value of the six MATLAB scripts, as checked against GNU Octave in CI, including at random slider positions. Next: Phase 3, the Automatique TP3 page end to end, then a stop for your review.
+> **Status: Phase 3 in progress** (Automatique TP3 page, report, Mode DS, errata: built, being verified). Phases 0–2 are done and green in CI. See CLAUDE.md, section Status, for where work resumes.
 
 **Contents:** [Phase 2: the engine](#phase-2-the-engine) · [Phase 1: the MATLAB scripts](#phase-1-the-matlab-scripts) · [Phase 0: what was done](#phase-0-what-was-done) · [The plan](#the-plan-what-comes-next) · [What I need from you](#what-i-need-from-you) · [Repository layout](#repository-layout)
 

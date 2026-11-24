@@ -1,0 +1,103 @@
+---
+import { ERRATA_AE, ERRATA_TS, type Erratum } from '../content/errata'
+import Base from '../layouts/Base.astro'
+
+const groups: { title: string; note: string; items: Erratum[] }[] = [
+  {
+    title: 'Automatique linéaire échantillonnée',
+    note: 'Vérifié sur le fascicule (année universitaire 2024-2025, 18 pages).',
+    items: ERRATA_AE,
+  },
+  {
+    title: 'Traitement du signal',
+    note: "Établi à partir d'une transcription : le fascicule original n'a pas pu être consulté.",
+    items: ERRATA_TS,
+  },
+]
+---
+
+<Base
+  title="Errata du fascicule"
+  description="Incohérences et valeurs manquantes des fascicules de TP (automatique échantillonnée, traitement du signal), avec le choix fait et sa justification."
+  section="errata"
+>
+  <div class="wrap">
+    <h1>Errata du fascicule</h1>
+    <p>
+      Les fascicules omettent certaines valeurs et contiennent quelques incohérences. Pour chacune : ce que dit le texte, pourquoi cela pose problème, et
+      le choix fait ici. Chaque choix reste modifiable par un curseur ou un bouton sur la page du TP. Les fautes de frappe des énoncés (« Malab »,
+      « Sumilink », « Qu'elle », « affin »…) sont citées telles quelles.
+    </p>
+    {
+      groups.map((g) => (
+        <section>
+          <h2>{g.title}</h2>
+          <p class="muted">{g.note}</p>
+          <ol class="list">
+            {g.items.map((e) => (
+              <li id={e.id} class="card">
+                <h3>
+                  <span class="id">{e.id}</span> {e.where}
+                </h3>
+                <dl>
+                  <dt>Le fascicule</dt>
+                  <dd>{e.says}</dd>
+                  <dt>Problème</dt>
+                  <dd>{e.issue}</dd>
+                  <dt>Choix</dt>
+                  <dd>{e.choice}</dd>
+                </dl>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))
+    }
+  </div>
+</Base>
+
+<style>
+  .list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.8rem;
+  }
+  .list li {
+    max-width: none;
+    scroll-margin-top: 1rem;
+  }
+  .list li:target {
+    outline: 3px solid var(--accent);
+  }
+  h3 {
+    margin: 0 0 0.4rem;
+    font-size: 1.05rem;
+  }
+  .id {
+    font: 700 0.85rem var(--font-mono);
+    color: var(--accent);
+    margin-right: 0.3rem;
+  }
+  dl {
+    display: grid;
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: 0.3rem 1rem;
+    margin: 0;
+  }
+  dt {
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  dd {
+    margin: 0;
+  }
+  @media (max-width: 34rem) {
+    dl {
+      grid-template-columns: 1fr;
+    }
+    dd {
+      margin-bottom: 0.4rem;
+    }
+  }
+</style>

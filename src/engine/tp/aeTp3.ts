@@ -130,7 +130,8 @@ export function aeTp3(p: AeTp3Params) {
       Kmax_T,
       reponses_essais,
     },
-    'III.1': { T_r, K_r, b, G0r_main, G_bf_r_main },
+    // k_reservoir, tau_reservoir: engine only (the handout's 12.5/(50s + 1), for the page's text)
+    'III.1': { T_r, K_r, b, G0r_main, G_bf_r_main, k_reservoir: 12.5, tau_reservoir: 50 },
     'III.2': { G1r, G0r, G_bf_r, ecart_r: ecart(G_bf_r, G_bf_r_main) },
     'III.3': { consigne, T_liste, Kmax_liste, stable_liste, T_limite, duree_r, hauteurs },
     'III.4': {
@@ -141,6 +142,9 @@ export function aeTp3(p: AeTp3Params) {
       T_max_tolerance: -50 * Math.log((12.5 * K_min - 1) / (12.5 * K_min + 1)),
       erreur_min_atteignable: 1 / (1 + 12.5 * Kmax_r),
       H_final_Kmin: (consigne * 12.5 * K_min) / (1 + 12.5 * K_min),
+      // engine only (figure): limit gain of the tank loop against T
+      T_grille_r: linspace(0.5, 60, 240),
+      Kmax_r_T: linspace(0.5, 60, 240).map(kmaxTank),
     },
     'III.5': {
       poles_r: poles(G_bf_r),
