@@ -8,3 +8,5 @@ test-results/
 .lighthouseci/
 CLAUDE.local.md
 handouts/*.pdf
+build/
+regenerated/

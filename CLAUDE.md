@@ -1,15 +1,21 @@
 # CLAUDE.md — Nyquist
 
 Interactive MATLAB lab companion for INSAT IIA 3: *Traitement du signal* (TP1–TP4) and *Automatique linéaire échantillonnée* (every TP of the fascicule).
-Author: Youssef El Mhamdi [+ teammates], IIA 3/[GROUP], INSAT. (Group and teammates still to be confirmed.)
+Credits: **Nyquist**, Youssef El Mhamdi, IIA 3/1, INSAT (no teammates). Confirmed 2026-11-24.
 Repository: https://github.com/ymhamdi/NYQUIST-lab
 
 ## Status
-- **Phase 0 done**: `COVERAGE.md` (inventory of every question + errata) and `PLAN.md` (stack, architecture, phases). Next: Phase 1 after the user's OK.
+- **Phase 0 done**: `COVERAGE.md` (inventory of every question + errata) and `PLAN.md` (stack, architecture, phases).
+- **Phase 1 done**: `matlab/automatique/tp1..tp4`, `matlab/signal/tp3, tp4`; `matlab/compat/` (stepinfo R2021a+, order); `matlab/refs/` harness → `reference/*.json`; CI `.github/workflows/octave-refs.yml` + `tools/compare-refs.mjs`; `matlab/OCTAVE_VS_MATLAB.md`. Next: Phase 2 (web engine + Vitest against `reference/*.json`).
 - Handouts live in `./handouts/` and are **git-ignored** (the professor's documents; never commit them).
   - Automatique fascicule: **received** (`handouts/Fascicule_TP_Automatique_Echantillonnee.pdf`, 18 pages, 2024-2025 edition). All 4 TPs (33 questions) checked word for word on 2026-11-24. There is no TP5.
-  - Traitement du signal handout: **not yet received**. When it arrives, write TS TP1/TP2 statements and re-check TS TP3/TP4 word for word.
-- Open decision: E-AE7 (motor L: 0.011 H from Tableau 2.1 vs printed 0.011 mH in Tableau 4.1).
+  - Traitement du signal handout: **the user does not have it**. TS TP1/TP2 stay "needs handout" (no scripts, no guessing). TS TP3/TP4 are built from the second-hand transcription and flagged "énoncé non vérifié". If the PDF ever arrives, write TS TP1/TP2 and re-check TS TP3/TP4.
+
+## User decisions (2026-11-24)
+- Deadline: a few days, so follow the full plan phase by phase; stop after Phase 3 for review.
+- Motor inductance (E-AE7): default **L = 0.011 H** (Tableau 2.1), with a toggle to the printed 0.011 mH.
+- Deployment: make the repo **public at deploy time** (Phase 5), and **ask the user once more** right before switching visibility.
+- Sampling-period defaults (the handout gives none): T = τ_dominant/10, rounded down to the 1–2–2.5–5 series.
 
 ## Rules
 - **Never invent handout content.** A missing value gets "needs handout" or a documented default exposed as a slider, plus an entry on the Errata page.
@@ -34,8 +40,18 @@ Astro 5 (static) · Svelte 5 islands · own SVG plotting module · Temml → Mat
 ## MATLAB `stepinfo` definition used (R2021a+)
 SettlingTime: first T such that |y − y_final| ≤ 2 % · |y_final − y_init| for all t ≥ T (y_init = 0 for a model). RiseTime: 10 → 90 % of y_final − y_init. Overshoot: 100·(y_max − y_final)/(y_final − y_init). R2020b and earlier measured the band against the peak error: show both and name the version.
 
-## Commands (to be filled in during Phase 1–2)
-- Octave refs: `MSYS_NO_PATHCONV=1 docker run --rm -v "<repo>:/w" nyq-octave octave-cli --eval "cd /w/matlab/refs; export_refs"`
+## MATLAB script conventions
+- One `%%` cell per handout question; the first word after `%%` is the handout number (`II.3`, `Q7`), used as the key in `reference/*.json`.
+- Tunable values on their own line: `T = 0.1;   % @param T [s] description`. The site rewrites these right-hand sides (code follows sliders).
+- No `lsim` on a continuous system with a discontinuous input (Octave interpolates linearly): use a shifted `step`, or `c2d` on a finer grid.
+- Compare hand vs toolbox results through poles and `dcgain`, never through `tfdata` coefficient vectors.
+- Avoid MATLAB-only functions (xline, yline, sgtitle, tiledlayout, table, string, contains). Local functions go at the end (the harness extracts them for Octave).
+- Never `clear all` (it would wipe the harness state); `clear; close all; clc;` is fine.
+
+## Commands
+- Octave refs: `MSYS_NO_PATHCONV=1 docker run --rm -v "C:/Users/.../Nyquist:/w" -w /w nyq-octave octave-cli --eval "addpath('matlab/refs'); export_refs"` (about 15 s; figures in `build/figures/` as SVG)
+- Staleness check (what CI does): `export_refs('regenerated')`, then `node tools/compare-refs.mjs reference regenerated`
+- Octave in Bash: put test code in a `.m` file. Quoting `.'` inside `bash -c '...'` breaks.
 - Web: `npm ci`, `npm run dev`, `npm test`, `npm run build`, `npm run e2e`, `npm run lh`
 - Lighthouse batch: `tools/lh.sh <base-url> <outdir> mobile|desktop <routes…>`; phone/offline probe: `node tools/probe.cjs <base> <shotdir> <routes…>`
 

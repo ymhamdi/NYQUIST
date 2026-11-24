@@ -1,0 +1,38 @@
+# Runs every TP script in GNU Octave, cell by cell, and checks that the
+# committed reference values (reference/*.json) are exactly what the scripts
+# produce. The web engine's tests compare against these files, so no
+# reference value is ever typed by hand.
+name: Octave references
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  references:
+    name: TP scripts in GNU Octave
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install GNU Octave with the control and signal packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            octave octave-control octave-signal gnuplot-nox fonts-freefont-otf
+
+      - name: Run every TP script and export the reference values
+        run: octave-cli --no-gui --eval "addpath('matlab/refs'); export_refs('regenerated')"
+
+      - name: Committed references must match the scripts
+        run: node tools/compare-refs.mjs reference regenerated
+
+      - name: Keep the regenerated values and the figures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: octave-references-and-figures
+          path: |
+            regenerated/
+            build/figures/

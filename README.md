@@ -3,11 +3,44 @@
 Interactive companion for the INSAT IIA 3 MATLAB labs:
 **Traitement du signal** (TP1–TP4) and **Automatique linéaire échantillonnée** (every TP of the fascicule).
 
-Youssef El Mhamdi [+ teammates], IIA 3/[GROUP], INSAT. MIT License.
+Youssef El Mhamdi, IIA 3/1, INSAT. MIT License.
 
-> **Status: Phase 0 done (inventory, environment, plan).** The **Automatique fascicule has been read and every statement checked** against the PDF (4 TPs, 33 questions). Waiting for the *Traitement du signal* handout and your OK on the plan before Phase 1.
+[![Octave references](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/octave-refs.yml/badge.svg)](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/octave-refs.yml)
 
-**Contents:** [Phase 0: what was done](#phase-0-what-was-done) · [The plan](#the-plan-what-comes-next) · [What I need from you](#what-i-need-from-you) · [Repository layout](#repository-layout)
+> **Status: Phase 1 done: the MATLAB scripts.** Six scripts (Automatique TP1–TP4, Signal TP3–TP4) with one `%%` cell per handout question. GNU Octave runs them in CI and generates every reference value. Next: Phase 2, the web engine tested against those values.
+
+**Contents:** [Phase 1: the MATLAB scripts](#phase-1-the-matlab-scripts) · [Phase 0: what was done](#phase-0-what-was-done) · [The plan](#the-plan-what-comes-next) · [What I need from you](#what-i-need-from-you) · [Repository layout](#repository-layout)
+
+---
+
+## Phase 1: the MATLAB scripts
+
+These are the files to submit. Open one in MATLAB and run it cell by cell (Ctrl+Enter), or all at once (F5).
+
+| Script | Cells (handout numbering) |
+|---|---|
+| [automatique/tp1_simulink_premier_ordre.m](matlab/automatique/tp1_simulink_premier_ordre.m) | III.1, III.2 |
+| [automatique/tp2_discretisation.m](matlab/automatique/tp2_discretisation.m) | II.1–II.2, III.1–III.6, IV.1–IV.4 |
+| [automatique/tp3_stabilite_precision.m](matlab/automatique/tp3_stabilite_precision.m) | II.3–II.7, III.1–III.6 |
+| [automatique/tp4_regulation_pid.m](matlab/automatique/tp4_regulation_pid.m) | III.1–III.4, IV.5–IV.8 |
+| [signal/tp3_tfd.m](matlab/signal/tp3_tfd.m) *(statement not verified)* | Q1–Q12 |
+| [signal/tp4_filtres_numeriques.m](matlab/signal/tp4_filtres_numeriques.m) *(statement not verified)* | I.1–I.5, invfreqz (outside the handout), II.1–II.3 |
+
+**How each script is written**
+- French comments that give the reasoning and the hand calculation (for example G(z) = (1 − a)/(z − a) with a = e^{−T}). MATLAB's result is checked against the hand result in the same cell.
+- Every value the handout leaves open is on a line tagged `% @param` and explained: T = τ/10, K = 1, the 2 % tolerance, Cr = 0, L = 0.011 H… These are the lines the website's sliders will rewrite (Phase 3).
+- Defaults are computed, not guessed. The "réponse désirée" of TP4 is a stated spec (overshoot ≤ 5 %, zero static error), and both default tunings meet it. Tank: PI kp = 1, ki = 0.02, which cancels the plant pole (0 % overshoot, Ts = 15.6 s). Motor: PID kp = 2, ki = 60, kd = 0.02 (1.8 % overshoot, Ts = 0.086 s).
+
+**How correctness is proven**
+- [`matlab/refs/export_refs.m`](matlab/refs/export_refs.m) runs every script in GNU Octave **cell by cell**. For each question it records every variable the cell creates and writes it to [`reference/*.json`](reference/). This takes about 15 s for all six scripts.
+- The [CI job](.github/workflows/octave-refs.yml) re-runs the scripts on every push and [compares](tools/compare-refs.mjs) the result with the committed JSON (relative tolerance 1e-9). A script changed without regenerating its references turns CI red. The comparator was tested both ways: it passes on a fresh run and catches a 10⁻⁶ change.
+- 38 key results were checked against closed forms computed independently, for example Kmax(0.1 s) = (1 + e^{−0.1})/(1 − e^{−0.1}) = 20.0167, the tank's settling time τ·ln 50, and the DFT line 150 = N·A/2. All 38 match.
+- Every Octave/MATLAB difference found is documented in [matlab/OCTAVE_VS_MATLAB.md](matlab/OCTAVE_VS_MATLAB.md). Octave lacks `stepinfo` and `order`, so `matlab/compat/` has shims that MATLAB never sees. Octave's `lsim` interpolates steps linearly, so the scripts avoid relying on it. One point needs **one line run in MATLAB**: the `'impulse'` method of `c2d`.
+
+**What running them found** (now in the scripts' comments and the errata)
+- With the default T = 5 s, the tank **cannot** reach 2 m within 2 % with a P controller. It needs K ≥ 3.92 but Kmax(5 s) = 1.60, so T must be below 2.04 s. The script computes this.
+- In Signal TP3, zero-padding moves the peak toward the continuous spectrum's peak (107.9 Hz), **not** toward 105 Hz. With 50 samples, the DC component's lobe biases it.
+- Signal TP3 Q8 compares signals of amplitudes 1 and 3 (new errata E-TS10).
 
 ---
 
@@ -30,7 +63,7 @@ Each known question is listed with its handout number, its exact statement (typo
 
 The Automatique fascicule has **exactly 4 TPs and 33 questions**, 18 of them involving Simulink.
 
-### 2. Errata du fascicule: 34 issues found → [COVERAGE.md, last section](COVERAGE.md#missing-values-and-inconsistencies-feed-the-errata-du-fascicule-page)
+### 2. Errata du fascicule: 37 issues found → [COVERAGE.md, last section](COVERAGE.md#missing-values-and-inconsistencies-feed-the-errata-du-fascicule-page)
 
 These will become a visible *Errata* page in the app. For each issue it gives what the handout says, why it is a problem, the choice made and why. The choice is always exposed as a slider or toggle. The most important ones:
 
@@ -43,7 +76,7 @@ These will become a visible *Errata* page in the app. For each issue it gives wh
 - **Units**: f is printed "N.m" (should be N·m·s/rad); the motor setpoint is "10 V" in the table but "10 rad/s" in the text; the tank setpoint is labelled Qe (an inflow) while it is compared with a height.
 - **The PID in Simulink ≠ `pid()` in MATLAB**: the Simulink `PID Controller` block filters the derivative (N = 100 by default), so the curves differ as soon as kd ≠ 0. → both modelled and compared.
 - **`stepinfo` changed definition in MATLAB R2021a** (settling band measured against |y_final − y_init| instead of the peak error). → both implemented; the version is named on screen.
-- **The IIR filter of Signal TP4 is unstable as printed** (denominator 0.516z² − 1.2z + 1: |poles| = 1.392). The stable version z² − 1.2z + 0.516 has |poles| = 0.718 and a DC gain of exactly 1. → use the stable one and show the printed one as an errata toggle.
+- **The IIR filter of Signal TP4 is unstable as printed** (denominator 0.516z² − 1.2z + 1: |poles| = 1.392, in z or in z⁻¹). It is z² − 1.2z + 0.516 with its coefficients reversed; reversing them inverts the poles (|p| = 0.718). → use the stable one and show the printed one as an errata toggle.
 - **The program given in Signal TP4** uses `freqz(Num, Den, 1/Te)`, where 100 is read as a *number of points*, not a frequency. A numerator written in powers of z must be left-padded for `impz`/`freqz`.
 - Ambiguities to settle with the PDF: sine or cosine in Signal TP1 1.2 (at fe = 2f₀ a sine gives only zeros, a cosine gives ±1); the meaning of "fréquence de Nyquist" (fe/2 or 2·fmax); N = 100 or 101 samples in Signal TP3 Q1.
 
@@ -98,7 +131,7 @@ One parameter store per TP feeds the engine. Every view (figure, formula, deriva
 ### Phases
 | Phase | Content | Estimate |
 |---|---|---|
-| **1** | MATLAB scripts for the 4 Automatique TPs and Signal TP3–TP4 (Signal TP1–TP2 once its PDF arrives) + Octave shims + the CI job that generates `reference/*.json` + the Octave vs MATLAB notes | 3 h |
+| **1** ✅ | MATLAB scripts for the 4 Automatique TPs and Signal TP3–TP4 (Signal TP1–TP2 once its PDF arrives) + Octave shims + the CI job that generates `reference/*.json` + the Octave vs MATLAB notes | done |
 | **2** | Engine (control + signal + derivations), tests against the JSON, "code follows sliders" check in CI | 2.5 h |
 | **3** | **Automatique TP3 end to end** (figures, live code, predict first, derivations, Mode DS, report), then **stop for your review** | 3 h |
 | **4** | The other TPs on the same pattern (Automatique TP1, TP2, TP4; Signal TP1–TP4), the Simulink builder, C export, PWA, themes, errata page | 10 h |
@@ -109,26 +142,28 @@ Honest total: **≈ 20–22 h**. If time runs short, cuts come from the bottom o
 ---
 
 ## What I need from you
-1. **The *Traitement du signal* handout PDF** in [handouts/](handouts/). It is needed for the Signal TP1/TP2 statements and to re-check the TP3/TP4 quotes. (The Automatique fascicule is received and checked. PDFs in `handouts/` stay local: they are git-ignored, as they are the professor's documents.)
-2. **Your decision on the motor inductance** (E-AE7): default 0.011 H (Tableau 2.1) with a toggle to the printed 0.011 mH?
-3. Your **group** (IIA 3/?) and **teammates** for the credits.
-4. Your **OK on the plan** to start Phase 1.
-5. Before Phase 1's CI can be pushed: run `gh auth refresh -s workflow` once (the current login cannot push GitHub Actions files).
-6. For deployment: GitHub Pages on a private repo needs GitHub Pro (free with the Student Developer Pack); otherwise the repo must be public.
+Decisions already taken (2026-11-24): deadline in a few days (full plan); motor default **L = 0.011 H** with a toggle to the printed 0.011 mH; credits **Nyquist, Youssef El Mhamdi, IIA 3/1**; the repo goes public only at deployment, after one more confirmation. Phase 1 has started.
+
+Still open:
+1. **The *Traitement du signal* handout PDF.** You don't have it, so Signal TP1/TP2 stay "needs handout" and TP3/TP4 are built from an unverified transcription. If you ever get it, put it in [handouts/](handouts/). PDFs there stay local: they are git-ignored, as they are the professor's documents.
+2. **One line to run in MATLAB at school**, to settle an Octave/MATLAB difference (TP2 III.6, the `'impulse'` method): see [matlab/OCTAVE_VS_MATLAB.md](matlab/OCTAVE_VS_MATLAB.md).
 
 ## Repository layout
 | Path | Content |
 |---|---|
+| [matlab/](matlab/) | The TP scripts (submitted), the Octave shims (`compat/`), the reference exporter (`refs/`), [OCTAVE_VS_MATLAB.md](matlab/OCTAVE_VS_MATLAB.md) |
+| [reference/](reference/) | Reference values generated by Octave from the scripts, per question. Never edited by hand. |
 | [COVERAGE.md](COVERAGE.md) | Every handout question, its source, type and status, plus the errata list |
 | [PLAN.md](PLAN.md) | Stack, architecture, requirements → design → targets, phases, cut order |
 | [CLAUDE.md](CLAUDE.md) | Conventions, commands and decisions, for continuing the work |
 | [docker/octave.Dockerfile](docker/octave.Dockerfile) | Local copy of the CI Octave environment |
-| [tools/](tools/) | Lighthouse batch runner, phone/offline probe |
+| [tools/](tools/) | Reference comparator (CI), Lighthouse batch runner, phone/offline probe |
 | [handouts/](handouts/) | Where the handout PDFs go (kept local, git-ignored) |
 
-### Run Octave locally
+### Run the scripts in Octave and regenerate the references
 ```bash
 docker build -t nyq-octave -f docker/octave.Dockerfile docker/
-docker run --rm -v "$PWD:/w" nyq-octave octave-cli --eval "pkg load control signal; ver"
+docker run --rm -v "$PWD:/w" -w /w nyq-octave octave-cli --eval "addpath('matlab/refs'); export_refs"
+node tools/compare-refs.mjs reference regenerated   # what CI does, after export_refs('regenerated')
 ```
-(On Windows Git Bash, prefix with `MSYS_NO_PATHCONV=1` and use a `C:/...` path for `-v`.)
+(On Windows Git Bash, prefix with `MSYS_NO_PATHCONV=1` and use a `C:/...` path for `-v`.) To use the scripts in your own Octave, run `matlab/octave_setup.m` once.

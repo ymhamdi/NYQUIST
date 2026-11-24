@@ -112,7 +112,7 @@ Honest total: **≈ 20–22 hours** for everything above. If time runs short, cu
 
 | Phase | Content | Estimate |
 |---|---|---|
-| 1 | MATLAB scripts for AE TP1–TP4 and TS TP3–TP4 (TS TP1–TP2 once the Signal PDF arrives): one `%%` per question, French comments, `@param` tags; `compat/` shims; `export_refs.m`; the `octave-refs` GitHub Actions job writing `reference/*.json`; `OCTAVE_VS_MATLAB.md`; commit | 3 h |
+| 1 ✅ | MATLAB scripts for AE TP1–TP4 and TS TP3–TP4 (TS TP1–TP2 once the Signal PDF arrives): one `%%` per question, French comments, `@param` tags; `compat/` shims; `export_refs.m`; the `octave-refs` GitHub Actions job writing `reference/*.json`; `OCTAVE_VS_MATLAB.md`; commit | 3 h |
 | 2 | Engine (control + DSP + derivations); Vitest against JSON; code-follows-sliders property test in CI; commit | 2.5 h |
 | 3 | **AE TP3 end to end**: SVG figures and clickable blocks, params → code, predict first, derivations, Mode DS (AE generators), report; commit; **stop for review** | 3 h |
 | 4a | Remaining TPs on the Phase 3 pattern: AE TP1, TP2, TP4 and TS TP1–TP4 | 6.5 h |
@@ -123,7 +123,6 @@ Honest total: **≈ 20–22 hours** for everything above. If time runs short, cu
 **Cut order if time runs short** (first cut first): Pyodide Run → README GIF (keep screenshots) → STM32 variant (keep Arduino) → Mode DS breadth (fewer generator types, still at least 3 per course) → "pick the curve" predict type (keep numeric/choice) → report extras (keep cover + Q&A + figures + annex). Never cut: verbatim coverage, Octave-generated references, numbers from the engine.
 
 ## 5. Open items
-1. The *Traitement du signal* handout PDF in `./handouts/` (TS TP1/TP2 statements, TS TP3/TP4 re-check). The Automatique fascicule is received and checked.
-2. Decision on the motor inductance default (E-AE7).
-3. Group (IIA 3/?) and teammates for the credits.
-4. GitHub Pages: enable on the repo (Settings → Pages → GitHub Actions).
+1. The *Traitement du signal* handout PDF: **the user does not have it**. TS TP1/TP2 stay "needs handout"; TS TP3/TP4 are built from the second-hand transcription, flagged "énoncé non vérifié".
+2. Decided: motor L = 0.011 H by default (E-AE7); credits Nyquist, Youssef El Mhamdi, IIA 3/1; the repo goes public at deployment, after one more confirmation.
+3. GitHub Pages: enable on the repo (Settings → Pages → GitHub Actions) at Phase 5.

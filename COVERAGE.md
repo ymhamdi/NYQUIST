@@ -3,7 +3,7 @@
 | Course | Source status |
 |---|---|
 | **Automatique linéaire échantillonnée** | ✅ **Checked against the PDF** (`handouts/Fascicule_TP_Automatique_Echantillonnee.pdf`, 18 pages, "Année Universitaire 2024-2025"), on 2026-11-24. **Complete: 4 TPs.** |
-| **Traitement du signal** | ⏳ **PDF not received yet.** TP3–TP4 are second-hand transcriptions; TP1–TP2 have no statements. |
+| **Traitement du signal** | ⏳ **The user does not have the PDF.** TP3–TP4 are second-hand transcriptions, flagged "énoncé non vérifié" in the app; TP1–TP2 have no statements and stay "needs handout". |
 
 ## Sources
 
@@ -228,7 +228,7 @@ Each entry will get, in the app: what the handout says, why it is a problem, the
 | E-AE4 | Fig 3.1 / 3.2 | The digital controller is drawn as **C(s)** between two samplers. | Explain it is C(z) = K; with a pure gain both samplers are equivalent to one. |
 | E-AE5 | Fig 3.2 / 4.2 | The setpoint is labelled **Qe(S)** (an inflow, m³/s) but compared with a height H(s) (m); also "S" instead of "s". | Label it "consigne Hc (m)" and explain. |
 | E-AE6 | TP3 III.4 | "K pour remplir 2 m": with a P controller, H(∞) = 2·12.5K/(1+12.5K) < 2. **No tolerance is given.** | Tolerance slider, derivation K ≥ (1−ε)/(12.5ε), compared with Kmax(T). |
-| E-AE7 | Tableau 2.1 vs 4.1 | **Same motor, two values: L = 0.011 H (Tableau 2.1, p.11) and 0.011 mH (Tableau 4.1, p.18).** With 0.011 mH the electrical pole is near −72 700 rad/s (L/R ≈ 14 µs); with 0.011 H, L/R ≈ 14 ms, which is plausible for a motor with J = 0.2 kg·m². | Proposed default: **0.011 H** (consistent with Tableau 2.1), with a toggle to the printed 0.011 mH. Both shown in the report. *Your call.* |
+| E-AE7 | Tableau 2.1 vs 4.1 | **Same motor, two values: L = 0.011 H (Tableau 2.1, p.11) and 0.011 mH (Tableau 4.1, p.18).** With 0.011 mH the electrical pole is near −72 700 rad/s (L/R ≈ 14 µs); with 0.011 H, L/R ≈ 14 ms, which is plausible for a motor with J = 0.2 kg·m². **Decided (user, 2026-11-24): default 0.011 H** (consistent with Tableau 2.1), with a toggle to the printed 0.011 mH. Both are shown in the report. |
 | E-AE8 | Tableaux 2.1 / 4.1 | Units: f is printed "N.m" (should be N·m·s/rad); k_em and k_c are "SI" (V·s/rad, N·m/A); `k_em` in the tables vs `ke` in Fig 4.3. | Correct the units in the UI; note it. |
 | E-AE9 | TP4 III.1 / IV.5 | "**sans PID**": open loop, or unity feedback with C = 1? | Show both, labelled. |
 | E-AE10 | TP4 III.2 / IV.6 | "**réponse désirée**" is not specified. | Explicit, editable spec (e.g. D% ≤ 5 %, tr5% ≤ …, εs = 0), checked automatically. |
@@ -246,6 +246,8 @@ Each entry will get, in the app: what the handout says, why it is a problem, the
 | E-AE22 | TP2 IV | "bobinage **inducteur** alimenté par U": the equations model the armature (**induit**) circuit. | Note (terminology). |
 | E-AE23 | TP2 IV | U = **200 V** (Tableau 2.1) as the supply voltage, vs U = 10 (Tableau 4.1) as a speed setpoint. | Keep both, per TP; explain the different roles. |
 | E-AE24 | TP2 IV | **T and Cr not given** for the Z-transform and the responses. | Sliders; default Cr = 0. |
+| E-AE25 | TP2 IV.3 | "attaqué par un signal discrétisé par un bloqueur": **the signal is not specified.** With a step of U (200 V), a zero-order hold changes nothing: a step is already constant between samples. | Default: a step of U = 200 V (Tableau 2.1), with this observation derived; option: the sine of part II. IV.4 then compares with the discretization *without* a hold (`'impulse'`, as in III.6). |
+| E-AE26 | TP2 III.6 | Octave's `c2d(G,T,'impulse')` returns Z{h(kT)}; MathWorks does not document whether MATLAB multiplies it by T. | Derive both conventions by hand; one line to run in MATLAB settles it (matlab/OCTAVE_VS_MATLAB.md). |
 | E-x | everywhere | Typos: "Malab", "Sumilink", "Qu'elle", "affin", "calcule", "boucle fermé", "utilsant", "digramme", "constant de la force", "On choisi". | Quoted as is, with [sic]. |
 
 ### Traitement du signal (second-hand until the PDF arrives)
@@ -259,7 +261,8 @@ Each entry will get, in the app: what the handout says, why it is a problem, the
 | E-TS5 | TP3 Q1 | tmax = 0.1 s gives N = 100 (`0:N-1`) or 101 (`t = 0:Te:tmax`). With 101 samples, 100 Hz is off-bin and leaks. | Toggle; default N = 100, with the leakage shown for N = 101. |
 | E-TS6 | TP3 Q11 | "première valeur qui **dépasse** N": strictly greater. This differs from `nextpow2` when N is a power of 2. | Implement "strictly greater"; note it. |
 | E-TS7 | TP4 I | Given program: `dfilt.df1` (legacy), `%H=ft(...)` (typo for `tf`), `freqz(Num,Den,1/Te)` (100 read as a number of points). The numerator in powers of z must be left-padded for `impz`/`freqz`. | Correct it and explain; needs the full listing. |
-| E-TS8 | TP4 II | Denominator printed **0.516z² − 1.2z + 1**: its poles have \|p\| = 1.392 (unstable). With z² − 1.2z + 0.516: \|p\| = 0.718 and DC gain exactly 1 (0.316/0.316). | Use the stable version; show the printed one as an errata toggle. |
+| E-TS8 | TP4 II | Denominator printed **0.516z² − 1.2z + 1**: its poles have \|p\| = 1.392, so the filter is unstable whether the coefficients are read in z or in z⁻¹. It is z² − 1.2z + 0.516 with its coefficients **reversed** (a z / z⁻¹ mix-up); reversing them inverts the poles: \|p\| = 1/1.392 = 0.718. (Both versions have H(1) = 0.316/0.316 = 1, so the DC gain does not tell them apart.) | Use the stable version; show the printed one as an errata toggle. |
+| E-TS10 | TP3 Q8 | "effet du retard … comparées à X2(f)": x3 = 5 + cos(…) has amplitude **1**, x2 = 5 + 3cos(…) has amplitude **3**. Compared with X2, the delay's effect is mixed with a factor 1/3 on the lines. | Also compare with 5 + cos(2π100nTe) (amplitude 1) to isolate the delay: same modulus, phase −π/3. |
 | E-TS9 | TP4 II.1 | "ordre du filtre N = 32": 32 is the **number of samples** of h[n]; the filter's order is 2. | Note it. |
 
 ## What is still blocked
