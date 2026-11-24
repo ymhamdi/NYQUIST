@@ -5,7 +5,7 @@ Interactive companion for the INSAT IIA 3 MATLAB labs:
 
 Youssef El Mhamdi [+ teammates], IIA 3/[GROUP], INSAT. MIT License.
 
-> **Status: Phase 0 done (inventory, environment, plan).** Waiting for your OK on the plan and for the handout PDFs before Phase 1.
+> **Status: Phase 0 done (inventory, environment, plan).** The **Automatique fascicule has been read and every statement checked** against the PDF (4 TPs, 33 questions). Waiting for the *Traitement du signal* handout and your OK on the plan before Phase 1.
 
 **Contents:** [Phase 0: what was done](#phase-0-what-was-done) · [The plan](#the-plan-what-comes-next) · [What I need from you](#what-i-need-from-you) · [Repository layout](#repository-layout)
 
@@ -17,25 +17,29 @@ Youssef El Mhamdi [+ teammates], IIA 3/[GROUP], INSAT. MIT License.
 
 Each known question is listed with its handout number, its exact statement (typos included), its type (calcul à la main / MATLAB / Simulink / interprétation) and the handout page it comes from. Nothing is guessed: anything without a source is marked **needs handout**.
 
-| Course | TP | Questions known | What is missing |
+| Course | TP | Questions | Source |
 |---|---|---|---|
-| Traitement du signal | TP1 Signaux discrets | Outline only (1.1, 1.2, 1.3) | Exact statements and numbering |
-| | TP2 Convolution | Outline only (parts A and B) | Exact statements and numbering |
-| | TP3 TFD | 2.1 + **Q1–Q12**, verbatim (p. 5) | §1 of TP3 (probably a *rappel*) |
-| | TP4 Filtres numériques | **I.1–I.5, II.1–II.3**, verbatim (p. 6) | Full listing of the "programme fourni" |
-| Automatique | TP1 | — | Everything |
-| | TP2 | — | Everything (it contains the motor equations and Tableau 2.1) |
-| | TP3 Stabilité et précision | **II.3–II.7, III.1–III.6**, verbatim (p. 13–15) | Questions 1–2 (numbering starts at 3) |
-| | TP4 Régulateur PID | **III.1–III.4, IV.5–IV.8** + Tableau 4.1, verbatim (p. 16–18) | — |
-| | TP5+ | — | Unknown whether they exist |
+| Automatique | TP1 Initialisation à Matlab Simulink | **III.1–III.2** | ✅ checked against the PDF (p. 5–9) |
+| | TP2 Discrétisation d'un signal à temps continu | **II.1–2, III.1–6, IV.1–4** + Tableau 2.1 | ✅ checked against the PDF (p. 10–11) |
+| | TP3 Stabilité et précision d'un système échantillonné asservi | **II.3–II.7, III.1–III.6** (the handout's numbering really starts at 3) | ✅ checked against the PDF (p. 13–15) |
+| | TP4 Asservissement des systèmes continus | **III.1–III.4, IV.5–IV.8** + Tableau 4.1 | ✅ checked against the PDF (p. 16–18) |
+| Traitement du signal | TP1 Signaux discrets | Outline only (1.1, 1.2, 1.3) | ⏳ exact statements and numbering need the PDF |
+| | TP2 Convolution | Outline only (parts A and B) | ⏳ exact statements and numbering need the PDF |
+| | TP3 TFD | 2.1 + **Q1–Q12** (p. 5) | ⏳ second-hand; §1 missing |
+| | TP4 Filtres numériques | **I.1–I.5, II.1–II.3** (p. 6) | ⏳ second-hand; full "programme fourni" missing |
 
-### 2. Errata du fascicule: 24 issues found → [COVERAGE.md, last section](COVERAGE.md#missing-values-and-inconsistencies-feed-the-errata-du-fascicule-page)
+The Automatique fascicule has **exactly 4 TPs and 33 questions**, 18 of them involving Simulink.
+
+### 2. Errata du fascicule: 34 issues found → [COVERAGE.md, last section](COVERAGE.md#missing-values-and-inconsistencies-feed-the-errata-du-fascicule-page)
 
 These will become a visible *Errata* page in the app. For each issue it gives what the handout says, why it is a problem, the choice made and why. The choice is always exposed as a slider or toggle. The most important ones:
 
-- **The sampling period T is never given** in Automatique TP3, yet every result depends on it (G(z), Kmax, stability). → slider, default from the rule T ≈ τ/10, and the Kmax(T) curve always shown.
+- **The sampling period T is never given**, neither in Automatique TP2 nor in TP3, yet every result depends on it (G(z), Kmax, stability). → slider, default from the rule T ≈ τ/10, and the Kmax(T) curve always shown.
 - **"K pour remplir 2 m"** (TP3 III.4): a proportional controller never reaches exactly 2 m, and no tolerance is given. → tolerance slider plus the derivation K ≥ (1−ε)/(12.5ε), checked against Kmax(T).
-- **Tableau 4.1 prints L = 0.011 mH**: the electrical pole lands near −72 700 rad/s, and TP2's table reportedly says 0.011 H. → toggle; the PDF will decide the default.
+- **The same motor has two inductances**: Tableau 2.1 (TP2) says L = 0.011 **H**, Tableau 4.1 (TP4) says 0.011 **mH**. With 0.011 mH the electrical pole lands near −72 700 rad/s, which is implausible. → proposed default 0.011 H, with a toggle to the printed value (your decision).
+- **TP2's mechanical equation has a sign error**: « JsΩ − kcI − Cr − fΩ = 0 » contradicts its own eq. (2), Ω = (kcI − Cr)/(Js+f). → eq. (2) is used.
+- **TP2 asks for a command 'imp' that does not exist**. The most likely meaning is `c2d(G, T, 'impulse')`, i.e. discretization *without* a hold, compared with `'zoh'`. → both derived and compared.
+- **TP2 says "sinusoïdal de fréquence 1 rad/sec"**: rad/s is a pulsation (ω = 1 rad/s, f ≈ 0.159 Hz). **TP1 writes "G(p) = 9/(s+9)"**, and its Figure 1.6 actually closes the loop, so the scope shows 9/(s+18) settling at 0.5.
 - **Units**: f is printed "N.m" (should be N·m·s/rad); the motor setpoint is "10 V" in the table but "10 rad/s" in the text; the tank setpoint is labelled Qe (an inflow) while it is compared with a height.
 - **The PID in Simulink ≠ `pid()` in MATLAB**: the Simulink `PID Controller` block filters the derivative (N = 100 by default), so the curves differ as soon as kd ≠ 0. → both modelled and compared.
 - **`stepinfo` changed definition in MATLAB R2021a** (settling band measured against |y_final − y_init| instead of the peak error). → both implemented; the version is named on screen.
@@ -94,22 +98,23 @@ One parameter store per TP feeds the engine. Every view (figure, formula, deriva
 ### Phases
 | Phase | Content | Estimate |
 |---|---|---|
-| **1** | MATLAB scripts for the 6 known TPs + Octave shims + the CI job that generates `reference/*.json` + the Octave vs MATLAB notes | 2.5 h |
+| **1** | MATLAB scripts for the 4 Automatique TPs and Signal TP3–TP4 (Signal TP1–TP2 once its PDF arrives) + Octave shims + the CI job that generates `reference/*.json` + the Octave vs MATLAB notes | 3 h |
 | **2** | Engine (control + signal + derivations), tests against the JSON, "code follows sliders" check in CI | 2.5 h |
 | **3** | **Automatique TP3 end to end** (figures, live code, predict first, derivations, Mode DS, report), then **stop for your review** | 3 h |
-| **4** | The other TPs on the same pattern (+ Automatique TP1/TP2 once the PDF arrives), the Simulink builder, C export, PWA, themes, errata page | 8.5 h |
+| **4** | The other TPs on the same pattern (Automatique TP1, TP2, TP4; Signal TP1–TP4), the Simulink builder, C export, PWA, themes, errata page | 10 h |
 | **5** | Deploy to GitHub Pages, Lighthouse, check every page at phone and desktop width, originality check, final scorecard | 1.5 h |
 
-Honest total: **≈ 18–20 h**. If time runs short, cuts come from the bottom of the priority list: Python Run first, then the README GIF, the STM32 variant, Mode DS breadth, the "pick the curve" exercises, and report extras. **Correctness and coverage are never cut.**
+Honest total: **≈ 20–22 h**. If time runs short, cuts come from the bottom of the priority list: Python Run first, then the README GIF, the STM32 variant, Mode DS breadth, the "pick the curve" exercises, and report extras. **Correctness and coverage are never cut.**
 
 ---
 
 ## What I need from you
-1. **The two handout PDFs** in [handouts/](handouts/). They are needed for Automatique TP1, TP2, TP3 Q1–2 and any TP5+, for the Signal TP1/TP2 statements, and to re-check every quote word for word.
-2. Your **group** (IIA 3/?) and **teammates** for the credits.
-3. Your **OK on the plan** to start Phase 1.
-4. Before Phase 1's CI can be pushed: run `gh auth refresh -s workflow` once (the current login cannot push GitHub Actions files).
-5. For deployment: GitHub Pages on a private repo needs GitHub Pro (free with the Student Developer Pack); otherwise the repo must be public.
+1. **The *Traitement du signal* handout PDF** in [handouts/](handouts/). It is needed for the Signal TP1/TP2 statements and to re-check the TP3/TP4 quotes. (The Automatique fascicule is received and checked. PDFs in `handouts/` stay local: they are git-ignored, as they are the professor's documents.)
+2. **Your decision on the motor inductance** (E-AE7): default 0.011 H (Tableau 2.1) with a toggle to the printed 0.011 mH?
+3. Your **group** (IIA 3/?) and **teammates** for the credits.
+4. Your **OK on the plan** to start Phase 1.
+5. Before Phase 1's CI can be pushed: run `gh auth refresh -s workflow` once (the current login cannot push GitHub Actions files).
+6. For deployment: GitHub Pages on a private repo needs GitHub Pro (free with the Student Developer Pack); otherwise the repo must be public.
 
 ## Repository layout
 | Path | Content |
@@ -119,7 +124,7 @@ Honest total: **≈ 18–20 h**. If time runs short, cuts come from the bottom o
 | [CLAUDE.md](CLAUDE.md) | Conventions, commands and decisions, for continuing the work |
 | [docker/octave.Dockerfile](docker/octave.Dockerfile) | Local copy of the CI Octave environment |
 | [tools/](tools/) | Lighthouse batch runner, phone/offline probe |
-| [handouts/](handouts/) | Where the handout PDFs go |
+| [handouts/](handouts/) | Where the handout PDFs go (kept local, git-ignored) |
 
 ### Run Octave locally
 ```bash

@@ -6,7 +6,10 @@ Repository: https://github.com/ymhamdi/NYQUIST-lab
 
 ## Status
 - **Phase 0 done**: `COVERAGE.md` (inventory of every question + errata) and `PLAN.md` (stack, architecture, phases). Next: Phase 1 after the user's OK.
-- Handout PDFs: **not yet received**. They go in `./handouts/`. Once they arrive, re-check every statement in COVERAGE.md word for word.
+- Handouts live in `./handouts/` and are **git-ignored** (the professor's documents; never commit them).
+  - Automatique fascicule: **received** (`handouts/Fascicule_TP_Automatique_Echantillonnee.pdf`, 18 pages, 2024-2025 edition). All 4 TPs (33 questions) checked word for word on 2026-11-24. There is no TP5.
+  - Traitement du signal handout: **not yet received**. When it arrives, write TS TP1/TP2 statements and re-check TS TP3/TP4 word for word.
+- Open decision: E-AE7 (motor L: 0.011 H from Tableau 2.1 vs printed 0.011 mH in Tableau 4.1).
 
 ## Rules
 - **Never invent handout content.** A missing value gets "needs handout" or a documented default exposed as a slider, plus an entry on the Errata page.

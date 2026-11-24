@@ -57,10 +57,11 @@ Nyquist/
 | Requirement | Design | Done when |
 |---|---|---|
 | Every question of every TP, handout numbering | One page section and one `%%` cell per question; statements verbatim with their source tag (COVERAGE.md) | Every COVERAGE.md row is ✅; no "à venir" |
-| TS TP1/TP2 and AE TP1/TP2 (+ TP5+?) | Built from the PDFs. Until then, "needs handout" in the UI, no guessing | PDFs received and checked |
+| AE TP1–TP4 (33 questions, checked against the PDF) | Built directly from the fascicule; TP2's 'imp', Zero-Pole and sign issues handled as errata (E-AE15…24) | Every AE row ✅ |
+| TS TP1/TP2 | Built from the Signal PDF. Until then, "needs handout" in the UI, no guessing | Signal PDF received and checked |
 | TS TP3 ambiguities | N = 100/101 toggle (E-TS5), "strictly greater" p (E-TS6) | Errata entries + tests |
 | TS TP4 I.5 | `freqz` for **both** examples (example 2 flagged unstable), plus an optional `invfreqz` cell labelled "hors fascicule" | |
-| Simulink questions (AE TP3 II.6, III.3; TP4 III.1, III.4, IV.5, IV.8) | `build_models.m` builds each model by script, runs `sim()` and `stepinfo`; hybrid sampled-loop simulation in the browser | ⚠ Verified only when run once in MATLAB (Octave has no Simulink) |
+| Simulink questions (18 of the 33 AE questions: all of TP1, TP2 II/III.3/III.5/IV, TP3 II.6–7/III.3, TP4 III/IV) | `build_models.m` builds each model by script (Fig 1.6, the ZOH demo, the Zero-Pole block, the MCC with/without ZOH, Fig 3.1, 3.2, 4.1, 4.2, 4.3), runs `sim()` and `stepinfo`; hybrid sampled-loop simulation in the browser | ⚠ Verified only when run once in MATLAB (Octave has no Simulink) |
 | AE TP3 III.4 (no tolerance given) | Tolerance slider; derivation K ≥ (1−ε)/(12.5ε) compared with Kmax(T); feasible region drawn in the (T, K) plane | |
 | AE TP4 "réponse désirée" | Explicit, editable spec (D%, tr, εs) checked automatically; "find gains meeting the spec" helper with its reasoning | |
 
@@ -107,14 +108,14 @@ Nyquist/
 
 ## 4. Phases and estimates
 
-Honest total: **≈ 18–20 hours** for everything above (excluding the TPs that need the PDF). If time runs short, cuts come **from the bottom of the priority list**; correctness and coverage are never cut.
+Honest total: **≈ 20–22 hours** for everything above. If time runs short, cuts come **from the bottom of the priority list**; correctness and coverage are never cut.
 
 | Phase | Content | Estimate |
 |---|---|---|
-| 1 | MATLAB scripts for the 6 known TPs (one `%%` per question, French comments, `@param` tags); `compat/` shims; `export_refs.m`; the `octave-refs` GitHub Actions job writing `reference/*.json`; `OCTAVE_VS_MATLAB.md`; commit | 2.5 h |
+| 1 | MATLAB scripts for AE TP1–TP4 and TS TP3–TP4 (TS TP1–TP2 once the Signal PDF arrives): one `%%` per question, French comments, `@param` tags; `compat/` shims; `export_refs.m`; the `octave-refs` GitHub Actions job writing `reference/*.json`; `OCTAVE_VS_MATLAB.md`; commit | 3 h |
 | 2 | Engine (control + DSP + derivations); Vitest against JSON; code-follows-sliders property test in CI; commit | 2.5 h |
 | 3 | **AE TP3 end to end**: SVG figures and clickable blocks, params → code, predict first, derivations, Mode DS (AE generators), report; commit; **stop for review** | 3 h |
-| 4a | Remaining 5 known TPs on the Phase 3 pattern (+ AE TP1/TP2 once the PDF arrives: +2–3 h) | 5 h |
+| 4a | Remaining TPs on the Phase 3 pattern: AE TP1, TP2, TP4 and TS TP1–TP4 | 6.5 h |
 | 4b | Feature 6: Simulink builder, C export with compile checks | 2 h |
 | 4c | Feature 7: PWA, themes, errata page, README with screenshots; Pyodide Run (stretch) | 1.5 h (+1 h stretch) |
 | 5 | GitHub Pages deploy, Lighthouse, browser pass at 375/1280 px, originality check, final scorecard | 1.5 h |
@@ -122,6 +123,7 @@ Honest total: **≈ 18–20 hours** for everything above (excluding the TPs that
 **Cut order if time runs short** (first cut first): Pyodide Run → README GIF (keep screenshots) → STM32 variant (keep Arduino) → Mode DS breadth (fewer generator types, still at least 3 per course) → "pick the curve" predict type (keep numeric/choice) → report extras (keep cover + Q&A + figures + annex). Never cut: verbatim coverage, Octave-generated references, numbers from the engine.
 
 ## 5. Open items
-1. Both handout PDFs in `./handouts/`. They are needed for AE TP1, TP2, TP3 Q1–2 and any TP5+; for TS TP1/TP2 statements; and to re-check every quote.
-2. Group (IIA 3/?) and teammates for the credits.
-3. GitHub Pages: enable on the repo (Settings → Pages → GitHub Actions).
+1. The *Traitement du signal* handout PDF in `./handouts/` (TS TP1/TP2 statements, TS TP3/TP4 re-check). The Automatique fascicule is received and checked.
+2. Decision on the motor inductance default (E-AE7).
+3. Group (IIA 3/?) and teammates for the credits.
+4. GitHub Pages: enable on the repo (Settings → Pages → GitHub Actions).
