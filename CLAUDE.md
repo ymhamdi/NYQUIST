@@ -72,3 +72,8 @@ SettlingTime: first T such that |y − y_final| ≤ 2 % · |y_final − y_init| 
 
 ## Decisions log
 - 2026-11-24: stack chosen (PLAN.md §1). Octave-in-Docker environment validated (headless figures OK). Pyodide + python-control verified.
+
+## Branches (user request, 2026-11-25)
+- One branch per phase: `phase-0` … `phase-5`. Each branch ends at the last commit of its phase and contains the earlier phases.
+- Work on the current phase's branch; when the phase is complete (and reviewed when required), merge it into `main` (fast-forward) and start the next branch from `main`.
+- `main` is never rewritten (no force push).
