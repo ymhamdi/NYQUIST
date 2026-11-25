@@ -6,6 +6,9 @@
 # 3. "The code follows the sliders": writes copies of the scripts at random
 #    slider positions (the same substitution the site uses), runs them in
 #    Octave, and requires the engine to reproduce every result.
+# 4. Builds the Simulink models of matlab/simulink/build_models.m against a
+#    Simulink stand-in (Octave has no Simulink): checks the wiring and
+#    compares each simulated signal with the tf/step/lsim calculation.
 name: Octave references
 
 on:
@@ -38,6 +41,9 @@ jobs:
 
       - name: Committed references must match the scripts
         run: node tools/compare-refs.mjs reference regenerated
+
+      - name: Simulink models - wiring and simulation against tf/step/lsim (Simulink stand-in)
+        run: octave-cli --no-gui --eval "addpath('matlab/simulink/test'); check_models"
 
       - name: Type check
         run: npm run typecheck
