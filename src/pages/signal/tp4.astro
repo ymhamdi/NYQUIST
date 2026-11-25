@@ -1,0 +1,23 @@
+---
+import PartI from '../../components/ts-tp4/PartI.svelte'
+import PartII from '../../components/ts-tp4/PartII.svelte'
+import { PART_I, PART_II, TP } from '../../content/tsTp4'
+import TpLayout from '../../layouts/TpLayout.astro'
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
+const errataBase = `${base}errata/`
+---
+
+<TpLayout
+  tp={TP}
+  description="Filtres numériques : transformée en Z avec tf, roots, zplane, impz, freqz et invfreqz, stabilité par les pôles, filtre passe-bas RII du second ordre. Calculs, figures et code MATLAB qui suivent les curseurs."
+  parts={[
+    { id: 'I', questions: PART_I },
+    { id: 'II', questions: PART_II },
+  ]}
+  reportPath="rapport/signal/tp4/"
+  dsPath="ds/signal/"
+>
+  <PartI client:idle errataBase={errataBase} />
+  <PartII client:visible errataBase={errataBase} />
+</TpLayout>

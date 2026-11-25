@@ -2,7 +2,7 @@
  * Hand derivations for Traitement du signal TP3 (DFT) and TP4 (digital
  * filters), in French with live numbers.
  */
-import { fmt } from '../lib/format'
+import { fmt, superscript } from '../lib/format'
 import { eq, frac, math, mi, mn, mo, poly, row, sub, sup } from '../lib/mathml'
 import type { Step } from './firstOrderLoop'
 
@@ -71,7 +71,7 @@ export function zConvention(num: number[], den: number[]): Step[] {
   const pad = den.length - num.length
   return [
     {
-      text: `H(z) est écrit en puissances décroissantes de z. impz et freqz lisent b et a en puissances croissantes de z⁻¹ : on divise numérateur et dénominateur par z^${den.length - 1}.`,
+      text: `H(z) est écrit en puissances décroissantes de z. impz et freqz lisent b et a en puissances croissantes de z⁻¹ : on divise numérateur et dénominateur par z${superscript(den.length - 1)}.`,
       math: math(eq(row(mi('H'), mo('('), mi('z'), mo(')')), frac(poly(num, 'z'), poly(den, 'z'))), { display: true }),
     },
     {

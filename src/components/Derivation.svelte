@@ -25,6 +25,7 @@
 <style>
   .deriv {
     margin: 1rem 0;
+    break-inside: avoid;
     border: 1px solid var(--rule);
     border-radius: var(--radius);
     background: var(--surface);

@@ -42,6 +42,17 @@
     locus.filter((z) => Number.isFinite(z.re)).map((z, i) => `${i ? 'L' : 'M'}${X(clip(z.re)).toFixed(1)} ${Y(clip(z.im)).toFixed(1)}`).join(''),
   )
   const ticks = $derived([-1, 1].map((k) => k * (R >= 2 ? Math.floor(R) : 1)))
+  /** coincident roots (like zplane): one label with the multiplicity */
+  function multiple(pts: Complex[]): { at: Complex; n: number }[] {
+    const groups: { at: Complex; n: number }[] = []
+    for (const z of pts) {
+      const g = groups.find((q) => Math.hypot(q.at.re - z.re, q.at.im - z.im) < 1e-6 * Math.max(1, Math.hypot(z.re, z.im)))
+      if (g) g.n++
+      else groups.push({ at: z, n: 1 })
+    }
+    return groups.filter((g) => g.n > 1)
+  }
+  const multi = $derived([...multiple(zeros), ...multiple(poles)])
 </script>
 
 <figure class="zp">
@@ -70,9 +81,12 @@
           <line x1="-6" y1="6" x2="6" y2="-6"></line>
         </g>
       {/each}
+      {#each multi as m, i (i)}
+        <text class="mult" x={X(clip(m.at.re)) + 8} y={Y(clip(m.at.im)) - 8}>{m.n}</text>
+      {/each}
     </svg>
   </div>
-  <p class="key"><span class="k-pole">×</span> pôle · <span class="k-zero">○</span> zéro{#if locus.length} · <span class="k-locus">—</span> lieu des racines{/if}{#if unitCircle} · cercle unité en pointillés{/if}</p>
+  <p class="key"><span class="k-pole">×</span> pôle · <span class="k-zero">○</span> zéro{#if locus.length}{' · '}<span class="k-locus">—</span> lieu des racines{/if}{#if unitCircle}{' · cercle unité en pointillés'}{/if}</p>
 </figure>
 
 <style>
@@ -118,6 +132,10 @@
   }
   .mark {
     fill: var(--c2);
+  }
+  .mult {
+    fill: var(--ink);
+    font-weight: 700;
   }
   .mlabel {
     fill: var(--ink);

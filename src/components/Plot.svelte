@@ -46,11 +46,8 @@
   let { series, xLabel, yLabel, summary, title, xDomain, yDomain, hRules = [], vRules = [], height = 300 }: Props = $props()
 
   const W = 640
-  const M = { l: 62, r: 14, t: 14, b: 46 }
   const uid = $props.id() // stable between the server render and hydration
   const H = $derived(height)
-  const pw = W - M.l - M.r
-  const ph = $derived(H - M.t - M.b)
 
   const finite = (v: number) => Number.isFinite(v)
   const xs = $derived(xDomain ?? extent(series.flatMap((s) => s.x as number[])))
@@ -145,6 +142,10 @@
 
   const xticks = $derived(niceTicks(xs[0], xs[1], 7))
   const yticks = $derived(niceTicks(ys[0], ys[1], 5))
+  /** left margin wide enough for the longest y tick label (≈ 7 px per character at 12 px) next to the rotated y label */
+  const M = $derived({ l: Math.max(62, 30 + 7 * Math.max(...yticks.map((t) => fmt(t, 3).length))), r: 14, t: 14, b: 46 })
+  const pw = $derived(W - M.l - M.r)
+  const ph = $derived(H - M.t - M.b)
   const colorOf = (s: { color?: number }, i: number) => `var(--c${s.color ?? (i % 6) + 1})`
 
   // cursor (pointer or keyboard)

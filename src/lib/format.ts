@@ -43,4 +43,5 @@ function trimZeros(s: string): string {
 }
 
 const SUP: Record<string, string> = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' }
-const superscript = (e: number) => String(e).split('').map((c) => SUP[c] ?? c).join('')
+/** 12 → "¹²", −1 → "⁻¹" */
+export const superscript = (e: number) => String(e).split('').map((c) => SUP[c] ?? c).join('')
