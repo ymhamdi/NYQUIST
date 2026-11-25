@@ -1,6 +1,8 @@
 ---
 import DsAuto from '../../components/DsAuto.svelte'
 import Base from '../../layouts/Base.astro'
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
 ---
 
 <Base
@@ -15,6 +17,7 @@ import Base from '../../layouts/Base.astro'
       moteur, avec une tolérance sur les arrondis, et la correction détaille le calcul à la main. Le numéro du sujet est dans l'adresse de la page : vous
       pouvez le partager.
     </p>
+    <p class="muted">Autre matière : <a href={`${base}ds/signal/`}>Mode DS de traitement du signal</a>.</p>
     <DsAuto client:load />
   </div>
 </Base>

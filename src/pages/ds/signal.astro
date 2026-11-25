@@ -1,0 +1,23 @@
+---
+import DsSignal from '../../components/DsSignal.svelte'
+import Base from '../../layouts/Base.astro'
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
+---
+
+<Base
+  title="Mode DS — Signal"
+  description="Sujets d'entraînement générés (raies de la TFD, résolution et ajout de zéros, filtre numérique du second ordre), corrigés automatiquement avec la correction détaillée."
+  section="ds"
+>
+  <div class="wrap">
+    <h1>Mode DS — Traitement du signal</h1>
+    <p>
+      Des sujets dans l'esprit des TP3 et TP4, avec des valeurs tirées au hasard. Répondez, puis faites corriger : chaque réponse est comparée au calcul du
+      moteur (fft, roots, impz, freqz), avec une tolérance sur les arrondis, et la correction détaille le calcul à la main. Le numéro du sujet est dans
+      l'adresse de la page : vous pouvez le partager.
+    </p>
+    <p class="muted">Autre matière : <a href={`${base}ds/automatique/`}>Mode DS d'automatique échantillonnée</a>.</p>
+    <DsSignal client:load />
+  </div>
+</Base>

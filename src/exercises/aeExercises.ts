@@ -6,7 +6,10 @@
  */
 import { closedLoop, gainForTolerance, zohFirstOrder, type Step } from '../derive/firstOrderLoop'
 import { fmt } from '../lib/format'
+import { pick, rng, sig, type Exercise as BaseExercise } from './common'
 import { c2dImpulse, c2dZoh, dcgain, feedback, gain, poles, tf } from '../engine/lti'
+
+export { grade, type Item } from './common'
 
 export type ExerciseKind = 'boucle' | 'periode' | 'discretisation'
 
@@ -16,39 +19,7 @@ export const KIND_LABEL: Record<ExerciseKind, string> = {
   discretisation: 'Discrétisation avec et sans bloqueur (comme le TP2)',
 }
 
-export interface Item {
-  id: string
-  prompt: string
-  kind: 'number' | 'choice'
-  answer: number
-  /** for kind = choice: labels; answer is the index */
-  options?: string[]
-  unit?: string
-  /** relative tolerance */
-  tol: number
-}
-
-export interface Exercise {
-  seed: number
-  kind: ExerciseKind
-  statement: string[]
-  items: Item[]
-  correction: Step[]
-}
-
-/** Mulberry32 PRNG (deterministic per seed). */
-function rng(seed: number) {
-  let a = seed >>> 0
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0
-    let t = a
-    t = Math.imul(t ^ (t >>> 15), t | 1)
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
-const pick = <T>(rand: () => number, xs: readonly T[]): T => xs[Math.floor(rand() * xs.length)]
-const sig = (v: number, n = 2) => Number(v.toPrecision(n))
+export type Exercise = BaseExercise<ExerciseKind>
 
 const GAINS = [0.5, 1, 2, 2.5, 4, 5, 8, 10, 12.5, 20]
 const TAUS = [0.2, 0.5, 1, 2, 5, 10, 20, 50]
@@ -157,13 +128,4 @@ export function makeExercise(seed: number, kind?: ExerciseKind): Exercise {
     ],
     correction: steps,
   }
-}
-
-/** Grades one answer: number within the relative tolerance (or 1e-3 absolute near 0), or the right choice. */
-export function grade(item: Item, given: string | number | null): boolean | null {
-  if (given === null || given === '') return null
-  if (item.kind === 'choice') return Number(given) === item.answer
-  const x = Number(String(given).replace(',', '.').replace(/\s/g, ''))
-  if (!Number.isFinite(x)) return false
-  return Math.abs(x - item.answer) <= Math.max(item.tol * Math.abs(item.answer), 1e-3)
 }

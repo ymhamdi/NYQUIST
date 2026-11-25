@@ -45,3 +45,18 @@ function trimZeros(s: string): string {
 const SUP: Record<string, string> = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' }
 /** 12 → "¹²", −1 → "⁻¹" */
 export const superscript = (e: number) => String(e).split('').map((c) => SUP[c] ?? c).join('')
+
+/** A polynomial (descending powers) as plain text: [1 0 -0.3] in z → "z² − 0,3". */
+export function polyText(c: readonly number[], v = 'z', digits = 4): string {
+  const n = c.length - 1
+  const terms = c
+    .map((a, i) => ({ a, k: n - i }))
+    .filter((t) => t.a !== 0)
+    .map((t, j) => {
+      const sign = t.a < 0 ? (j ? ' − ' : '−') : j ? ' + ' : ''
+      const coef = Math.abs(t.a) === 1 && t.k ? '' : fmt(Math.abs(t.a), digits)
+      const pw = t.k === 0 ? '' : t.k === 1 ? v : v + superscript(t.k)
+      return sign + coef + pw
+    })
+  return terms.length ? terms.join('') : '0'
+}

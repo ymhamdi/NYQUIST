@@ -3,7 +3,7 @@
   import type { Complex } from '../../engine/complex'
   import { DONNEES_I, OBJECTIF_I, question } from '../../content/tsTp4'
   import { longDivision, stabilityFromPoles, zConvention } from '../../derive/signal'
-  import { fmt } from '../../lib/format'
+  import { fmt, polyText } from '../../lib/format'
   import { eq, frac, math, mi, mn, paren, poly, row, sub } from '../../lib/mathml'
   import { SCRIPT_NAME, SCRIPT_SOURCE, ts4 } from '../../lib/stores/tsTp4.svelte'
   import CodeCell from '../CodeCell.svelte'
@@ -41,14 +41,6 @@
   const k3 = 3
   /** frequency of the poles of H1: arg(p)/(2πTe) */
   const fPole = $derived(Math.abs(Math.atan2(c3.poles1[0].im, c3.poles1[0].re)) / (2 * Math.PI * c1.Te))
-  const SUPS = ['', '', '²', '³', '⁴', '⁵']
-  /** a polynomial in z as plain text, e.g. "z² − 0,3" */
-  const ptxt = (c: number[]) =>
-    c
-      .map((a, i) => ({ a, k: c.length - 1 - i }))
-      .filter((t) => t.a !== 0)
-      .map((t, j) => `${t.a < 0 ? (j ? ' − ' : '−') : j ? ' + ' : ''}${Math.abs(t.a) === 1 && t.k ? '' : fmt(Math.abs(t.a), 4)}${t.k ? 'z' + SUPS[t.k] : ''}`)
-      .join('')
 </script>
 
 <section aria-labelledby="partie-I">
@@ -71,7 +63,7 @@
 
   <article>
     <QuestionHead q={question('I.1')} part="I" />
-    <Predict always={report} id="ts4-I1" kind="choice" prompt={`Quel vecteur MATLAB représente le numérateur ${ptxt(c1.Num2)} de H₂ ?`} options={num2Options} correct={1}>
+    <Predict always={report} id="ts4-I1" kind="choice" prompt={`Quel vecteur MATLAB représente le numérateur ${polyText(c1.Num2)} de H₂ ?`} options={num2Options} correct={1}>
       <p>
         Un polynôme est le vecteur de ses coefficients en puissances décroissantes, <strong>y compris les zéros</strong> des puissances absentes : il manque le terme en z,
         d'où Num2 = {vec(c1.Num2)}. Te = {fmt(c1.Te, 4)} s.
