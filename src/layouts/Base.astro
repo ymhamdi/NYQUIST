@@ -9,6 +9,7 @@ interface Props {
 }
 const { title, description, section } = Astro.props
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
+const prod = import.meta.env.PROD
 const nav = [
   { id: 'home', href: base, label: 'Accueil' },
   { id: 'automatique', href: `${base}automatique/tp1/`, label: 'Automatique' },
@@ -27,6 +28,8 @@ const nav = [
     <meta name="description" content={description} />
     <meta name="theme-color" content="#0b5e6b" />
     <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <link rel="manifest" href={`${base}manifest.webmanifest`} />
+    <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
     <script is:inline>
       // theme before first paint (no flash): stored choice, else the system's
       try {
@@ -34,6 +37,16 @@ const nav = [
         if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t
       } catch {}
     </script>
+    {
+      prod && (
+        <script is:inline define:vars={{ swUrl: `${base}sw.js`, scope: base }}>
+          // offline copy of the site (tools/sw-integration.mjs); production builds only
+          if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+            addEventListener('load', () => navigator.serviceWorker.register(swUrl, { scope }).catch(() => {}))
+          }
+        </script>
+      )
+    }
   </head>
   <body>
     <a class="skip" href="#contenu">Aller au contenu</a>
