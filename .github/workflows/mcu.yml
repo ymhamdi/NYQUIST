@@ -1,0 +1,52 @@
+# Proves the "Vers le microcontrôleur" export.
+# 1. Generates the C code of every case (PID with and without anti-windup,
+#    proportional controller, IIR filter in floating and fixed point).
+# 2. Compiles the portable C with gcc in double precision: it must reproduce
+#    the engine (src/engine/mcu.ts) sample by sample, fixed point exactly.
+# 3. Compiles the STM32 files (Cortex-M4, hard float, -Wdouble-promotion) and
+#    the Arduino Uno sketches, warnings as errors for the generated code.
+name: Microcontroller code
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  mcu:
+    name: Generated C against the engine, STM32 and Arduino builds
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate the C code of every case
+        run: npx vitest run tests/engine/codegen.test.ts
+
+      - name: gcc - the generated C reproduces the engine
+        run: node tools/check-c.mjs
+
+      - name: STM32 - arm-none-eabi-gcc
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends gcc-arm-none-eabi libnewlib-arm-none-eabi
+          for f in build/mcu/stm32/*.c; do
+            arm-none-eabi-gcc -std=c99 -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard \
+              -Wall -Wextra -Werror -Wdouble-promotion -O2 -I tests/mcu/stub -c "$f" -o /tmp/out.o
+            echo "ok $f"
+          done
+
+      - name: Arduino Uno - arduino-cli
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/1.5.1/install.sh | BINDIR="$HOME/bin" sh -s 1.5.1
+          "$HOME/bin/arduino-cli" core update-index
+          "$HOME/bin/arduino-cli" core install arduino:avr@1.8.8
+          for d in build/mcu/arduino/*/; do
+            "$HOME/bin/arduino-cli" compile --fqbn arduino:avr:uno --warnings all "$d"
+          done
