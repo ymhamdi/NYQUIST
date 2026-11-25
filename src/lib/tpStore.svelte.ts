@@ -48,11 +48,31 @@ function readStored(key: string, specs: ParamSpec[]): Record<string, ParamValue>
   return out
 }
 
-export function createTpStore<R>(key: string, source: string, model: (p: Record<string, ParamValue>) => R): TpStore<R> {
+/** A part of a TP model that depends on a few parameters only (recomputed only when they change). */
+export interface ModelPart {
+  keys: readonly string[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  fn: (p: any) => Record<string, unknown>
+}
+
+export function createTpStore<R>(
+  key: string,
+  source: string,
+  model: ((p: Record<string, ParamValue>) => R) | Record<string, ModelPart>,
+): TpStore<R> {
   const specs = parseParams(source)
   const defs = defaults(source)
   const values = $state<Record<string, ParamValue>>({ ...defs })
-  const result = $derived(model($state.snapshot(values) as Record<string, ParamValue>))
+  const pick = (keys: readonly string[]) => Object.fromEntries(keys.map((k) => [k, $state.snapshot(values[k])]))
+  const parts =
+    typeof model === 'function'
+      ? null
+      : Object.values(model).map((part) => {
+          const d = $derived(part.fn(pick(part.keys)))
+          return () => d
+        })
+  const whole = $derived(typeof model === 'function' ? model($state.snapshot(values) as Record<string, ParamValue>) : null)
+  const result = $derived((parts ? Object.assign({}, ...parts.map((g) => g())) : whole) as R)
   const script = $derived(substitute(source, $state.snapshot(values) as Record<string, ParamValue>))
   let restored = $state(false)
 

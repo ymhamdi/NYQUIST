@@ -194,19 +194,27 @@ export function stepContinuous(g: TF, t: readonly number[], amp = 1): number[] {
   if (t.length < 2) return t.map(() => amp * s.D)
   const dt = t[1] - t[0]
   const { Phi, Gamma } = zohMatrices(s, dt)
-  let x = new Array<number>(n).fill(0)
+  // two preallocated state buffers, swapped each step: stepinfo runs this on
+  // up to 400 001 samples (stiff motor), so no allocation inside the loop
+  const P = Float64Array.from(Phi.flat())
+  const Gm = Float64Array.from(Gamma, (g) => g * amp)
+  const C = Float64Array.from(s.C)
+  let x = new Float64Array(n)
+  let nx = new Float64Array(n)
   const y = new Array<number>(t.length)
+  const d = s.D * amp
   for (let k = 0; k < t.length; k++) {
-    let yk = s.D * amp
-    for (let i = 0; i < n; i++) yk += s.C[i] * x[i]
+    let yk = d
+    for (let i = 0; i < n; i++) yk += C[i] * x[i]
     y[k] = yk
-    const nx = new Array<number>(n).fill(0)
     for (let i = 0; i < n; i++) {
-      let v = Gamma[i] * amp
-      for (let j = 0; j < n; j++) v += Phi[i][j] * x[j]
+      let v = Gm[i]
+      for (let j = 0; j < n; j++) v += P[i * n + j] * x[j]
       nx[i] = v
     }
+    const tmp = x
     x = nx
+    nx = tmp
   }
   return y
 }

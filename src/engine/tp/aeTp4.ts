@@ -51,9 +51,9 @@ function shiftedStep(g: TF, t: number[], t0: number, amp: number): number[] {
   return t.map((_, i) => (i < first ? 0 : ys[i - first]))
 }
 
-export function aeTp4(p: AeTp4Params) {
+/** Tank part (III.1, III.4): depends on the setpoint and the PID gains only. */
+export function aeTp4Tank(p: Pick<AeTp4Params, "consigne" | "kp" | "ki" | "kd" | "N_filtre">) {
   const { consigne, kp, ki, kd, N_filtre } = p
-  // III — tank
   const G = tf(12.5, [50, 1])
   const H_max = 20
   const H_bo_final = consigne * dcgain(G)
@@ -62,37 +62,11 @@ export function aeTp4(p: AeTp4Params) {
   const F = feedback(series(C, G), 1)
   const F_simulink = feedback(series(pid(kp, ki, kd, 1 / N_filtre), G), 1)
   const t = linspace(0, 150, 1501)
-  const t2 = linspace(0, 100, 1001)
-  const swKp = sweep(G, consigne, t2, p.kp_liste.map((v) => [v, 0, 0]))
-  const swKi = sweep(G, consigne, t2, p.ki_liste.map((v) => [1, v, 0]))
-  const swKd = sweep(G, consigne, t2, p.kd_liste.map((v) => [1, 0.02, v]))
   const S_sans = stepinfo(gain(consigne, F0))
   const S_avec = stepinfo(gain(consigne, F))
   const S_sans_5 = stepinfo(gain(consigne, F0), { settlingThreshold: 0.05 })
   const S_avec_5 = stepinfo(gain(consigne, F), { settlingThreshold: 0.05 })
   const erreur_avec = consigne - consigne * dcgain(F)
-
-  // IV — DC motor (Tableau 4.1, L per the toggle)
-  const { L, U, Cr, t_cr, kp_m, ki_m, kd_m } = p
-  const R = 0.8, J = 0.2, f = 1e-2, kem = 1.91, kc = 1.91
-  const { Gm, Gcr } = motor(L, R, J, f, kem, kc)
-  const Fm0 = feedback(Gm, 1)
-  const Cm = pid(kp_m, ki_m, kd_m)
-  const Fm = feedback(series(Cm, Gm), 1)
-  const Fm_cr = series(Gcr, feedback(tf(1, 1), series(Cm, Gm)))
-  const tm = linspace(0, 1, 2001)
-  const w_cr = shiftedStep(Fm_cr, tm, t_cr, Cr)
-  const w_step = stepContinuous(Fm, tm, U)
-  const t3 = linspace(0, 0.5, 1001)
-  const swKpm = sweep(Gm, U, t3, p.kpm_liste.map((v) => [v, 0, 0]))
-  const swKim = sweep(Gm, U, t3, p.kim_liste.map((v) => [2, v, 0]))
-  const swKdm = sweep(Gm, U, t3, p.kdm_liste.map((v) => [2, 60, v]))
-  const Sm_sans = stepinfo(gain(U, Fm0))
-  const Sm_avec = stepinfo(gain(U, Fm))
-  const Sm_sans_5 = stepinfo(gain(U, Fm0), { settlingThreshold: 0.05 })
-  const Sm_avec_5 = stepinfo(gain(U, Fm), { settlingThreshold: 0.05 })
-  const erreur_m_avec = U - U * dcgain(Fm)
-
   return {
     'III.1': {
       G, consigne, H_max, H_bo_final,
@@ -104,12 +78,6 @@ export function aeTp4(p: AeTp4Params) {
       H_avec: stepContinuous(F, t, consigne),
       H_avec_simulink: stepContinuous(F_simulink, t, consigne),
     },
-    'III.2': {
-      kp_liste: p.kp_liste, ki_liste: p.ki_liste, kd_liste: p.kd_liste, t2,
-      rep_kp: swKp.responses, rep_ki: swKi.responses, rep_kd: swKd.responses,
-      info_kp: swKp.info, info_ki: swKi.info, info_kd: swKd.info,
-    },
-    'III.3': { variation_kp: diffRow(swKp.info), variation_ki: diffRow(swKi.info), variation_kd: diffRow(swKd.info) },
     'III.4': {
       S_sans, S_avec,
       erreur_sans: consigne - consigne * dcgain(F0),
@@ -119,6 +87,46 @@ export function aeTp4(p: AeTp4Params) {
       tr5_avec: S_avec_5.SettlingTime,
       cahier_des_charges_respecte: S_avec.Overshoot <= 5 && Math.abs(erreur_avec) < 1e-9,
     },
+  }
+}
+
+/** Tank gain sweeps (III.2, III.3): depend on the setpoint and the lists only. */
+export function aeTp4TankSweeps(p: Pick<AeTp4Params, "consigne" | "kp_liste" | "ki_liste" | "kd_liste">) {
+  const G = tf(12.5, [50, 1])
+  const t2 = linspace(0, 100, 1001)
+  const swKp = sweep(G, p.consigne, t2, p.kp_liste.map((v) => [v, 0, 0]))
+  const swKi = sweep(G, p.consigne, t2, p.ki_liste.map((v) => [1, v, 0])) // kp = 1
+  const swKd = sweep(G, p.consigne, t2, p.kd_liste.map((v) => [1, 0.02, v]))
+  return {
+    'III.2': {
+      kp_liste: p.kp_liste, ki_liste: p.ki_liste, kd_liste: p.kd_liste, t2,
+      // engine only: the gains held fixed in the ki and kd sweeps (literals of the script)
+      kp_fixe: 1, ki_fixe: 0.02,
+      rep_kp: swKp.responses, rep_ki: swKi.responses, rep_kd: swKd.responses,
+      info_kp: swKp.info, info_ki: swKi.info, info_kd: swKd.info,
+    },
+    'III.3': { variation_kp: diffRow(swKp.info), variation_ki: diffRow(swKi.info), variation_kd: diffRow(swKd.info) },
+  }
+}
+
+/** Motor part (IV.5, IV.8): Tableau 4.1, L per the toggle, PID gains, load torque. */
+export function aeTp4Motor(p: Pick<AeTp4Params, "L" | "U" | "Cr" | "t_cr" | "kp_m" | "ki_m" | "kd_m">) {
+  const { L, U, Cr, t_cr, kp_m, ki_m, kd_m } = p
+  const R = 0.8, J = 0.2, f = 1e-2, kem = 1.91, kc = 1.91
+  const { Gm, Gcr } = motor(L, R, J, f, kem, kc)
+  const Fm0 = feedback(Gm, 1)
+  const Cm = pid(kp_m, ki_m, kd_m)
+  const Fm = feedback(series(Cm, Gm), 1)
+  const Fm_cr = series(Gcr, feedback(tf(1, 1), series(Cm, Gm)))
+  const tm = linspace(0, 1, 2001)
+  const w_cr = shiftedStep(Fm_cr, tm, t_cr, Cr)
+  const w_step = stepContinuous(Fm, tm, U)
+  const Sm_sans = stepinfo(gain(U, Fm0))
+  const Sm_avec = stepinfo(gain(U, Fm))
+  const Sm_sans_5 = stepinfo(gain(U, Fm0), { settlingThreshold: 0.05 })
+  const Sm_avec_5 = stepinfo(gain(U, Fm), { settlingThreshold: 0.05 })
+  const erreur_m_avec = U - U * dcgain(Fm)
+  return {
     'IV.5': {
       L, R, J, f, kem, kc, U, Cr, t_cr, Gm, Gcr,
       poles_moteur: poles(Gm),
@@ -130,12 +138,6 @@ export function aeTp4(p: AeTp4Params) {
       apres: tm.map((v) => v >= t_cr),
       w_avec: w_step.map((v, i) => v + w_cr[i]),
     },
-    'IV.6': {
-      kpm_liste: p.kpm_liste, kim_liste: p.kim_liste, kdm_liste: p.kdm_liste, t3,
-      rep_kpm: swKpm.responses, rep_kim: swKim.responses, rep_kdm: swKdm.responses,
-      info_kpm: swKpm.info, info_kim: swKim.info, info_kdm: swKdm.info,
-    },
-    'IV.7': { variation_kpm: diffRow(swKpm.info), variation_kim: diffRow(swKim.info), variation_kdm: diffRow(swKdm.info) },
     'IV.8': {
       Sm_sans, Sm_avec,
       erreur_m_sans: U - U * dcgain(Fm0),
@@ -145,6 +147,45 @@ export function aeTp4(p: AeTp4Params) {
       tr5_m_avec: Sm_avec_5.SettlingTime,
       cahier_des_charges_m_respecte: Sm_avec.Overshoot <= 5 && Math.abs(erreur_m_avec) < 1e-9,
     },
+  }
+}
+
+/** Motor gain sweeps (IV.6, IV.7): depend on L, U and the lists only. */
+export function aeTp4MotorSweeps(p: Pick<AeTp4Params, "L" | "U" | "kpm_liste" | "kim_liste" | "kdm_liste">) {
+  const { Gm } = motor(p.L)
+  const t3 = linspace(0, 0.5, 1001)
+  const swKpm = sweep(Gm, p.U, t3, p.kpm_liste.map((v) => [v, 0, 0]))
+  const swKim = sweep(Gm, p.U, t3, p.kim_liste.map((v) => [2, v, 0]))
+  const swKdm = sweep(Gm, p.U, t3, p.kdm_liste.map((v) => [2, 60, v]))
+  return {
+    'IV.6': {
+      kpm_liste: p.kpm_liste, kim_liste: p.kim_liste, kdm_liste: p.kdm_liste, t3,
+      // engine only: the gains held fixed in the ki and kd sweeps (literals of the script)
+      kp_fixe_m: 2, ki_fixe_m: 60,
+      rep_kpm: swKpm.responses, rep_kim: swKim.responses, rep_kdm: swKdm.responses,
+      info_kpm: swKpm.info, info_kim: swKim.info, info_kdm: swKdm.info,
+    },
+    'IV.7': { variation_kpm: diffRow(swKpm.info), variation_kim: diffRow(swKim.info), variation_kdm: diffRow(swKdm.info) },
+  }
+}
+
+/** Parameter names each part reads (the store recomputes a part only when one of them changes). */
+export const AE_TP4_PARTS = {
+  tank: { keys: ["consigne", "kp", "ki", "kd", "N_filtre"], fn: aeTp4Tank },
+  tankSweeps: { keys: ["consigne", "kp_liste", "ki_liste", "kd_liste"], fn: aeTp4TankSweeps },
+  motor: { keys: ["L", "U", "Cr", "t_cr", "kp_m", "ki_m", "kd_m"], fn: aeTp4Motor },
+  motorSweeps: { keys: ["L", "U", "kpm_liste", "kim_liste", "kdm_liste"], fn: aeTp4MotorSweeps },
+} as const
+
+/** The whole TP, cell by cell, as the script (what the Octave tests compare). */
+export function aeTp4(p: AeTp4Params) {
+  const tank = aeTp4Tank(p)
+  const tankSw = aeTp4TankSweeps(p)
+  const mot = aeTp4Motor(p)
+  const motSw = aeTp4MotorSweeps(p)
+  return {
+    'III.1': tank['III.1'], 'III.2': tankSw['III.2'], 'III.3': tankSw['III.3'], 'III.4': tank['III.4'],
+    'IV.5': mot['IV.5'], 'IV.6': motSw['IV.6'], 'IV.7': motSw['IV.7'], 'IV.8': mot['IV.8'],
   }
 }
 

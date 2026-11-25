@@ -1,6 +1,6 @@
 <script lang="ts">
   /** Question heading: handout number, type tags, and the statement quoted verbatim with its page. */
-  import { QTYPE_LABEL, type Question } from '../content/aeTp3'
+  import { QTYPE_LABEL, type Question } from '../content/types'
 
   interface Props {
     q: Question
@@ -16,7 +16,7 @@
   </p>
   <blockquote class="statement">
     <q>{q.text}</q>
-    <footer class="muted">Fascicule, p. {q.page}</footer>
+    <footer class="muted">{#if q.page !== null}Fascicule, p. {q.page}{:else}Énoncé transcrit, non vérifié sur le fascicule original{/if}</footer>
   </blockquote>
 </header>
 

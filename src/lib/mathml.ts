@@ -31,6 +31,22 @@ export function minus(v: MathNode, p: number, digits = 4): MathNode {
   return p >= 0 ? row(v, mo('−'), mn(p, digits)) : row(v, mo('+'), mn(-p, digits))
 }
 
+/** a·sⁿ + … + c in descending powers, zero terms omitted: [0.0022, 0.16, 3.66] → 0,0022s² + 0,16s + 3,66 */
+export function poly(c: readonly number[], v = 's', digits = 4): MathNode {
+  const n = c.length - 1
+  const terms: MathNode[] = []
+  c.forEach((a, i) => {
+    if (a === 0) return
+    const k = n - i
+    const sign = a < 0 ? '−' : '+'
+    const mag = Math.abs(a)
+    const coef = mag === 1 && k > 0 ? '' : mn(mag, digits)
+    const pw = k === 0 ? '' : k === 1 ? mi(v) : sup(mi(v), mn(k))
+    terms.push((terms.length ? mo(sign) : a < 0 ? mo('−') : '') + coef + pw)
+  })
+  return row(...(terms.length ? terms : [mn(0)]))
+}
+
 /** e^{x} */
 export const exp = (x: MathNode): MathNode => sup(mi('e', true), x)
 

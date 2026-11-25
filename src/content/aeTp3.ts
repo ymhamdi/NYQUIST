@@ -3,30 +3,16 @@
  * (TP Automatique Echantillonnée, INSAT 2024-2025, pages 13-15), typos
  * included. Checked against the PDF on 2026-11-24 (COVERAGE.md).
  */
-export type QType = 'main' | 'matlab' | 'simulink' | 'interp'
+import type { Question, TpMeta } from './types'
+export type { Question, QType } from './types'
+export { QTYPE_LABEL } from './types'
 
-export const QTYPE_LABEL: Record<QType, string> = {
-  main: 'calcul à la main',
-  matlab: 'MATLAB',
-  simulink: 'Simulink',
-  interp: 'interprétation',
-}
-
-export interface Question {
-  /** handout number, also the MATLAB cell id */
-  id: string
-  /** number as printed */
-  number: string
-  text: string
-  page: number
-  types: QType[]
-}
-
-export const TP = {
+export const TP: TpMeta = {
   course: 'Automatique linéaire échantillonnée',
   number: 3,
   title: "Stabilité et précision d'un système échantillonné asservi",
   pages: '13–15',
+  verified: true,
   but: "Dans ce TP on va étudier la stabilité d'un système Echantillonné en tenant compte de l'effet de la période d'échantillonnage ainsi que du contrôleur numérique proportionnel.",
 }
 
