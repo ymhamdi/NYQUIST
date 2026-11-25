@@ -11,7 +11,7 @@ const auto = [
 const signal = [
   { n: 1, title: 'Signaux discrets', status: 'énoncé manquant' },
   { n: 2, title: 'Convolution des signaux numériques', status: 'énoncé manquant' },
-  { n: 3, title: 'Transformée de Fourier Discrète', status: 'script MATLAB vérifié (énoncé non vérifié)' },
+  { n: 3, title: 'Transformée de Fourier Discrète', status: 'page interactive (énoncé non vérifié)', href: `${base}signal/tp3/` },
   { n: 4, title: 'Analyse des filtres numériques', status: 'script MATLAB vérifié (énoncé non vérifié)' },
 ]
 ---
@@ -43,7 +43,7 @@ const signal = [
           {
             signal.map((t) => (
               <li>
-                <span>TP{t.n} : {t.title}</span>
+                {t.href ? <a href={t.href}>TP{t.n} : {t.title}</a> : <span>TP{t.n} : {t.title}</span>}
                 <span class="tag">{t.status}</span>
               </li>
             ))

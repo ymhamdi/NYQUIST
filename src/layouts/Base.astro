@@ -11,7 +11,8 @@ const { title, description, section } = Astro.props
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
 const nav = [
   { id: 'home', href: base, label: 'Accueil' },
-  { id: 'automatique', href: `${base}automatique/tp3/`, label: 'Automatique' },
+  { id: 'automatique', href: `${base}automatique/tp1/`, label: 'Automatique' },
+  { id: 'signal', href: `${base}signal/tp3/`, label: 'Signal' },
   { id: 'ds', href: `${base}ds/automatique/`, label: 'Mode DS' },
   { id: 'errata', href: `${base}errata/`, label: 'Errata' },
 ]

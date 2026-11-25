@@ -1,0 +1,20 @@
+---
+import PartA from '../../components/ts-tp3/PartA.svelte'
+import PartB from '../../components/ts-tp3/PartB.svelte'
+import { QUESTIONS, TP } from '../../content/tsTp3'
+import TpLayout from '../../layouts/TpLayout.astro'
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
+const errataBase = `${base}errata/`
+---
+
+<TpLayout
+  tp={TP}
+  description="Transformée de Fourier discrète : amplitudes et fréquences des raies, composante continue, retard, résolution et fuite spectrale, ajout de zéros. Calculs, figures et code MATLAB qui suivent les curseurs."
+  parts={[{ id: '2.2', questions: QUESTIONS }]}
+  reportPath="rapport/signal/tp3/"
+  dsPath="ds/signal/"
+>
+  <PartA client:idle errataBase={errataBase} />
+  <PartB client:visible errataBase={errataBase} />
+</TpLayout>

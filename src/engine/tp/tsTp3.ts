@@ -122,7 +122,8 @@ export function tsTp3(p: TsTp3Params) {
       rapport_modules: cabs(raie_x3) / cabs(raie_ref),
       rapport_x3_x2: cabs(raie_x3) / (cabs(at(X2, i100)) / N),
     },
-    Q9: { N9, n9: range(N9), x4, X4, f9, pic_x4: peakAbove50(X4, f9) },
+    // f4: engine only (the script's 105 Hz, for the page's text)
+    Q9: { N9, n9: range(N9), x4, X4, f9, pic_x4: peakAbove50(X4, f9), f4: 105 },
     Q10: {
       tmax_liste,
       delta_f_liste,
