@@ -7,9 +7,41 @@ Youssef El Mhamdi, IIA 3/1, INSAT. MIT License.
 
 [![Octave references](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/octave-refs.yml/badge.svg)](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/octave-refs.yml)
 
-> **Status: Phase 3 in progress** (Automatique TP3 page, report, Mode DS, errata: built, being verified). Phases 0–2 are done and green in CI. See CLAUDE.md, section Status, for where work resumes.
+> **Status: Phase 3 done, waiting for your review.** The Automatique TP3 page is complete end to end (predictions, derivations, figures, code that follows the sliders, compte rendu, Mode DS, errata). Phases 0–2 are done and green in CI. One branch per phase: `phase-0` … `phase-3`.
 
-**Contents:** [Phase 2: the engine](#phase-2-the-engine) · [Phase 1: the MATLAB scripts](#phase-1-the-matlab-scripts) · [Phase 0: what was done](#phase-0-what-was-done) · [The plan](#the-plan-what-comes-next) · [What I need from you](#what-i-need-from-you) · [Repository layout](#repository-layout)
+**Contents:** [Phase 3: the TP3 page](#phase-3-the-automatique-tp3-page-end-to-end) · [Phase 2: the engine](#phase-2-the-engine) · [Phase 1: the MATLAB scripts](#phase-1-the-matlab-scripts) · [Phase 0: what was done](#phase-0-what-was-done) · [The plan](#the-plan-what-comes-next) · [What I need from you](#what-i-need-from-you) · [Repository layout](#repository-layout)
+
+---
+
+## Phase 3: the Automatique TP3 page, end to end
+
+**See it locally:** `npm ci && npm run build && npx astro preview`, then open http://localhost:4321/.
+
+| Page | What it offers |
+|---|---|
+| `/automatique/tp3/` | Every question with its statement quoted from the fascicule (page number) and its type. **Predict first**: a value or a choice to commit to before the answer appears. The **hand calculation, step by step** with the current numbers (ZOH Z-transform by partial fractions, closed loop, pole, stability, Kmax(T), static error, K for a tolerance). Own SVG figures (hover or arrow keys to read values). The z-plane with the root locus. **Figures 3.1 and 3.2 redrawn**: click a block to see its transfer function. Under each question, the `%%` cell of the script to submit, with the slider values written in (changed lines highlighted), plus copy and download of the full script. |
+| `/rapport/automatique/tp3/` | **"Générer le compte rendu"**: cover page (name, group, date), the values used, every question with its answer, derivation and figures at the current values, your observations, and the MATLAB script in annex. A4 PDF with page numbers, via the browser's "Enregistrer en PDF" (17 pages). |
+| `/ds/automatique/` | **Mode DS**: three types of generated exercises (sampled loop as in TP3, choice of the sampling period, discretization with and without a hold as in TP2). Auto-corrected by the engine, with the detailed correction. The subject number is in the URL, so a subject can be shared. |
+| `/errata/` | The 37 handout issues: what the handout says, the problem, the choice made and why. |
+
+**Measured** (production build, Lighthouse 12, mobile profile with throttling):
+
+| Page | Performance | Accessibility | Best practices | SEO | Transferred |
+|---|---|---|---|---|---|
+| Home | 100 | 100 | 100 | 100 | 5 KiB |
+| TP3 | 100 | 100 | 100 | 100 | 88 KiB (LCP 1.5 s, TBT 50 ms) |
+| Report | 99 | 100 | 100 | 100 | 92 KiB |
+| Mode DS | 100 | 100 | 100 | 100 | 37 KiB |
+| Errata | 100 | 100 | 100 | 100 | 9 KiB |
+
+Desktop, TP3 page: 100 / 100 / 100 / 100. All pages fit a 375 px phone with no horizontal scroll, and show no console errors. The TP page's JavaScript is about 50 KB gzip, and no math or chart library is shipped (native MathML, own SVG).
+
+**Checked, and what the checks caught**
+- **The figures, formulas and code follow the sliders.** Moving T moves the question prompts, Kmax (4,083 at T = 0,5 s, as expected) and the URL. A browser test confirms it.
+- **A hydration bug, fixed.** With values in the URL, the formulas showed the script's defaults while the text showed the URL's values. Svelte does not repair mismatched `{@html}` on hydration, so the islands now hydrate with the defaults and apply the saved values just after.
+- **The derivations and 600 generated exercises agree with the engine** (tests). The engine itself is checked against Octave (Phase 2).
+
+**Not yet:** the other TP pages, the Simulink builder and the microcontroller export (Phase 4), deployment (Phase 5).
 
 ---
 

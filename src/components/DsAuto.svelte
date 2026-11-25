@@ -118,8 +118,14 @@
     align-items: center;
     margin: 1rem 0;
   }
+  .bar label {
+    flex: 1 1 14rem;
+    min-width: 0;
+  }
   select {
     display: block;
+    width: 100%;
+    max-width: 28rem;
     min-height: 2.75rem;
     margin-top: 0.2rem;
     padding: 0.3rem 0.5rem;
