@@ -44,7 +44,9 @@ jobs:
 
       - name: Arduino Uno - arduino-cli
         run: |
-          curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/1.5.1/install.sh | BINDIR="$HOME/bin" sh -s 1.5.1
+          mkdir -p "$HOME/bin"
+          curl -fsSL https://downloads.arduino.cc/arduino-cli/arduino-cli_1.5.1_Linux_64bit.tar.gz | tar -xz -C "$HOME/bin" arduino-cli
+          "$HOME/bin/arduino-cli" version
           "$HOME/bin/arduino-cli" core update-index
           "$HOME/bin/arduino-cli" core install arduino:avr@1.8.8
           for d in build/mcu/arduino/*/; do
