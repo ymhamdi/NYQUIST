@@ -1,0 +1,17 @@
+---
+import Report from '../../../components/ae-tp1/Report.svelte'
+import { TP } from '../../../content/aeTp1'
+import Base from '../../../layouts/Base.astro'
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
+---
+
+<Base
+  title={`Compte rendu — TP${TP.number}`}
+  description="Compte rendu imprimable du TP1 d'automatique échantillonnée (Simulink) : questions, calculs, figures et script MATLAB avec les valeurs choisies."
+  section="rapport"
+>
+  <div class="wrap">
+    <Report client:load errataBase={`${base}errata/`} tpHref={`${base}automatique/tp1/`} />
+  </div>
+</Base>

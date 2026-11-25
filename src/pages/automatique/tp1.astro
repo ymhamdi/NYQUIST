@@ -1,0 +1,18 @@
+---
+import PartIII from '../../components/ae-tp1/PartIII.svelte'
+import { PART_III, TP } from '../../content/aeTp1'
+import TpLayout from '../../layouts/TpLayout.astro'
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
+const errataBase = `${base}errata/`
+---
+
+<TpLayout
+  tp={TP}
+  description="Premiers pas dans Simulink : réponse d'un système du premier ordre 9/(s+9) dans la boucle de la figure 1.6, effet de la valeur finale de l'échelon. Calculs, figures et code MATLAB qui suivent les curseurs."
+  parts={[{ id: 'III', questions: PART_III.questions }]}
+  reportPath="rapport/automatique/tp1/"
+  dsPath="ds/automatique/"
+>
+  <PartIII client:idle errataBase={errataBase} />
+</TpLayout>
