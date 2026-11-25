@@ -13,6 +13,7 @@
   import QuestionHead from '../QuestionHead.svelte'
   import ZPlane from '../ZPlane.svelte'
   import McuFilter from '../mcu/McuFilter.svelte'
+  import { MCU_DEFAULTS } from '../../content/mcu'
 
   interface Props {
     report?: boolean
@@ -144,8 +145,8 @@
         title="Filtre passe-bas RII du second ordre (TP4, partie II)"
         b={c1.b}
         a={c1.a}
-        FeDefault={1000}
-        note="La fréquence d'échantillonnage n'est pas donnée : 1000 Hz par défaut (errata E-TS11). Elle ne change que l'axe des fréquences et le réglage du timer."
+        FeDefault={MCU_DEFAULTS.filtreFe}
+        note={`La fréquence d'échantillonnage n'est pas donnée : ${fmt(MCU_DEFAULTS.filtreFe)} Hz par défaut (errata E-TS11). Elle ne change que l'axe des fréquences et le réglage du timer.`}
       />
     </article>
   {/if}

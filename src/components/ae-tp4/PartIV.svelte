@@ -15,7 +15,8 @@
   import QuestionHead from '../QuestionHead.svelte'
   import StepInfoTable from '../StepInfoTable.svelte'
   import McuPid from '../mcu/McuPid.svelte'
-  import { samplingFromSettling } from '../../engine/mcu'
+  import { SETTLING_DIVISOR, samplingFromSettling } from '../../engine/mcu'
+  import { MCU_DEFAULTS } from '../../content/mcu'
 
   interface Props {
     report?: boolean
@@ -181,12 +182,12 @@
         setpoint={m.U}
         duration={m.tm.at(-1)!}
         TsDefault={samplingFromSettling(c8.Sm_avec.SettlingTime)}
-        limitsDefault={{ umin: -200, umax: 200 }}
+        limitsDefault={MCU_DEFAULTS.moteur}
         measure="vitesse"
         command="tension"
         unitMeasure="rad/s"
         unitCommand="V"
-        note="Te par défaut : temps de réponse à 2 % divisé par 40, arrondi. Tension bornée par l'alimentation du Tableau 2.1 ; le couple résistant n'est pas simulé ici ; dérivée filtrée avec le N du bloc PID Controller. Errata E-AE27."
+        note={`Te par défaut : temps de réponse à 2 % divisé par ${SETTLING_DIVISOR}, arrondi. Tension bornée par l'alimentation du Tableau 2.1 ; le couple résistant n'est pas simulé ici ; dérivée filtrée avec le N du bloc PID Controller. Errata E-AE27.`}
       />
     </article>
   {/if}

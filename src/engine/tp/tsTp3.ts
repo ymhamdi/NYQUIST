@@ -100,7 +100,8 @@ export function tsTp3(p: TsTp3Params) {
   const peakFreq = (X: Spectrum, fx: number[]) => fx[argmaxMasked(mag(X), (i) => fx[i] > 50)]
 
   return {
-    Q1: { Fe, Te, tmax, inclure_tmax, N, n, x1 },
+    // f0: engine only (the script's 100 Hz, for the page's text)
+    Q1: { Fe, Te, tmax, inclure_tmax, N, n, x1, f0: 100 },
     Q2: { X1, f, delta_f: Fe / N },
     Q3: {},
     Q4: {

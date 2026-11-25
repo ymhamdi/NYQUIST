@@ -1,0 +1,5 @@
+[
+  { "file": "src/components/ts-tp3/PartA.svelte", "text": "2.2 Manipulation", "why": "section number of the handout" },
+  { "file": "src/content/errata.ts", "text": "2·12,5K/(1 + 12,5K)", "why": "formula with the handout's gain G1(s) = 12.5/(50s+1)" },
+  { "file": "src/content/errata.ts", "text": "série 1–2–2,5–5", "why": "name of the rounding series used for sampling periods" }
+]

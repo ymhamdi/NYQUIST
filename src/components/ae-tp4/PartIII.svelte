@@ -15,7 +15,8 @@
   import QuestionHead from '../QuestionHead.svelte'
   import StepInfoTable from '../StepInfoTable.svelte'
   import McuPid from '../mcu/McuPid.svelte'
-  import { samplingFromSettling } from '../../engine/mcu'
+  import { SETTLING_DIVISOR, samplingFromSettling } from '../../engine/mcu'
+  import { MCU_DEFAULTS } from '../../content/mcu'
 
   interface Props {
     report?: boolean
@@ -177,12 +178,12 @@
         setpoint={H0}
         duration={c1.t.at(-1)!}
         TsDefault={samplingFromSettling(c4.S_avec.SettlingTime)}
-        limitsDefault={{ umin: 0, umax: 0.5 }}
+        limitsDefault={MCU_DEFAULTS.reservoir}
         measure="hauteur"
         command="débit Qe"
         unitMeasure="m"
         unitCommand="u.d."
-        note="Te par défaut : temps de réponse à 2 % divisé par 40, arrondi. Le débit d'entrée ne peut pas être négatif et son maximum n'est pas donné (u.d. : unités de débit). Choix non donnés par le fascicule : errata E-AE27."
+        note={`Te par défaut : temps de réponse à 2 % divisé par ${SETTLING_DIVISOR}, arrondi. Le débit d'entrée ne peut pas être négatif et son maximum n'est pas donné (u.d. : unités de débit). Choix non donnés par le fascicule : errata E-AE27.`}
       />
     </article>
   {/if}

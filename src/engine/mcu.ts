@@ -209,4 +209,5 @@ export function roundDown125(v: number): number {
  * loop's dominant time constant, estimated as the 2 % settling time / 4,
  * rounded down to the 1–2–2.5–5 series.
  */
-export const samplingFromSettling = (settlingTime: number) => roundDown125(settlingTime / 40)
+export const SETTLING_DIVISOR = 40
+export const samplingFromSettling = (settlingTime: number) => roundDown125(settlingTime / SETTLING_DIVISOR)

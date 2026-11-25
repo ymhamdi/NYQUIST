@@ -48,6 +48,9 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
+      - name: No hand-typed number in the French prose
+        run: npm run lint:numbers
+
       - name: Engine tests against the references
         run: npm test
 
