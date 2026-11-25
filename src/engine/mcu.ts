@@ -196,3 +196,17 @@ export function simulateDigitalLoop(plant: TF, g: PidGains, r: number, n: number
   }
   return out
 }
+
+/** Largest value of the 1–2–2.5–5 series not above v (the project's rounding for sampling periods). */
+export function roundDown125(v: number): number {
+  const p = 10 ** Math.floor(Math.log10(v))
+  const m = [5, 2.5, 2, 1].find((k) => k * p <= v * (1 + 1e-12)) ?? 1
+  return m * p
+}
+
+/**
+ * Default sampling period of a digital controller: a tenth of the closed
+ * loop's dominant time constant, estimated as the 2 % settling time / 4,
+ * rounded down to the 1–2–2.5–5 series.
+ */
+export const samplingFromSettling = (settlingTime: number) => roundDown125(settlingTime / 40)

@@ -220,7 +220,7 @@
       <g clip-path={`url(#${uid}-clip)`}>
         {#each hRules as r (r.at)}
           <line class="rule" x1={M.l} x2={M.l + pw} y1={sy(r.at)} y2={sy(r.at)} style={`stroke: var(--c${r.color ?? 2})`}></line>
-          {#if r.label}<text class="rule-label" x={M.l + pw - 4} y={sy(r.at) - 5} text-anchor="end">{r.label}</text>{/if}
+          {#if r.label}<text class="rule-label" x={M.l + pw - 4} y={sy(r.at) - 5 < M.t + 10 ? sy(r.at) + 14 : sy(r.at) - 5} text-anchor="end">{r.label}</text>{/if}
         {/each}
         {#each vRules as r, i (r.at)}
           <line class="rule" x1={sx(r.at)} x2={sx(r.at)} y1={M.t} y2={M.t + ph} style={`stroke: var(--c${r.color ?? 2})`}></line>

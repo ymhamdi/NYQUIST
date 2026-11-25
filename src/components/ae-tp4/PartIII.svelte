@@ -14,6 +14,8 @@
   import Predict from '../Predict.svelte'
   import QuestionHead from '../QuestionHead.svelte'
   import StepInfoTable from '../StepInfoTable.svelte'
+  import McuPid from '../mcu/McuPid.svelte'
+  import { samplingFromSettling } from '../../engine/mcu'
 
   interface Props {
     report?: boolean
@@ -160,6 +162,30 @@
       <CodeCell script={tp4.script} original={SCRIPT_SOURCE} cell="III.4" filename={SCRIPT_NAME} needs={['III.1']} />
     </Predict>
   </article>
+
+  {#if !report}
+    <article class="no-print">
+      <h3 id="mcu-reservoir">Vers le microcontrôleur</h3>
+      <McuPid
+        name="reservoir"
+        title="Hauteur d'eau du réservoir (TP4, partie III)"
+        plant={c1.G}
+        {kp}
+        {ki}
+        {kd}
+        N={v.N_filtre as number}
+        setpoint={H0}
+        duration={c1.t.at(-1)!}
+        TsDefault={samplingFromSettling(c4.S_avec.SettlingTime)}
+        limitsDefault={{ umin: 0, umax: 0.5 }}
+        measure="hauteur"
+        command="débit Qe"
+        unitMeasure="m"
+        unitCommand="u.d."
+        note="Te par défaut : temps de réponse à 2 % divisé par 40, arrondi. Le débit d'entrée ne peut pas être négatif et son maximum n'est pas donné (u.d. : unités de débit). Choix non donnés par le fascicule : errata E-AE27."
+      />
+    </article>
+  {/if}
 </section>
 
 <style>

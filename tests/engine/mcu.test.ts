@@ -94,3 +94,15 @@ describe('direct form I and fixed point', () => {
     yq.forEach((v, i) => expect(Math.abs(v - yf[i])).toBeLessThan(20))
   })
 })
+
+describe('default sampling period', () => {
+  it('rounds down to the 1–2–2.5–5 series', async () => {
+    const { roundDown125, samplingFromSettling } = await import('../../src/engine/mcu')
+    expect(roundDown125(0.39)).toBeCloseTo(0.25, 12)
+    expect(roundDown125(0.0027)).toBeCloseTo(0.0025, 12)
+    expect(roundDown125(7)).toBe(5)
+    expect(roundDown125(1)).toBe(1)
+    expect(roundDown125(0.2)).toBeCloseTo(0.2, 12)
+    expect(samplingFromSettling(15.6)).toBeCloseTo(0.25, 12)
+  })
+})

@@ -14,6 +14,8 @@
   import Predict from '../Predict.svelte'
   import QuestionHead from '../QuestionHead.svelte'
   import StepInfoTable from '../StepInfoTable.svelte'
+  import McuPid from '../mcu/McuPid.svelte'
+  import { samplingFromSettling } from '../../engine/mcu'
 
   interface Props {
     report?: boolean
@@ -164,6 +166,30 @@
       <CodeCell script={tp4.script} original={SCRIPT_SOURCE} cell="IV.8" filename={SCRIPT_NAME} needs={['IV.5']} />
     </Predict>
   </article>
+
+  {#if !report}
+    <article class="no-print">
+      <h3 id="mcu-moteur">Vers le microcontrôleur</h3>
+      <McuPid
+        name="moteur"
+        title="Vitesse du moteur à courant continu (TP4, partie IV)"
+        plant={m.Gm}
+        kp={m.kp_m}
+        ki={m.ki_m}
+        kd={m.kd_m}
+        N={v.N_filtre as number}
+        setpoint={m.U}
+        duration={m.tm.at(-1)!}
+        TsDefault={samplingFromSettling(c8.Sm_avec.SettlingTime)}
+        limitsDefault={{ umin: -200, umax: 200 }}
+        measure="vitesse"
+        command="tension"
+        unitMeasure="rad/s"
+        unitCommand="V"
+        note="Te par défaut : temps de réponse à 2 % divisé par 40, arrondi. Tension bornée par l'alimentation du Tableau 2.1 ; le couple résistant n'est pas simulé ici ; dérivée filtrée avec le N du bloc PID Controller. Errata E-AE27."
+      />
+    </article>
+  {/if}
 </section>
 
 <style>

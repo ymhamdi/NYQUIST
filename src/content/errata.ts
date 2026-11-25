@@ -39,6 +39,7 @@ export const ERRATA_AE: Erratum[] = [
   { id: 'E-AE24', where: 'TP2, partie IV', says: '« Déterminer la transformation en Z de ce système »', issue: 'T et Cr non donnés.', choice: 'Curseurs ; Cr = 0 et T = τ/10 = 2,5 ms par défaut.' },
   { id: 'E-AE25', where: 'TP2, question IV.3', says: '« attaqué par un signal discrétisé par un bloqueur »', issue: "Le signal n'est pas précisé. Avec un échelon de U, le bloqueur ne change rien : un échelon est déjà constant entre deux échantillons.", choice: 'Échelon de U = 200 V, avec cette remarque démontrée ; IV.4 compare à la discrétisation sans bloqueur.' },
   { id: 'E-AE26', where: 'TP2, question III.6', says: "c2d(G, T, 'impulse')", issue: "GNU Octave renvoie Z{g(kT)} ; la documentation de MATLAB ne dit pas s'il multiplie par T.", choice: 'Les deux conventions sont calculées ; une ligne à exécuter dans MATLAB tranchera.' },
+  { id: 'E-AE27', where: 'TP4, « Vers le microcontrôleur » (hors fascicule)', says: 'Le fascicule ne parle pas de code embarqué.', issue: "Une carte a besoin d'une période d'échantillonnage et de bornes pour la commande, que le fascicule ne donne pas.", choice: "Te = constante de temps dominante/10 (temps de réponse à 2 %/40), arrondie à la série 1–2–2,5–5 ; débit du réservoir entre 0 et 0,5 ; tension du moteur entre −200 et 200 V (tension d'alimentation du Tableau 2.1). Tout est réglable." },
 ]
 
 export const ERRATA_TS: Erratum[] = [
@@ -52,4 +53,5 @@ export const ERRATA_TS: Erratum[] = [
   { id: 'E-TS8', where: 'TP4, partie II', says: 'Dénominateur 0.516z² − 1.2z + 1.', issue: "Pôles de module 1,392 : filtre instable, qu'on lise en z ou en z⁻¹. C'est z² − 1,2z + 0,516 écrit à l'envers ; inverser l'ordre inverse les pôles (module 0,718).", choice: 'Version stable par défaut, version imprimée en option.' },
   { id: 'E-TS9', where: 'TP4, question II.1', says: "« l'ordre du filtre N = 32 »", issue: "32 est le nombre d'échantillons de h[n] ; le filtre est d'ordre 2.", choice: 'Signalé.' },
   { id: 'E-TS10', where: 'TP3, question 8', says: '« comparées à X2(f) »', issue: 'x3 a une amplitude 1 et x2 une amplitude 3 : la comparaison mélange le retard et un facteur 1/3.', choice: 'Comparaison ajoutée avec 5 + cos(2π100nTe), qui isole le retard.' },
+  { id: 'E-TS11', where: 'TP4, partie II, « Vers le microcontrôleur » (hors fascicule)', says: 'Le filtre RII est donné en fréquence normalisée.', issue: "Pour programmer une carte, il faut une fréquence d'échantillonnage Fe, non donnée.", choice: 'Fe = 1000 Hz par défaut, réglable ; la réponse est tracée de 0 à Fe/2.' },
 ]
