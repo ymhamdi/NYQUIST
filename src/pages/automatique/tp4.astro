@@ -2,83 +2,19 @@
 import PartIII from '../../components/ae-tp4/PartIII.svelte'
 import PartIV from '../../components/ae-tp4/PartIV.svelte'
 import { PART_III, PART_IV, TP } from '../../content/aeTp4'
-import Base from '../../layouts/Base.astro'
+import TpLayout from '../../layouts/TpLayout.astro'
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
 const errataBase = `${base}errata/`
 ---
 
-<Base
-  title={`TP${TP.number} — ${TP.title}`}
+<TpLayout
+  tp={TP}
   description="Régulation PID du niveau d'un réservoir et de la vitesse d'un moteur à courant continu : effet de kp, ki et kd, stepinfo avant et après. Calculs, figures et code MATLAB qui suivent les curseurs."
-  section="automatique"
+  parts={[{ id: 'III', questions: PART_III.questions }, { id: 'IV', questions: PART_IV.questions }]}
+  reportPath="rapport/automatique/tp4/"
+  dsPath="ds/automatique/"
 >
-  <div class="wrap">
-    <p class="kicker">{TP.course} · fascicule p. {TP.pages}</p>
-    <h1>TP{TP.number} : {TP.title}</h1>
-    <div class="statement">
-      <p><strong>I. But</strong></p>
-      <p><q>{TP.but}</q></p>
-    </div>
-    <div class="actions no-print">
-      <a class="btn" href={`${base}rapport/automatique/tp4/`}>Générer le compte rendu</a>
-      <a class="btn ghost" href={`${base}ds/automatique/`}>S'entraîner (Mode DS)</a>
-    </div>
-    <p class="how">
-      Chaque question commence par une <strong>prédiction</strong> : donnez votre valeur avant de voir la réponse. Les curseurs de chaque partie modifient
-      les calculs, les figures et le code MATLAB affiché ; ce code est la cellule du script à rendre, avec les valeurs du curseur.
-    </p>
-
-    <nav class="toc card" aria-label="Questions du TP">
-      <p><strong>Questions</strong></p>
-      <ul>
-        <li>
-          <a href="#partie-III">III.</a>
-          {PART_III.questions.map((q) => <a href={`#q-${q.id}`}>{q.number}</a>)}
-        </li>
-        <li>
-          <a href="#partie-IV">IV.</a>
-          {PART_IV.questions.map((q) => <a href={`#q-${q.id}`}>{q.number}</a>)}
-        </li>
-      </ul>
-    </nav>
-
-    <PartIII client:idle errataBase={errataBase} />
-    <PartIV client:visible errataBase={errataBase} />
-  </div>
-</Base>
-
-<style>
-  .kicker {
-    margin: 1.5rem 0 0;
-    color: var(--ink-soft);
-    font-weight: 600;
-  }
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    margin: 1rem 0;
-  }
-  .how {
-    color: var(--ink-soft);
-  }
-  .toc ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  .toc li {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.2rem 0.4rem;
-    align-items: center;
-  }
-  .toc a {
-    display: inline-grid;
-    place-items: center;
-    min-width: 2.75rem;
-    min-height: 2.75rem;
-    padding: 0 0.5rem;
-  }
-</style>
+  <PartIII client:idle errataBase={errataBase} />
+  <PartIV client:visible errataBase={errataBase} />
+</TpLayout>

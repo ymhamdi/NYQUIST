@@ -31,7 +31,7 @@
 </script>
 
 <figure class="bd">
-  <svg viewBox={`0 0 ${width} ${height}`} role="group" aria-label={`Figure ${figure}. ${caption}. Les blocs sont des boutons.`}>
+  <svg viewBox={`0 0 ${width} ${height}`} role="group" aria-label={`${figure ? `Figure ${figure}. ` : ""}${caption}. Les blocs sont des boutons.`}>
     <defs>
       <marker id={`${uid}-a`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
         <path d="M0 0L10 5L0 10z" fill="currentColor"></path>
@@ -87,7 +87,7 @@
       </g>
     {/each}
   </svg>
-  <figcaption>Figure {figure}. {caption} <span class="muted">(redessinée ; cliquer un bloc pour voir sa fonction de transfert)</span></figcaption>
+  <figcaption>{#if figure}Figure {figure}. {caption} <span class="muted">(redessinée ; cliquer un bloc pour voir sa fonction de transfert)</span>{:else}{caption} <span class="muted">(schéma proposé, absent du fascicule ; cliquer un bloc pour voir sa fonction de transfert)</span>{/if}</figcaption>
   <div class="panel" aria-live="polite">
     {#if active && info[active]}
       {@const it = info[active]}

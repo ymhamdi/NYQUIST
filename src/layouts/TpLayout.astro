@@ -1,0 +1,103 @@
+---
+/**
+ * Page shell shared by every TP: title, the handout's "But", report and
+ * Mode DS buttons, how the page works, the table of questions; the TP's
+ * islands go in the slot.
+ */
+import type { Question, TpMeta } from '../content/types'
+import Base from './Base.astro'
+
+interface Part {
+  /** roman numeral of the part, as in the fascicule */
+  id: string
+  questions: Question[]
+}
+interface Props {
+  tp: TpMeta
+  description: string
+  parts: Part[]
+  reportPath: string
+  dsPath: string
+}
+const { tp, description, parts, reportPath, dsPath } = Astro.props
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
+---
+
+<Base title={`TP${tp.number} — ${tp.title}`} {description} section={tp.course.startsWith('Automatique') ? 'automatique' : 'signal'}>
+  <div class="wrap">
+    <p class="kicker">{tp.course}{tp.pages ? ` · fascicule p. ${tp.pages}` : ''}</p>
+    <h1>TP{tp.number} : {tp.title}</h1>
+    {!tp.verified && <p class="note">Énoncé transcrit, non vérifié sur le fascicule original (le fascicule de traitement du signal n'a pas pu être consulté).</p>}
+    {
+      tp.but && (
+        <div class="statement">
+          <p>
+            <strong>I. But</strong>
+          </p>
+          <p>
+            <q>{tp.but}</q>
+          </p>
+        </div>
+      )
+    }
+    <div class="actions no-print">
+      <a class="btn" href={`${base}${reportPath}`}>Générer le compte rendu</a>
+      <a class="btn ghost" href={`${base}${dsPath}`}>S'entraîner (Mode DS)</a>
+    </div>
+    <p class="how">
+      Chaque question commence par une <strong>prédiction</strong> : donnez votre valeur avant de voir la réponse. Les curseurs de chaque partie modifient
+      les calculs, les figures et le code MATLAB affiché ; ce code est la cellule du script à rendre, avec les valeurs du curseur.
+    </p>
+    <nav class="toc card" aria-label="Questions du TP">
+      <p><strong>Questions</strong></p>
+      <ul>
+        {
+          parts.map((p) => (
+            <li>
+              <a href={`#partie-${p.id}`}>{p.id}.</a>
+              {p.questions.map((q) => (
+                <a href={`#q-${q.id}`}>{q.number}</a>
+              ))}
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <slot />
+  </div>
+</Base>
+
+<style>
+  .kicker {
+    margin: 1.5rem 0 0;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 1rem 0;
+  }
+  .how {
+    color: var(--ink-soft);
+  }
+  .toc ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .toc li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.4rem;
+    align-items: center;
+  }
+  .toc a {
+    display: inline-grid;
+    place-items: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0 0.5rem;
+  }
+</style>

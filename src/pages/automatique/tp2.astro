@@ -1,0 +1,22 @@
+---
+import PartII from '../../components/ae-tp2/PartII.svelte'
+import PartIII from '../../components/ae-tp2/PartIII.svelte'
+import PartIV from '../../components/ae-tp2/PartIV.svelte'
+import { PART_II, PART_III, PART_IV, TP } from '../../content/aeTp2'
+import TpLayout from '../../layouts/TpLayout.astro'
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
+const errataBase = `${base}errata/`
+---
+
+<TpLayout
+  tp={TP}
+  description="Discrétisation par un bloqueur d'ordre zéro : sinusoïde échantillonnée, c2d avec et sans bloqueur, moteur à courant continu. Calculs, figures et code MATLAB qui suivent les curseurs."
+  parts={[{ id: 'II', questions: PART_II.questions }, { id: 'III', questions: PART_III.questions }, { id: 'IV', questions: PART_IV.questions }]}
+  reportPath="rapport/automatique/tp2/"
+  dsPath="ds/automatique/"
+>
+  <PartII client:idle errataBase={errataBase} />
+  <PartIII client:visible errataBase={errataBase} />
+  <PartIV client:visible errataBase={errataBase} />
+</TpLayout>

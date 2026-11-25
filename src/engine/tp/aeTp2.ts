@@ -95,6 +95,8 @@ export function aeTp2(p: AeTp2Params) {
       points_par_periode: T_liste.map((Ti) => (2 * Math.PI) / (w * Ti)),
       retard_moyen: T_liste.map((Ti) => Ti / 2),
       T_shannon: Math.PI / w,
+      // engine only (figure): the held sine for each period
+      bloques: T_liste.map(held),
     },
     'III.1': { G },
     'III.2': { poles_G: poles(G), zeros_G: zeros(G) },
