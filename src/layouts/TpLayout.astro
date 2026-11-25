@@ -4,6 +4,7 @@
  * Mode DS buttons, how the page works, the table of questions; the TP's
  * islands go in the slot.
  */
+import { courseOf } from '../content/courses'
 import type { Question, TpMeta } from '../content/types'
 import Base from './Base.astro'
 
@@ -21,10 +22,32 @@ interface Props {
 }
 const { tp, description, parts, reportPath, dsPath } = Astro.props
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
+const course = courseOf(tp.course)
 ---
 
 <Base title={`TP${tp.number} — ${tp.title}`} {description} section={tp.course.startsWith('Automatique') ? 'automatique' : 'signal'}>
   <div class="wrap">
+    <nav class="tps no-print" aria-label={`TP de ${course.name}`}>
+      <ul>
+        {
+          course.tps.map((t) => (
+            <li>
+              {t.n === tp.number ? (
+                <span aria-current="page">TP{t.n}</span>
+              ) : t.path ? (
+                <a href={`${base}${t.path}`} title={t.title}>
+                  TP{t.n}
+                </a>
+              ) : (
+                <span class="off" title={`${t.title} : ${t.status}`}>
+                  TP{t.n}
+                </span>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
     <p class="kicker">{tp.course}{tp.pages ? ` · fascicule p. ${tp.pages}` : ''}</p>
     <h1>TP{tp.number} : {tp.title}</h1>
     {!tp.verified && <p class="note">Énoncé transcrit, non vérifié sur le fascicule original (le fascicule de traitement du signal n'a pas pu être consulté).</p>}
@@ -68,8 +91,36 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
 </Base>
 
 <style>
+  .tps ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+  }
+  .tps a,
+  .tps span {
+    display: inline-grid;
+    place-items: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0 0.7rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    font-weight: 600;
+  }
+  .tps [aria-current='page'] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+  .tps .off {
+    color: var(--ink-soft);
+    border-style: dashed;
+  }
   .kicker {
-    margin: 1.5rem 0 0;
+    margin: 1rem 0 0;
     color: var(--ink-soft);
     font-weight: 600;
   }

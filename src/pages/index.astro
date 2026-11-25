@@ -1,19 +1,8 @@
 ---
+import { COURSES } from '../content/courses'
 import Base from '../layouts/Base.astro'
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
-const auto = [
-  { n: 1, title: 'Initialisation à Matlab Simulink', status: 'page interactive', href: `${base}automatique/tp1/` },
-  { n: 2, title: "Discrétisation d'un signal à temps continu", status: 'page interactive', href: `${base}automatique/tp2/` },
-  { n: 3, title: "Stabilité et précision d'un système échantillonné asservi", status: 'page interactive', href: `${base}automatique/tp3/` },
-  { n: 4, title: 'Asservissement des systèmes continus', status: 'page interactive', href: `${base}automatique/tp4/` },
-]
-const signal = [
-  { n: 1, title: 'Signaux discrets', status: 'énoncé manquant' },
-  { n: 2, title: 'Convolution des signaux numériques', status: 'énoncé manquant' },
-  { n: 3, title: 'Transformée de Fourier Discrète', status: 'page interactive (énoncé non vérifié)', href: `${base}signal/tp3/` },
-  { n: 4, title: 'Analyse des filtres numériques', status: 'page interactive (énoncé non vérifié)', href: `${base}signal/tp4/` },
-]
 ---
 
 <Base title="Accueil" description="Travaux pratiques MATLAB d'automatique échantillonnée et de traitement du signal (INSAT, IIA 3), interactifs et vérifiés." section="home">
@@ -24,32 +13,21 @@ const signal = [
       MATLAB qui suivent les curseurs, compte rendu imprimable.
     </p>
     <div class="courses">
-      <section class="card" aria-labelledby="c-auto">
-        <h2 id="c-auto">Automatique linéaire échantillonnée</h2>
-        <ul>
-          {
-            auto.map((t) => (
-              <li>
-                {t.href ? <a href={t.href}>TP{t.n} : {t.title}</a> : <span>TP{t.n} : {t.title}</span>}
-                <span class="tag">{t.status}</span>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
-      <section class="card" aria-labelledby="c-sig">
-        <h2 id="c-sig">Traitement du signal</h2>
-        <ul>
-          {
-            signal.map((t) => (
-              <li>
-                {t.href ? <a href={t.href}>TP{t.n} : {t.title}</a> : <span>TP{t.n} : {t.title}</span>}
-                <span class="tag">{t.status}</span>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
+      {
+        COURSES.map((c) => (
+          <section class="card" aria-labelledby={`c-${c.id}`}>
+            <h2 id={`c-${c.id}`}>{c.name}</h2>
+            <ul>
+              {c.tps.map((t) => (
+                <li>
+                  {t.path ? <a href={`${base}${t.path}`}>TP{t.n} : {t.title}</a> : <span>TP{t.n} : {t.title}</span>}
+                  <span class="tag">{t.status}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
     </div>
     <p class="muted">
       Chaque valeur affichée est calculée par le moteur du site. Ce moteur est testé contre GNU Octave, qui exécute les scripts MATLAB du TP à chaque
