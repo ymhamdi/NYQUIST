@@ -270,7 +270,10 @@ td {
 }
 
 @media print {
+  /* paper is white whatever the screen theme: these selectors match (and
+     outrank) both the system dark mode and the dark toggle */
   :root,
+  :root:not([data-theme='light']),
   :root[data-theme='dark'] {
     color-scheme: light;
     --bg: #ffffff;
@@ -280,7 +283,15 @@ td {
     --ink-soft: #333333;
     --rule: #bbbbbb;
     --accent: #0b5e6b;
+    --accent-ink: #ffffff;
     --accent-soft: #eef6f6;
+    --warn: #8a4b00;
+    --warn-soft: #fbefdc;
+    --ok: #1f6b33;
+    --ok-soft: #e2f2e5;
+    --bad: #a3251f;
+    --bad-soft: #fbe4e2;
+    --focus: #c2410c;
     --code-bg: #f6f6f6;
     --grid: #dddddd;
     --c1: #0b5e6b;
