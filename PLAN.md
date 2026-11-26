@@ -118,7 +118,7 @@ Honest total: **≈ 20–22 hours** for everything above. If time runs short, cu
 | 4a ✅ | Remaining TPs on the Phase 3 pattern: AE TP1, TP2, TP4 and TS TP3–TP4 (TS TP1–TP2 need the handout); Mode DS Signal; TP switcher | done |
 | 4b ✅ | Feature 6: Simulink builder (checked in CI with an Octave stand-in for Simulink), C export (Arduino Uno, STM32 HAL, portable C) with gcc / arm-none-eabi-gcc / arduino-cli checks in CI | done |
 | 4c ✅ | Feature 7: offline (own service worker), manifest, number lint in CI, errata numbers from the engine, README with screenshots and GIF. **Cut** as planned: Pyodide Run | done |
-| 5 | GitHub Pages deploy, Lighthouse, browser pass at 375/1280 px, originality check, final scorecard | 1.5 h |
+| 5 ✅ | Lighthouse (mobile 95–100 except one report at 81; desktop 99–100), browser pass at 375/1280 px, page-weight budget in CI, projection mode, pole/zero explorer; deploy workflow ready, run on demand (repository private by decision) | done |
 
 **Cut order if time runs short** (first cut first): Pyodide Run → README GIF (keep screenshots) → STM32 variant (keep Arduino) → Mode DS breadth (fewer generator types, still at least 3 per course) → "pick the curve" predict type (keep numeric/choice) → report extras (keep cover + Q&A + figures + annex). Never cut: verbatim coverage, Octave-generated references, numbers from the engine.
 

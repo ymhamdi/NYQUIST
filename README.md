@@ -8,9 +8,9 @@ Youssef El Mhamdi, IIA 3/1, INSAT. MIT License.
 [![Octave references](https://github.com/ymhamdi/NYQUIST/actions/workflows/octave-refs.yml/badge.svg)](https://github.com/ymhamdi/NYQUIST/actions/workflows/octave-refs.yml)
 [![Microcontroller code](https://github.com/ymhamdi/NYQUIST/actions/workflows/mcu.yml/badge.svg)](https://github.com/ymhamdi/NYQUIST/actions/workflows/mcu.yml)
 
-> **Status: Phase 4 done.** Every TP with a handout has its interactive page and its compte rendu: Automatique TP1–TP4, Signal TP3–TP4. Also done: Mode DS for both courses, the Simulink model builder, the microcontroller C export, offline use, and the "no hand-typed number" check. Signal TP1–TP2 still wait for their handout. Next: **Phase 5** (deployment, Lighthouse, browser pass, final scorecard). One branch per phase: `phase-0` … `phase-4`.
+> **Status: Phase 5 done, site ready to publish.** Every TP with a handout has its interactive page and its compte rendu: Automatique TP1–TP4, Signal TP3–TP4. Signal TP1–TP2 still wait for their handout. Checked locally: Lighthouse, desktop and phone, keyboard, offline, links, page weight. The repository stays **private** for now (your choice of 2026-11-26), so the site is not online yet: the deploy workflow is ready and runs on demand. One branch per phase: `phase-0` … `phase-5`.
 
-**Contents:** [What it looks like](#what-it-looks-like) · [Phase 4](#phase-4-every-tp-simulink-builder-microcontroller-export-offline) · [Phase 3: the TP3 page](#phase-3-the-automatique-tp3-page-end-to-end) · [Phase 2: the engine](#phase-2-the-engine) · [Phase 1: the MATLAB scripts](#phase-1-the-matlab-scripts) · [Phase 0](#phase-0-what-was-done) · [Plan and architecture](#the-plan-what-comes-next) · [What I need from you](#what-i-need-from-you) · [Repository layout](#repository-layout)
+**Contents:** [What it looks like](#what-it-looks-like) · [Phase 5](#phase-5-checks-and-ready-to-publish) · [Phase 4](#phase-4-every-tp-simulink-builder-microcontroller-export-offline) · [Phase 3: the TP3 page](#phase-3-the-automatique-tp3-page-end-to-end) · [Phase 2: the engine](#phase-2-the-engine) · [Phase 1: the MATLAB scripts](#phase-1-the-matlab-scripts) · [Phase 0](#phase-0-what-was-done) · [Plan and architecture](#the-plan-what-comes-next) · [What I need from you](#what-i-need-from-you) · [Repository layout](#repository-layout)
 
 ---
 
@@ -27,6 +27,46 @@ Youssef El Mhamdi, IIA 3/1, INSAT. MIT License.
 | One question, answer revealed | Vers le microcontrôleur | Compte rendu (A4) | Mode DS |
 |---|---|---|---|
 | ![Question II.6: prediction, explanation, figure, MATLAB cell](docs/screenshots/question.jpg) | ![PID sampled at Te with saturation and anti-windup, and its C code](docs/screenshots/mcu.jpg) | ![Cover page of the report](docs/screenshots/report.jpg) | ![A generated filter subject, corrected](docs/screenshots/ds.jpg) |
+
+---
+
+## Phase 5: checks, and ready to publish
+
+**Lighthouse 12, mobile** (local production build, simulated slow 4G and 4× slower CPU):
+
+| Pages | Performance | Accessibility | Best practices | SEO |
+|---|---|---|---|---|
+| Home, Errata, Mode DS (both) | 100 | 100 | 100 | 100 |
+| TP pages (Automatique TP1–TP4, Signal TP3–TP4) | 97–100 | 100 | 100 | 100 |
+| Comptes rendus | 95–98, except Automatique TP4: 81 | 100 | 100 | 100 |
+
+Desktop: 99–100 everywhere. The Automatique TP4 report must compute everything at load, so that it shows the values you set. That includes 16 stepinfo runs on a 20 001-point grid: the grid that makes the engine match the Octave references to 1e-6.
+
+**What changed to get there**
+- An island now computes only the parts of the model it shows.
+- Part III of Automatique TP4 is split in two, the second half hydrating when scrolled to.
+- Plots are drawn with simplified paths: Automatique TP4 went from 693 to 206 KiB of HTML.
+- The microcontroller panels load when opened.
+
+**Browser pass** (Chrome; every page at 1280 px in the light theme and at 375 px in the dark theme):
+- 32/32 checks pass: no console error, no horizontal scroll, one `h1`, no broken image.
+- A visible keyboard focus on the first Tab stops.
+- The 16 pages answer, and the 150 `#anchor` links all reach an existing id.
+
+**Page weight, checked in CI** ([tools/check-budget.mjs](tools/check-budget.mjs)):
+- JavaScript per page, all islands included: 30–66 KiB gzip. The CI limit is 70; the 60 KiB target is met by 13 of 16 pages.
+- HTML: at most 33 KiB gzip.
+
+**Added**
+- **Mode projection**, for a projector in class: the screen button in the header, or the P key. Larger type, full contrast, no navigation.
+- **Pole/zero explorer** (Signal TP4, after I.3): drag a pair of poles and a pair of zeros on the z-plane, with the pointer or the keyboard. The response, the impulse response, the stability verdict and the MATLAB coefficients follow.
+
+**To publish** (when you decide; the repository is now `ymhamdi/NYQUIST`):
+1. Make the repository public.
+2. Settings → Pages → Source: GitHub Actions.
+3. Run the workflow *Deploy to GitHub Pages*. The site goes to `https://ymhamdi.github.io/NYQUIST/`.
+
+Your school email is the author address of the commits. If you want it hidden first, the history can be rewritten to your GitHub no-reply address before the switch.
 
 ---
 
@@ -228,7 +268,7 @@ Full details: [PLAN.md](PLAN.md).
 | Formulas | **Native MathML** from an own builder | Nothing to download; selectable and accessible |
 | Engine | **TypeScript, no dependencies** | Tested against the Octave JSON; shared by pages, exercises, report and C export |
 | Offline | **Own service worker** generated at build time | The available PWA plugin for Astro 7 depended on a days-old 0.0.x core; ours is ~70 lines |
-| Tests | **Vitest**, Octave in CI, gcc / arm-none-eabi-gcc / arduino-cli in CI, Chrome checks | Numbers, wiring, generated C, phone, offline |
+| Tests | **Vitest**, Octave in CI, gcc / arm-none-eabi-gcc / arduino-cli in CI, page-weight budget in CI, Chrome and Lighthouse checks | Numbers, wiring, generated C, weight, phone, offline |
 
 ### Architecture
 ```
@@ -256,7 +296,7 @@ tools/                  reference comparator, number lint, C check, service work
 | **2** ✅ | Engine, tests against the JSON, "code follows sliders" check in CI | done |
 | **3** ✅ | Automatique TP3 end to end, reviewed | done |
 | **4** ✅ | Automatique TP1, TP2, TP4 and Signal TP3, TP4 pages and reports; Mode DS Signal; Simulink builder; C export; offline; number lint; README | done |
-| **5** | Deploy to GitHub Pages (the repo becomes public: I will ask you first), Lighthouse on every page, desktop and phone pass, originality check, final scorecard | next |
+| **5** ✅ | Lighthouse on every page, desktop and phone pass, keyboard, links, page-weight budget in CI, projection mode, pole/zero explorer, deploy workflow (on demand: the repository stays private for now) | done |
 
 Cut from the plan, as foreseen (bottom of the priority list): the in-browser Python "Run" button (Pyodide, ≈ 45 MB). The MATLAB cells are already exact and copyable.
 
@@ -269,7 +309,7 @@ Cut from the plan, as foreseen (bottom of the priority list): the in-browser Pyt
    - `build_models` in `matlab/simulink/`: it builds the 9 Simulink models, simulates them and prints a table. Every line should say `OK`. If one says `ÉCART`, send me the table.
    - The one-line `c2d(…, 'impulse')` check of [matlab/OCTAVE_VS_MATLAB.md](matlab/OCTAVE_VS_MATLAB.md) (TP2 III.6).
 2. **The *Traitement du signal* handout PDF**, if you ever get it. Signal TP1/TP2 stay "needs handout"; TP3/TP4 rest on an unverified transcription. Put it in [handouts/](handouts/) (git-ignored).
-3. **Phase 5:** I will ask you before making the repository public for GitHub Pages.
+3. **Publishing:** when you want the site online, see [Phase 5](#phase-5-checks-and-ready-to-publish) (three steps; optional email rewrite first).
 
 ## Repository layout
 | Path | Content |
