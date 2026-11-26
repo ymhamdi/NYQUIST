@@ -1,5 +1,6 @@
 ---
 import PartIII from '../../components/ae-tp4/PartIII.svelte'
+import PartIIIb from '../../components/ae-tp4/PartIIIb.svelte'
 import PartIV from '../../components/ae-tp4/PartIV.svelte'
 import { PART_III, PART_IV, TP } from '../../content/aeTp4'
 import TpLayout from '../../layouts/TpLayout.astro'
@@ -16,5 +17,6 @@ const errataBase = `${base}errata/`
   dsPath="ds/automatique/"
 >
   <PartIII client:idle errataBase={errataBase} />
+  <PartIIIb client:visible errataBase={errataBase} />
   <PartIV client:visible errataBase={errataBase} />
 </TpLayout>

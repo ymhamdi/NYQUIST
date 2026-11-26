@@ -4,6 +4,7 @@
   import { SCRIPT_NAME, tp4 } from '../../lib/stores/aeTp4.svelte'
   import ReportShell from '../ReportShell.svelte'
   import PartIII from './PartIII.svelte'
+  import PartIIIb from './PartIIIb.svelte'
   import PartIV from './PartIV.svelte'
 
   interface Props {
@@ -44,5 +45,6 @@
   {tpHref}
 >
   <PartIII report {errataBase} />
+  <PartIIIb report {errataBase} />
   <PartIV report {errataBase} />
 </ReportShell>

@@ -171,10 +171,10 @@ export function aeTp4MotorSweeps(p: Pick<AeTp4Params, "L" | "U" | "kpm_liste" | 
 
 /** Parameter names each part reads (the store recomputes a part only when one of them changes). */
 export const AE_TP4_PARTS = {
-  tank: { keys: ["consigne", "kp", "ki", "kd", "N_filtre"], fn: aeTp4Tank },
-  tankSweeps: { keys: ["consigne", "kp_liste", "ki_liste", "kd_liste"], fn: aeTp4TankSweeps },
-  motor: { keys: ["L", "U", "Cr", "t_cr", "kp_m", "ki_m", "kd_m"], fn: aeTp4Motor },
-  motorSweeps: { keys: ["L", "U", "kpm_liste", "kim_liste", "kdm_liste"], fn: aeTp4MotorSweeps },
+  tank: { keys: ['consigne', 'kp', 'ki', 'kd', 'N_filtre'], outputs: ['III.1', 'III.4'], fn: aeTp4Tank },
+  tankSweeps: { keys: ['consigne', 'kp_liste', 'ki_liste', 'kd_liste'], outputs: ['III.2', 'III.3'], fn: aeTp4TankSweeps },
+  motor: { keys: ['L', 'U', 'Cr', 't_cr', 'kp_m', 'ki_m', 'kd_m'], outputs: ['IV.5', 'IV.8'], fn: aeTp4Motor },
+  motorSweeps: { keys: ['L', 'U', 'kpm_liste', 'kim_liste', 'kdm_liste'], outputs: ['IV.6', 'IV.7'], fn: aeTp4MotorSweeps },
 } as const
 
 /** The whole TP, cell by cell, as the script (what the Octave tests compare). */

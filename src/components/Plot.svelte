@@ -106,23 +106,85 @@
     return [ox, oy]
   }
 
+  /**
+   * Ramer–Douglas–Peucker on screen coordinates: drops the points that lie
+   * within `eps` pixels of the line through their neighbours (invisible),
+   * which keeps the pages light. Returns the indices kept.
+   */
+  function simplify(px: number[], py: number[], eps = 0.3): number[] {
+    const n = px.length
+    if (n < 3) return px.map((_, i) => i)
+    const keep = new Uint8Array(n)
+    keep[0] = keep[n - 1] = 1
+    const stack: [number, number][] = [[0, n - 1]]
+    while (stack.length) {
+      const [a, b] = stack.pop()!
+      const dx = px[b] - px[a]
+      const dy = py[b] - py[a]
+      const len = Math.hypot(dx, dy) || 1
+      let iMax = -1
+      let dMax = eps
+      for (let i = a + 1; i < b; i++) {
+        const d = Math.abs(dy * (px[i] - px[a]) - dx * (py[i] - py[a])) / len
+        if (d > dMax) {
+          dMax = d
+          iMax = i
+        }
+      }
+      if (iMax >= 0) {
+        keep[iMax] = 1
+        stack.push([a, iMax], [iMax, b])
+      }
+    }
+    const out: number[] = []
+    keep.forEach((k, i) => k && out.push(i))
+    return out
+  }
+
   function linePath(s: Series): string {
     const [x, y] = decimate(s.x, s.y)
     let d = ''
-    let pen = false
+    // each run of finite points is drawn (and simplified) on its own
+    let px: number[] = []
+    let py: number[] = []
+    const flush = () => {
+      for (const [j, i] of simplify(px, py).entries()) d += `${j ? 'L' : 'M'}${px[i].toFixed(1)} ${py[i].toFixed(1)}`
+      px = []
+      py = []
+    }
     for (let i = 0; i < x.length; i++) {
       if (!finite(y[i]) || !finite(x[i])) {
-        pen = false
+        flush()
         continue
       }
-      d += `${pen ? 'L' : 'M'}${sx(x[i]).toFixed(1)} ${clampY(y[i]).toFixed(1)}`
-      pen = true
+      px.push(sx(x[i]))
+      py.push(clampY(y[i]))
+    }
+    flush()
+    return d
+  }
+  function stemPath(s: Series): string {
+    const b = base.toFixed(1)
+    let d = ''
+    for (let i = 0; i < s.x.length; i++) if (finite(s.y[i]) && finite(s.x[i])) d += `M${sx(s.x[i]).toFixed(1)} ${b}V${clampY(s.y[i]).toFixed(1)}`
+    return d
+  }
+  /** markers as zero-length segments: with round caps, each draws a dot of the stroke width */
+  function dotPath(s: Series): string {
+    let d = ''
+    let last = ''
+    for (let i = 0; i < s.x.length; i++) {
+      if (!finite(s.y[i]) || !finite(s.x[i])) continue
+      const p = `M${sx(s.x[i]).toFixed(1)} ${clampY(s.y[i]).toFixed(1)}h0`
+      if (p !== last) d += p // a dot at the same pixel as the previous one adds nothing
+      last = p
     }
     return d
   }
   function stairsPath(s: Series): string {
     let d = ''
     let pen = false
+    let lastY = ''
     for (let i = 0; i < s.x.length; i++) {
       if (!finite(s.y[i])) {
         pen = false
@@ -130,7 +192,9 @@
       }
       const X = sx(s.x[i]).toFixed(1)
       const Y = clampY(s.y[i]).toFixed(1)
+      if (pen && Y === lastY) continue // same level: the next step (or the end) draws the run
       d += pen ? `H${X}V${Y}` : `M${X} ${Y}`
+      lastY = Y
       pen = true
     }
     // hold the last value one step further
@@ -230,18 +294,11 @@
         {#each series as s, i (s.label)}
           {@const c = colorOf(s, i)}
           {#if s.kind === 'stem'}
-            <g style={`stroke: ${c}; fill: ${c}`}>
-              {#each s.x as x, j (j)}
-                {#if finite(s.y[j])}
-                  <line x1={sx(x)} x2={sx(x)} y1={base} y2={clampY(s.y[j])} stroke-width="1.4"></line>
-                  {#if s.x.length <= 160}<circle cx={sx(x)} cy={clampY(s.y[j])} r="2.8"></circle>{/if}
-                {/if}
-              {/each}
-            </g>
+            <!-- one path for the stalks, one for the heads (zero-length round-capped segments draw dots) -->
+            <path d={stemPath(s)} fill="none" stroke={c} stroke-width="1.4"></path>
+            {#if s.x.length <= 160}<path d={dotPath(s)} fill="none" stroke={c} stroke-width="5.6" stroke-linecap="round"></path>{/if}
           {:else if s.kind === 'points'}
-            <g style={`fill: ${c}`}>
-              {#each s.x as x, j (j)}{#if finite(s.y[j])}<circle cx={sx(x)} cy={clampY(s.y[j])} r="3"></circle>{/if}{/each}
-            </g>
+            <path d={dotPath(s)} fill="none" stroke={c} stroke-width="6" stroke-linecap="round"></path>
           {:else}
             <path
               d={s.kind === 'stairs' ? stairsPath(s) : linePath(s)}

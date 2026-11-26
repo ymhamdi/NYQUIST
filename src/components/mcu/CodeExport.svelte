@@ -104,9 +104,12 @@
     padding: 0.6rem 0.9rem;
     max-height: 32rem;
     overflow: auto;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     line-height: 1.45;
     border-top: 1px solid var(--rule);
+  }
+  pre code {
+    font-size: inherit; /* 13.6 px: legible on a phone */
   }
   .actions {
     display: flex;

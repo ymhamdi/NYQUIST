@@ -48,9 +48,15 @@ function readStored(key: string, specs: ParamSpec[]): Record<string, ParamValue>
   return out
 }
 
-/** A part of a TP model that depends on a few parameters only (recomputed only when they change). */
+/**
+ * A part of a TP model that depends on a few parameters only: recomputed
+ * only when they change, and computed only when an island reads one of its
+ * outputs (an island of part III never pays for part IV).
+ */
 export interface ModelPart {
   keys: readonly string[]
+  /** the cell ids it returns */
+  outputs: readonly string[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fn: (p: any) => Record<string, unknown>
 }
@@ -69,10 +75,14 @@ export function createTpStore<R>(
       ? null
       : Object.values(model).map((part) => {
           const d = $derived(part.fn(pick(part.keys)))
-          return () => d
+          return { outputs: part.outputs, get: () => d }
         })
+  // one getter per cell id: reading r['III.1'] evaluates (and tracks) only the part that returns it
+  const lazy: Record<string, unknown> = {}
+  for (const part of parts ?? []) {
+    for (const id of part.outputs) Object.defineProperty(lazy, id, { enumerable: true, get: () => part.get()[id] })
+  }
   const whole = $derived(typeof model === 'function' ? model($state.snapshot(values) as Record<string, ParamValue>) : null)
-  const result = $derived((parts ? Object.assign({}, ...parts.map((g) => g())) : whole) as R)
   const script = $derived(substitute(source, $state.snapshot(values) as Record<string, ParamValue>))
   let restored = $state(false)
 
@@ -101,7 +111,7 @@ export function createTpStore<R>(
     defaults: defs,
     values,
     get result() {
-      return result
+      return (parts ? lazy : whole) as R
     },
     get script() {
       return script
