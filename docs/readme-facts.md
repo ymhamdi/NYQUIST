@@ -42,7 +42,8 @@ Kinds of numbers, never mixed: **measured** (a run or a capture), **computed** (
 | K1 | Octave environment | GNU Octave 8.4.0, control 4.0.1, signal 1.4.5 | `reference/*.json` field `generator`; `docker/octave.Dockerfile` | main |
 | K2 | Reference values | 6 JSON files, **60** cells, **384** recorded variables, written by Octave only | `reference/*.json` (`cells`, counted with node) | main, counted |
 | K3 | Committed references vs a fresh Octave run | "OK: 6 reference files match (rel 1e-9, abs 1e-12)" | `node tools/compare-refs.mjs reference regenerated` | CI 26 Nov, checked |
-| K4 | Engine tests (local) | **130 passed, 62 skipped** (192) in 10 files. The 62 skipped compare random slider positions with Octave output and run only in CI | `npx vitest run` | run 26 Nov, checked |
+| K4 | Engine tests (local, fresh clone of this branch) | **130 passed, 2 skipped** (132) in 10 files, as in CI. The skipped ones compare random slider positions with Octave output, which only CI produces. (In a working copy that still holds an old `build/variants/` folder, the same command lists 62 skipped of 192.) | `npm ci && npm test` in a fresh `git clone` | run 26 Nov, checked |
+| K4b | README commands re-run locally on a fresh clone | `npm ci`; `npm run typecheck` (clean); `npm run lint:numbers`; `npm test`; Docker `export_refs('regenerated')` + `compare-refs` ("OK: 6 reference files match"); `check_models` ("15 signals in 9 models match"); codegen test + `check-c.mjs` in the container ("8 generated C files reproduce the engine"); `astro dev` serves the pages (on port 4401: 4321 was taken). Not re-run: `docker build` (the `nyq-octave` image was built earlier from the same Dockerfile) | the commands of README "Quick start" and "Other commands" | run 26 Nov, checked |
 | K5 | Engine tests (CI) | 130 passed, 2 skipped (132) | octave-refs.yml, step "Engine tests against the references" | CI 26 Nov, checked |
 | K6 | Random slider positions | **36** per CI run (6 per script × 6 scripts), written with the site's own `substitute`, run in Octave; the engine matched: 38 passed, 1 skipped (39) | octave-refs.yml, steps "Random slider positions…"; `NYQ_VARIANTS_PER_SCRIPT: 6` | CI 26 Nov, checked |
 | K7 | The comparison is not vacuous | a test moves T by 0.1 % and requires the comparison to fail | `tests/reference/aeTp3.test.ts` line 21 | main |
@@ -66,25 +67,37 @@ Kinds of numbers, never mixed: **measured** (a run or a capture), **computed** (
 | S4 | Landing and course pages | 9.9 KiB JS gzip each (4 files), the background scene included | `npm run check:budget` | run 26 Nov, measured |
 | S5 | Offline | the service worker precaches 87 files | `npm run build` ("sw.js: 87 files precached") | run 26 Nov |
 | S6 | Landing background | one Canvas 2D; every curve from the engine (fft, c2dZoh, feedback, poles, stepDiscrete); pointer x = Fe, y = K, click = δ[n]; reduced motion = one static frame | `src/scene/chain.ts`, `src/scene/start.ts`; `CLAUDE.md` "Front-end redesign" | main |
-| S7 | Lighthouse 12, mobile and desktop | *(to fill: run in progress)* | `tools/lh.sh http://localhost:4321 <out> mobile\|desktop <18 routes>` on `npm run build && npm run preview` | run 26 Nov, measured |
-| S8 | Anti-windup example | *(to read on the capture: the README text says 8.99 %, the old screenshot shows 8,3 %)* | Automatique TP4, "Vers le microcontrôleur", tank, max 0,5 | capture |
+| S7 | Lighthouse 12, mobile (simulated throttling) | performance 95–100 (100 on 8 pages, 99 on 5, 98 on 2, 97 on 1, 95 on 2: the comptes rendus of Automatique TP2 and TP4); accessibility, best practices and SEO 100 on all 18; LCP 0.9–2.1 s; CLS 0 | `tools/lh.sh http://localhost:4321 <out> mobile <18 routes>` on `npm run build && npm run preview`, one run per page | run 26 Nov, measured |
+| S7b | Lighthouse 12, desktop | 100 / 100 / 100 / 100 on all 18 pages; LCP 0.2–0.5 s; CLS 0 except Mode DS Automatique 0.056 | same, `desktop` | run 26 Nov, measured |
+| S7c | Lighthouse varies between runs | the Automatique TP4 report scored 81 in the Phase 5 run (95 in this one) | `docs/overview.md` (old README, "Phase 5") | main |
+| S8 | Anti-windup example | tank, Te = 0,25 s, inflow limited to 0 … 0,5: "la hauteur dépasse la consigne de 8,3 % ; avec l'anti-windup … 0 %" | `assets/readme/mcu-tank-antiwindup.jpg`; the panel's text read by the capture script | capture |
+| S9 | Offline | after one online visit, 6 routes (2 TP pages, 1 TP page with a URL value, Mode DS, a report, Errata) load with the network off; cache holds 87 entries | puppeteer probe kept outside the repo (`offline.cjs`) on the local build | run 26 Nov, checked |
+| S10 | Home-page scene readings | Shannon: Fe = 4,3 Hz ≥ 2·fmax = 1,7 Hz, K = 0,399, \|z\|max = 0,802. Aliasing: Fe = 1 Hz < 1,7 Hz. Unstable: K = 6,4, \|z\|max = 1,09. Hero: Fe = 2,7 Hz ≥ 1,7 Hz | `assets/readme/scene-*.jpg`, `hero-landing-dark.jpg` | capture |
+| S11 | Kmax at T = 0,1 s | 20,017 (a = 0,904837), on the TP3 page | `assets/readme/question-after.jpg`; closed form (1 + e^−0.1)/(1 − e^−0.1) = 20.0167 | capture, computed |
+| S12 | Prediction kinds | a number (with tolerance) or a choice; no "pick the curve" kind | `src/components/Predict.svelte` line 13 | main |
+| S13 | Slow case | Automatique TP4 with L = 0.011 mH recomputes in about 0.9 s | `PLAN.md` §5 item 5; `CLAUDE.md` "Known limits" | main |
+| S14 | Test tolerances | rel 1e-9 (`TIGHT`); rel 1e-6 for values read off a simulated response (`GRID`) | `tests/helpers/reference.ts` line 31; `tests/reference/allTps.test.ts` line 15 | main |
+| S15 | Captures | Chrome (puppeteer-core), local production build of `main` @ `db58b44`, 1920×1080 written at 1600 px; element views at their real size; phone 390×844 at 2× | capture script kept outside the repo (`readme2-shots.cjs`) | run 26 Nov |
 
 ## Contradictions found (docs vs code); not fixed here
 
+"Old `README.md`" is the README of `main` @ `db58b44`, kept as written in `docs/overview.md` (its line numbers there are shifted by the new header).
+
 | # | Where | Says | Code or run says |
 |---|---|---|---|
-| X1 | `README.md` lines 120 and 219 | "37 handout issues" | 38 errata entries (`src/content/errata.ts`) |
-| X2 | `README.md` line 91 vs `docs/screenshots/mcu.jpg` | 8.99 % overshoot without anti-windup | the screenshot reads 8,3 % (taken before the digital-loop fix of Phase 4?) |
-| X3 | `README.md` lines 51–57; `CLAUDE.md` Phase 5 | 16 pages, 32/32 browser checks, 150 anchors, JS 30–66 KiB, 60 KiB met by 13 of 16 | 18 pages since the redesign; JS 0–69.9 KiB; 14 of 18 within 60 KiB |
+| X1 | old `README.md` lines 120 and 219 | "37 handout issues" | 38 errata entries (`src/content/errata.ts`) |
+| X2 | old `README.md` line 91 | 8.99 % overshoot without anti-windup | the page shows 8,3 % (capture of 26 Nov, S8), as did `docs/screenshots/mcu.jpg` |
+| X3 | old `README.md` lines 51–57; `CLAUDE.md` Phase 5 | 16 pages, 32/32 browser checks, 150 anchors, JS 30–66 KiB, 60 KiB met by 13 of 16 | 18 pages since the redesign; JS 0–69.9 KiB; 14 of 18 within 60 KiB |
 | X4 | `tools/check-budget.mjs` line 12 (comment) | "met by 13 of 16 pages" | 14 of 18 |
-| X5 | `README.md` line 11 | "Phase 5 done, site ready to publish"; no redesign | the redesign is merged into `main` |
+| X5 | old `README.md` line 11 | "Phase 5 done, site ready to publish"; no redesign | the redesign is merged into `main` |
 | X6 | `CLAUDE.md` "Front-end redesign" | "branch `redesign-front`, not merged" | merged: `main` = `redesign-front` = `db58b44` |
 | X7 | `PLAN.md` §1 | Astro 5, Temml, @vite-pwa/astro (Workbox), Playwright, Lighthouse CI, a `web` CI job, release PDFs | as built: Astro 7, own MathML builder, own service worker, puppeteer scripts outside the repo, no Lighthouse in CI, tests and build inside `octave-refs`, no release |
 | X8 | `package.json` line 30 | dependency `temml` 0.14.0 | not imported anywhere in `src/` (`grep -rl temml src` is empty) |
 | X9 | `PLAN.md` §3 | Errata "E-AE1…14 and E-TS1…9"; `python/` folder; e2e tests | E-AE1…27, E-TS1…11; no `python/`; no e2e suite in the repo |
 | X10 | `COVERAGE.md` line 273 | "Only E-AE7 (default L) needs your decision" | decided on 2026-11-24 (same file, row E-AE7) |
-| X11 | `README.md` line 88 | the Simulink stand-in "catches a flipped sign (mutation test)" | no mutation test in the repo: it was a one-off local check |
-| X12 | `README.md` line 190 | "38 key results checked against closed forms; all 38 match" | no file lists them |
-| X13 | `README.md` lines 51–54 | browser pass (console, scroll, focus, anchors) | done with puppeteer scripts kept outside the repo: not reproducible from `main` |
+| X11 | old `README.md` line 88 | the Simulink stand-in "catches a flipped sign (mutation test)" | no mutation test in the repo: it was a one-off local check |
+| X12 | old `README.md` line 190 | "38 key results checked against closed forms; all 38 match" | no file lists them |
+| X13 | old `README.md` lines 51–54 | browser pass (console, scroll, focus, anchors) | done with puppeteer scripts kept outside the repo: not reproducible from `main` |
+| X14 | `src/scene/chain.ts` line 547 (code, not a doc) | — | in 1 of 7 capture runs the home page logged "Failed to execute 'arc' … The radius provided (−0.70875) is negative"; not reproduced in the 6 others. A negative `zone.s` would also stop the animation loop, since the exception is thrown before the next frame is requested |
 
-The README uses none of X1–X13 as stated: where a number is needed it takes the code's value above.
+The README uses none of X1–X13 as stated: where a number is needed it takes the code's value above. The old README is kept as written in `docs/overview.md`, with a note pointing here.
