@@ -1,344 +1,334 @@
+<div align="center">
+
 # Nyquist
 
-Interactive companion for the INSAT IIA 3 MATLAB labs:
-**Traitement du signal** (TP1–TP4) and **Automatique linéaire échantillonnée** (every TP of the fascicule).
+### Move the slider. The MATLAB follows. Octave checks.
 
-Youssef El Mhamdi, IIA 3/1, INSAT. MIT License.
+An interactive companion for the INSAT IIA 3 MATLAB labs, *Traitement du signal* and *Automatique linéaire échantillonnée*. Each handout question comes with a prediction to commit to, the hand calculation with your numbers, the figures, and the cell of the MATLAB script you submit, rewritten with your slider values. Every number on screen comes from one engine, and CI checks that engine against GNU Octave running the same scripts.
+
+**Youssef El Mhamdi · IIA 3/1 · INSAT**
+
+[Quick start](#quick-start) · [Try it in 5 minutes](#try-it-in-5-minutes) · [Labelled honestly](#labelled-honestly) · [Where every number comes from](docs/readme-facts.md) · [Build history](docs/overview.md)
 
 [![Octave references](https://github.com/ymhamdi/NYQUIST/actions/workflows/octave-refs.yml/badge.svg)](https://github.com/ymhamdi/NYQUIST/actions/workflows/octave-refs.yml)
 [![Microcontroller code](https://github.com/ymhamdi/NYQUIST/actions/workflows/mcu.yml/badge.svg)](https://github.com/ymhamdi/NYQUIST/actions/workflows/mcu.yml)
 
-> **Status: Phase 5 done, site ready to publish.** Every TP with a handout has its interactive page and its compte rendu: Automatique TP1–TP4, Signal TP3–TP4. Signal TP1–TP2 still wait for their handout. Checked locally: Lighthouse, desktop and phone, keyboard, offline, links, page weight. The repository stays **private** for now (your choice of 2026-11-26), so the site is not online yet: the deploy workflow is ready and runs on demand. One branch per phase: `phase-0` … `phase-5`.
+</div>
 
-**Contents:** [What it looks like](#what-it-looks-like) · [Phase 5](#phase-5-checks-and-ready-to-publish) · [Phase 4](#phase-4-every-tp-simulink-builder-microcontroller-export-offline) · [Phase 3: the TP3 page](#phase-3-the-automatique-tp3-page-end-to-end) · [Phase 2: the engine](#phase-2-the-engine) · [Phase 1: the MATLAB scripts](#phase-1-the-matlab-scripts) · [Phase 0](#phase-0-what-was-done) · [Plan and architecture](#the-plan-what-comes-next) · [What I need from you](#what-i-need-from-you) · [Repository layout](#repository-layout)
+<p align="center"><img src="assets/readme/hero-landing-dark.jpg" width="100%" alt="The Nyquist home page in the dark theme: on an ink-blue millimetre grid, a continuous signal in cyan is sampled (amber stems), held by a zero-order hold (white staircase) and quantized on 3 bits; below, its spectrum up to Fe/2, a step response and the z-plane of the sampled loop. The status line reads « Shannon respecté · Fe = 2,7 Hz ≥ 2·fmax = 1,7 Hz »."></p>
+
+<p align="center">
+<b>33</b> Automatique questions, checked against the handout ·
+<b>60</b> script cells where the engine matches Octave ·
+<b>36</b> random slider positions re-run in Octave on every push ·
+<b>38</b> handout errata ·
+<b>8</b> generated C programs that match the engine exactly ·
+<b>0</b> hand-typed numbers in the French prose
+</p>
+<p align="center"><sub>Every number on this page has a source in <a href="docs/readme-facts.md"><code>docs/readme-facts.md</code></a>. The other side of these numbers: Signal TP1–TP2 have no page (no handout), the Signal TP3–TP4 statements are not verified, and two checks still need a run in real MATLAB.</sub></p>
 
 ---
 
-## What it looks like
+## The handout asks for Kmax. It never gives T.
 
-| | |
+<img align="right" width="40%" src="assets/readme/errata-t-k-not-given.jpg" alt="Two entries of the site's Errata page. E-AE1, TP3 parts II and III: the fascicule says « un temps d'échantillonnage T »; problem: the sampling period is never given, yet G(z), the pole and the gain limit depend on it; choice: a slider, T = τ/10 by default (0,1 s then 5 s), with the Kmax(T) curve always shown. E-AE2, TP3 question II.6: the controller gain K is not given; choice: a slider, K = 1 by default.">
+
+Question 7 of Automatique TP3 asks you to « indiquer la valeur limite de K ». That limit depends on the sampling period T, and the fascicule never gives T. Signal TP4 prints a low-pass filter whose poles have modulus 1,392: unstable as printed. TP2 asks for a command 'imp' that MATLAB does not have.
+
+You usually find this out while writing the compte rendu.
+
+<br clear="right">
+
+### Now imagine a TP sheet that answers back.
+
+- Every question, its statement quoted word for word from the handout.
+- A prediction to commit to before the answer appears.
+- The hand calculation, step by step, with the numbers you chose.
+- The cell of the script to submit, rewritten with your slider values, and a compte rendu that prints to A4.
+
+**That is Nyquist. And every number in it has been through Octave.**
+
+---
+
+## 01 · Move a slider. Everything follows.
+
+The gain K of question 6 (Automatique TP3) is a slider. Move it and the sentence under the question, the response and the MATLAB cell follow. Here K goes from 1 to 8 and back:
+
+<p align="center"><img src="assets/readme/slider-k-tp3.gif" width="80%" alt="GIF, 7 seconds: the gain K moves from 1 to 8 and back on the TP3 page; the sentence above the figure and the closed-loop response of the sampled system change with it."></p>
+
+The sliders are not a separate model. They are the `% @param` lines of the scripts themselves (42 of them across the 6 scripts), and the engine mirrors each script cell by cell, with the same variable names:
+
+<p align="center"><img src="assets/readme/diagram-one-script.svg" width="100%" alt="Diagram: the script you submit (its @param lines, for example T = 0.1 and K = 1) gives the sliders; the engine model of that script runs on the slider values; the figure, the formula, the derivation, the MATLAB cell with the values written in, the compte rendu and, on the TP4 pages, the C code all read its result. In CI, GNU Octave runs the same file at its defaults and at random slider positions, and the engine must give the same numbers."></p>
+
+So the cell shown under a question is the submitted script's own cell, with your values written in, ready to paste into MATLAB. CI runs such substituted cells in Octave and checks that they give the numbers on screen.
+
+---
+
+## 02 · Predict first. Then the derivation.
+
+<table>
+<tr>
+<td width="50%" valign="top"><img src="assets/readme/question-before.jpg" alt="Question 7 of Automatique TP3 before answering: the statement quoted from the fascicule (p. 14), and a prediction box « Quelle est la valeur limite de K pour T = 0,1 s ? » with the buttons « Vérifier » and « Voir la réponse »."><br><b>Before</b><br><sub>The statement, word for word with its page, then a prediction to commit to: a value or a choice.</sub></td>
+<td width="50%" valign="top"><img src="assets/readme/question-after.jpg" alt="The same question after « Voir la réponse »: the step-by-step derivation Kmax = (1 + a)/(1 − a) = 20,017 with a = 0,904837, the sampled responses for K = 1, 10, 18 and 22, and the Kmax(T) curve with T = 0,1 s marked."><br><b>After</b><br><sub>The hand calculation with the current numbers (here Kmax = 20,017 at T = 0,1 s), the responses on each side of the limit, and Kmax(T).</sub></td>
+</tr>
+</table>
+
+Each page covers every question of its TP, in the handout's numbering: the 33 questions of the Automatique fascicule (TP1 2, TP2 12, TP3 11, TP4 8) and the 20 transcribed questions of Signal TP3–TP4.
+
+---
+
+## 03 · One script. Checked by Octave.
+
+The MATLAB scripts in [`matlab/`](matlab/) are the source of truth. No reference value is typed by hand: Octave writes them, and the engine must match.
+
+```mermaid
+flowchart LR
+  S["matlab/*.m<br/>the scripts you submit"] --> O["GNU Octave 8.4 in CI<br/>at the script defaults"]
+  O --> R["reference/*.json<br/>60 cells"]
+  R --> T(["engine = Octave"])
+  S -- "@param lines" --> V["36 random slider positions<br/>run in Octave"]
+  V --> T
+  E["src/engine<br/>TypeScript"] --> T
+  E --> C["generated C"]
+  C --> G(["gcc: same numbers<br/>STM32, Uno: it builds"])
+```
+
+| Check (CI on `main`) | Result on 26 Nov 2026 |
 |---|---|
-| ![A TP page: switcher, handout aim, report and Mode DS buttons, table of questions](docs/screenshots/tp-desktop.jpg) | ![The same page on a phone](docs/screenshots/phone.jpg) |
+| Committed references vs a fresh Octave run ([`compare-refs.mjs`](tools/compare-refs.mjs)) | 6 files match (rel 1e-9, abs 1e-12) |
+| Engine vs references (rel 1e-9; 1e-6 for values read off a simulated response), closed forms, derivations, Mode DS ([`tests/`](tests/)) | 130 passed, 2 skipped |
+| Random slider positions: written by the site's own `substitute`, run in Octave | 36 positions; engine matched (38 passed, 1 skipped) |
+| The comparison can fail: T moved by 0.1 % must be caught ([`aeTp3.test.ts`](tests/reference/aeTp3.test.ts)) | caught |
+| Simulink diagrams built from code, run in a Simulink stand-in ([`check_models.m`](matlab/simulink/test/check_models.m)) | 15 signals in 9 models match |
+| No number typed in the French prose ([`lint-numbers.mjs`](tools/lint-numbers.mjs)) | 0 found |
+| Generated C, compiled with gcc in double ([`check-c.mjs`](tools/check-c.mjs)) | 8 programs reproduce the engine exactly |
 
-**The figure and its explanation follow the sliders** (here the gain K of TP3; the MATLAB cell under each question follows too):
+Not checked by any machine yet: the real Simulink run of [`build_models.m`](matlab/simulink/build_models.m), and how MATLAB scales `c2d(…, 'impulse')`. Both are one command to run in MATLAB ([`OCTAVE_VS_MATLAB.md`](matlab/OCTAVE_VS_MATLAB.md)).
 
-![GIF: the response and its final value e·K/(1 + K) change with K](docs/screenshots/sliders.gif)
-
-| One question, answer revealed | Vers le microcontrôleur | Compte rendu (A4) | Mode DS |
-|---|---|---|---|
-| ![Question II.6: prediction, explanation, figure, MATLAB cell](docs/screenshots/question.jpg) | ![PID sampled at Te with saturation and anti-windup, and its C code](docs/screenshots/mcu.jpg) | ![Cover page of the report](docs/screenshots/report.jpg) | ![A generated filter subject, corrected](docs/screenshots/ds.jpg) |
+The random-slider test earned its place. It found a script bug: in Automatique TP4, below a 1.6 m setpoint, the tank's overflow time was the log of a negative number, and MATLAB and Octave both returned a complex time. The script now returns `Inf`.
 
 ---
 
-## Phase 5: checks, and ready to publish
+## 04 · The handout, read closely.
 
-**Lighthouse 12, mobile** (local production build, simulated slow 4G and 4× slower CPU):
+The « Errata » page lists 38 issues ([`src/content/errata.ts`](src/content/errata.ts)): 27 in the Automatique fascicule, 11 in the Signal transcription. Each gives what the handout says, the problem, and the choice made. Where the handout leaves a value open, the choice is a slider or a toggle on the TP page, never a silent fix.
 
-| Pages | Performance | Accessibility | Best practices | SEO |
+<table>
+<tr>
+<td width="50%" valign="top"><img src="assets/readme/filter-printed-unstable.jpg" alt="Signal TP4 question II.1 with the denominator as printed: the derivation gives poles of modulus 1,392 (unstable) and the impulse response h[n] diverges past −15 000 within 32 samples."><br><b>As printed</b><br><sub>« Dénominateur du filtre » set to « imprimé »: poles of modulus 1,392, h[n] diverges.</sub></td>
+<td width="50%" valign="top"><img src="assets/readme/filter-corrected-stable.jpg" alt="The same question with the corrected denominator: poles of modulus 0,7183 inside the unit circle, and h[n] decays to 0 within about 15 samples."><br><b>Corrected (default)</b><br><sub>The same coefficients in the other order: poles of modulus 0,7183, h[n] tends to 0.</sub></td>
+</tr>
+</table>
+
+| The handout… | Nyquist | Errata |
+|---|---|---|
+| never gives the sampling period T (TP2, TP3) | slider; default τ/10, rounded down to the 1–2–2.5–5 series; Kmax(T) always shown | E-AE1, E-AE17 |
+| asks for « la valeur de K pour remplir 2m » with no tolerance | tolerance slider, and K ≥ (1 − ε)/(12.5ε) compared with Kmax(T) | E-AE6 |
+| gives the same motor two inductances, 0.011 H and 0.011 mH | 0.011 H by default, the printed value as a toggle | E-AE7 |
+| asks for a command 'imp' | `c2d(G, T, 'impulse')` against `'zoh'`, both derived | E-AE20 |
+| asks for a « réponse désirée » without saying which | stated spec: overshoot ≤ 5 %, zero static error | E-AE10 |
+| prints an unstable low-pass filter | stable version by default, printed one as an option | E-TS8 |
+
+---
+
+## 05 · From the TP to the board.
+
+<img align="right" width="40%" src="assets/readme/mcu-tank-antiwindup.jpg" alt="The « Vers le microcontrôleur » panel of Automatique TP4 for the tank: Te = 0,25 s, command limits 0 and 0,5, saturation and anti-windup ticked; the step-by-step text from the continuous PID to the difference equation u[n] = 1,005·e[n] − e[n−1] + u[n−1]; and the height of water with and without anti-windup, next to the continuous PID.">
+
+On a board, the PID becomes a calculation done once per sampling period, with a command the actuator bounds. The « Vers le microcontrôleur » panels of Automatique TP4 (tank, motor) and Signal TP4 (the filter) show exactly that:
+
+- backward-Euler integral and a derivative filtered as in the Simulink PID Controller block (N = 100);
+- command limits and anti-windup. With the tank's inflow limited to 0,5 (the handout gives no limit: errata E-AE27), the height overshoots the 2 m setpoint by 8,3 % without anti-windup and 0 % with it;
+- the filter in floating or fixed point, with the quantized coefficients and the poles they give.
+
+The plotted points are what the C code computes. The code is generated for three targets, and CI builds each one:
+
+| Target | Generated | Checked in CI |
+|---|---|---|
+| Portable C | the difference equation, as a plain C function | gcc, in double: same numbers as the engine; fixed point: identical integers |
+| STM32 (HAL) | TIM callback, PSC and ARR given | `arm-none-eabi-gcc` Cortex-M4, `-Werror -Wdouble-promotion` |
+| Arduino Uno | Timer1 interrupt, prescaler and OCR1A computed | `arduino-cli`: 1 706 to 2 642 bytes of 32 256 |
+
+No generated program has run on a physical board yet.
+
+<br clear="right">
+
+---
+
+## 06 · Report, exam, projector.
+
+<table>
+<tr>
+<td width="50%" valign="top"><img src="assets/readme/report-cover.jpg" alt="The compte rendu of Automatique TP3 in print view: cover with INSAT, the course, « Compte rendu — TP3 », student, group and date, then the table « Valeurs utilisées » listing each parameter, its value and its origin."><br><b>« Générer le compte rendu »</b><br><sub>Cover, the values used, every question with its answer, derivation and figures at your values, your observations, the script in annex. A4 through the browser's « Enregistrer en PDF ».</sub></td>
+<td width="50%" valign="top"><img src="assets/readme/ds-signal-corrected.jpg" alt="Mode DS, Signal: subject 42, a generated second-order digital filter; seven questions answered, each marked right or wrong with the expected value, and the score 2 / 7."><br><b>Mode DS</b><br><sub>Generated subjects, three kinds per course, corrected with the full derivation. The subject number sits in the URL. The tests check 1 500 subjects against the hand derivations.</sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="assets/readme/pz-explorer.jpg" alt="Pole/zero explorer of Signal TP4: a pair of poles and a pair of zeros on the z-plane, the magnitude response in dB, the impulse response, the stability verdict and the MATLAB coefficients b and a."><br><b>Pole/zero explorer</b> (Signal TP4)<br><sub>Drag a pair of poles and a pair of zeros, with the pointer or the keyboard; the responses and the MATLAB coefficients follow.</sub></td>
+<td width="50%" valign="top"><img src="assets/readme/projection.jpg" alt="Mode projection on the TP3 page: larger type, no navigation bar, question 7 and the start of part III with figure 3.2 redrawn."><br><b>Mode projection</b><br><sub>For a projector in class: larger type, full contrast, no navigation. The screen button in the header, or the P key.</sub></td>
+</tr>
+</table>
+
+---
+
+## 07 · A sampling chain you can touch.
+
+The home page is the course in one picture. The pointer's x sets the sampling frequency Fe, its y the loop gain K, and a click sends δ[n]. Every curve comes from the same engine as the TP pages: FFT, `c2d` with a hold, `feedback`, poles.
+
+<table>
+<tr>
+<td width="22%" valign="top"><b>« Shannon respecté »</b><br><sub>Fe = 4,3 Hz ≥ 2·fmax = 1,7 Hz. The samples follow the signal; the loop is stable (K = 0,399).</sub></td>
+<td><img src="assets/readme/scene-shannon-band.jpg" alt="The scene with Fe = 4,3 Hz above 2·fmax = 1,7 Hz: the cyan signal, its amber samples, the white zero-order hold and the 3-bit quantization; the spectrum stays below Fe/2; the step response settles and the poles sit inside the unit circle (K = 0,399, |z|max = 0,802)."></td>
+</tr>
+<tr>
+<td valign="top"><b>« Repliement spectral »</b><br><sub>Pointer to the left: Fe = 1 Hz &lt; 1,7 Hz. In magenta, a wrong, slower signal through the very same samples, and the spectrum folding around Fe/2.</sub></td>
+<td><img src="assets/readme/scene-aliasing-band.jpg" alt="The scene with Fe = 1 Hz below 2·fmax = 1,7 Hz: a dashed magenta curve passes through the same samples as the true signal, and magenta arcs fold the spectrum around Fe/2."></td>
+</tr>
+<tr>
+<td valign="top"><b>Unstable loop</b><br><sub>Pointer up: K = 6,4. The poles leave the unit circle (|z|max = 1,09) and the step response grows, in red.</sub></td>
+<td><img src="assets/readme/scene-unstable-band.jpg" alt="The scene with K = 6,4: the poles sit outside the unit circle (|z|max = 1,09), the circle glows red and the step response oscillates with growing amplitude."></td>
+</tr>
+</table>
+
+The whole home page loads 9.9 KiB of JavaScript (gzip), scene included. It pauses off screen, keeps a « Pause animation » button, and shows a single still frame when the system asks for reduced motion. The course pages use a calmer version above their TP cards.
+
+<p align="center"><img src="assets/readme/course-automatique-light.jpg" width="80%" alt="The Automatique course page in the light theme: a calm version of the scene on white graph paper above four TP cards, each with a small glyph drawn from the TP's main idea, its status and links to the page and its compte rendu."></p>
+
+---
+
+## 08 · Light, fast, offline.
+
+**Lighthouse 12** on all 18 pages (local production build, one run per page, 26 Nov 2026):
+
+| Profile | Performance | Accessibility | Best practices | SEO |
 |---|---|---|---|---|
-| Home, Errata, Mode DS (both) | 100 | 100 | 100 | 100 |
-| TP pages (Automatique TP1–TP4, Signal TP3–TP4) | 97–100 | 100 | 100 | 100 |
-| Comptes rendus | 95–98, except Automatique TP4: 81 | 100 | 100 | 100 |
+| Mobile (simulated slow 4G, 4× CPU) | 95–100: 100 on 8 pages, lowest 95 (comptes rendus of Automatique TP2 and TP4) | 100 | 100 | 100 |
+| Desktop | 100 | 100 | 100 | 100 |
 
-Desktop: 99–100 everywhere. The Automatique TP4 report must compute everything at load, so that it shows the values you set. That includes 16 stepinfo runs on a 20 001-point grid: the grid that makes the engine match the Octave references to 1e-6.
+- **No chart or math library shipped.** Own SVG plots and native MathML. JavaScript per page: 0 to 69.9 KiB gzip, under a 70 KiB limit that CI enforces. The 60 KiB target is met by 14 of the 18 pages.
+- **Offline.** An own service worker precaches the 87 files of the site: after one visit, the pages, reports and Mode DS load without a network (checked in Chrome on 26 Nov).
+- **Phone, keyboard, themes.** Light and dark themes, keyboard access to the sliders and figures, layouts down to phone width.
 
-**What changed to get there**
-- An island now computes only the parts of the model it shows.
-- Part III of Automatique TP4 is split in two, the second half hydrating when scrolled to.
-- Plots are drawn with simplified paths: Automatique TP4 went from 693 to 206 KiB of HTML.
-- The microcontroller panels load when opened.
-
-**Browser pass** (Chrome; every page at 1280 px in the light theme and at 375 px in the dark theme):
-- 32/32 checks pass: no console error, no horizontal scroll, one `h1`, no broken image.
-- A visible keyboard focus on the first Tab stops.
-- The 16 pages answer, and the 150 `#anchor` links all reach an existing id.
-
-**Page weight, checked in CI** ([tools/check-budget.mjs](tools/check-budget.mjs)):
-- JavaScript per page, all islands included: 30–66 KiB gzip. The CI limit is 70; the 60 KiB target is met by 13 of 16 pages.
-- HTML: at most 33 KiB gzip.
-
-**Added**
-- **Mode projection**, for a projector in class: the screen button in the header, or the P key. Larger type, full contrast, no navigation.
-- **Pole/zero explorer** (Signal TP4, after I.3): drag a pair of poles and a pair of zeros on the z-plane, with the pointer or the keyboard. The response, the impulse response, the stability verdict and the MATLAB coefficients follow.
-
-**To publish** (when you decide; the repository is now `ymhamdi/NYQUIST`):
-1. Make the repository public.
-2. Settings → Pages → Source: GitHub Actions.
-3. Run the workflow *Deploy to GitHub Pages*. The site goes to `https://ymhamdi.github.io/NYQUIST/`.
-
-Your school email is the author address of the commits. If you want it hidden first, the history can be rewritten to your GitHub no-reply address before the switch.
+<table>
+<tr>
+<td width="25%" valign="top"><img src="assets/readme/phone-landing-dark.jpg" alt="The home page on a phone in the dark theme: title, buttons « Choisir un TP » and « Mode DS », the colour legend, then the sampling chain and the spectrum below the text."><br><sub>Phone, dark</sub></td>
+<td width="25%" valign="top"><img src="assets/readme/phone-tp3-light.jpg" alt="The TP3 page on a phone in the light theme: the TP switcher, the title, the quoted aim, and the buttons « Générer le compte rendu » and « S'entraîner (Mode DS) »."><br><sub>Phone, light</sub></td>
+<td width="50%" valign="top"><img src="assets/readme/landing-light.jpg" alt="The home page in the light theme: the same scene drawn in ink colours on white graph paper."><br><img src="assets/readme/tp3-top-dark.jpg" alt="The top of the Automatique TP3 page in the dark theme: navigation, TP switcher, title, the quoted aim, and the list of questions."><br><sub>Desktop, light home page and dark TP page</sub></td>
+</tr>
+</table>
 
 ---
 
-## Phase 4: every TP, Simulink builder, microcontroller export, offline
+## Quick start
 
-**Pages** (all on the TP3 pattern: predict first, step-by-step derivation, own SVG figures, the script's `%%` cell with the slider values, report):
+Needs Node.js (CI uses version 24).
 
-| Page | What is in it |
-|---|---|
-| Automatique TP1 | Figure 1.6 redrawn (click a block); the loop the Scope really shows (closed loop, errata E-AE15), linearity. |
-| Automatique TP2 | Zero-order hold on a sine (period slider); 9/(s+9) with tf, pole/zero, rlocus, Zero-Pole block, c2d with and without hold; the DC motor (Tableau 2.1, L toggle), its Z-transform, responses with and without hold. |
-| Automatique TP4 | Figure 4.1 (PID built from three branches vs the PID Controller block and its filter N); tank and motor, with and without PID; the effect of kp, ki and kd; stepinfo with both MATLAB definitions. |
-| Signal TP3 | DFT of x1, x2, x3 (lines, constant, delay), resolution and leakage, zero-padding (statement not verified: no handout). |
-| Signal TP4 | tf, roots, zplane, impz (with the z⁻¹ padding derivation), freqz, invfreqz; the second-order IIR low-pass with the printed (unstable) or corrected denominator (statement not verified). |
-| Mode DS, Signal | Generated subjects: DFT lines, resolution and zero-padding, second-order filter. 900 subjects are checked against closed forms in the tests. |
-
-A TP switcher sits at the top of every TP page. Every TP page has its compte rendu (`/rapport/...`).
-
-**Simulink, built from code.** [`matlab/simulink/build_models.m`](matlab/simulink/build_models.m) builds the handout's diagrams with `new_system` / `add_block` / `add_line` (figure 1.6, the TP2 hold and motor, figures 3.1, 3.2, 4.1, 4.2, 4.3) with the scripts' default values. It saves them to `build/simulink/`, simulates each one and compares it with `tf` / `step` / `lsim`. Octave has no Simulink, so CI runs it against a **Simulink stand-in** ([`matlab/simulink/test/`](matlab/simulink/test/)). The stand-in checks library paths, parameter names, ports and algebraic loops, then simulates the diagram. **15 signals in 9 models match**, and a flipped sign is caught (mutation test). The real Simulink run is yours to do once (below).
-
-**Vers le microcontrôleur** (Automatique TP4 tank and motor, Signal TP4 filter):
-- The PID sampled at Te: backward-Euler integral, filtered derivative, command limits and anti-windup. The loop is drawn with exactly what the C code computes, next to the continuous loop. Example: with a flow limit of 0.5, the tank overshoots by 8.99 % without anti-windup and 0 % with it.
-- The filter in floating or fixed point (int16, adjustable fractional bits): quantized coefficients, the poles they give, the frequency response.
-- C code for **Arduino Uno** (Timer1 interrupt, prescaler and OCR1A computed, software divider for long periods), **STM32 HAL** (TIM2 callback, PSC/ARR given) or **portable C**, with the difference equation in comments.
-- **Proof**, in CI ([mcu.yml](.github/workflows/mcu.yml)): the generated C is compiled with gcc and reproduces the engine **exactly** (8 cases, fixed point included). The STM32 files compile for Cortex-M4 (`-Wdouble-promotion -Werror`), and the sketches compile for the Uno with arduino-cli.
-
-**Offline.** An own service worker (no dependency) precaches the whole site: after one visit, every page, report and Mode DS works with no network (checked in Chrome). Web app manifest and icons included.
-
-**No hand-typed numbers.** [`tools/lint-numbers.mjs`](tools/lint-numbers.mjs) runs in CI and rejects numbers typed in the French prose of the pages and of the errata. The errata's numbers are now computed from the engine and the scripts' defaults (e.g. the motor pole with the printed inductance, −72 704 rad/s).
-
-**Checked, and what the checks caught**
-- 130 engine tests pass, and CI is green on every Phase 4 commit (Octave references, Simulink stand-in, microcontroller builds).
-- Every page at 375 px: no horizontal scroll, no console error.
-- Caught and fixed:
-  - the report printed light-grey text when the system was in dark mode (print CSS specificity);
-  - a one-sample delay in the first version of the digital-loop simulation;
-  - an anti-windup sentence that compared two identical runs;
-  - wide tick labels overlapping the y-axis title.
-
----
-
-## Phase 3: the Automatique TP3 page, end to end
-
-**See it locally:** `npm ci && npm run build && npx astro preview`, then open http://localhost:4321/.
-
-| Page | What it offers |
-|---|---|
-| `/automatique/tp3/` | Every question with its statement quoted from the fascicule (page number) and its type. **Predict first**: a value or a choice to commit to before the answer appears. The **hand calculation, step by step** with the current numbers (ZOH Z-transform by partial fractions, closed loop, pole, stability, Kmax(T), static error, K for a tolerance). Own SVG figures (hover or arrow keys to read values). The z-plane with the root locus. **Figures 3.1 and 3.2 redrawn**: click a block to see its transfer function. Under each question, the `%%` cell of the script to submit, with the slider values written in (changed lines highlighted), plus copy and download of the full script. |
-| `/rapport/automatique/tp3/` | **"Générer le compte rendu"**: cover page (name, group, date), the values used, every question with its answer, derivation and figures at the current values, your observations, and the MATLAB script in annex. A4 PDF with page numbers, via the browser's "Enregistrer en PDF" (17 pages). |
-| `/ds/automatique/` | **Mode DS**: three types of generated exercises (sampled loop as in TP3, choice of the sampling period, discretization with and without a hold as in TP2). Auto-corrected by the engine, with the detailed correction. The subject number is in the URL, so a subject can be shared. |
-| `/errata/` | The 37 handout issues: what the handout says, the problem, the choice made and why. |
-
-**Measured** (production build, Lighthouse 12, mobile profile with throttling):
-
-| Page | Performance | Accessibility | Best practices | SEO | Transferred |
-|---|---|---|---|---|---|
-| Home | 100 | 100 | 100 | 100 | 5 KiB |
-| TP3 | 100 | 100 | 100 | 100 | 88 KiB (LCP 1.5 s, TBT 50 ms) |
-| Report | 99 | 100 | 100 | 100 | 92 KiB |
-| Mode DS | 100 | 100 | 100 | 100 | 37 KiB |
-| Errata | 100 | 100 | 100 | 100 | 9 KiB |
-
-Desktop, TP3 page: 100 / 100 / 100 / 100. All pages fit a 375 px phone with no horizontal scroll, and show no console errors. The TP page's JavaScript is about 50 KB gzip, and no math or chart library is shipped (native MathML, own SVG).
-
-**Checked, and what the checks caught**
-- **The figures, formulas and code follow the sliders.** Moving T moves the question prompts, Kmax (4,083 at T = 0,5 s, as expected) and the URL. A browser test confirms it.
-- **A hydration bug, fixed.** With values in the URL, the formulas showed the script's defaults while the text showed the URL's values. Svelte does not repair mismatched `{@html}` on hydration, so the islands now hydrate with the defaults and apply the saved values just after.
-- **The derivations and 600 generated exercises agree with the engine** (tests). The engine itself is checked against Octave (Phase 2).
-
-
----
-
-## Phase 2: the engine
-
-[`src/engine/`](src/engine/) is plain TypeScript with no dependencies, written from scratch. It is what the website will compute with, so every number on screen will come from here.
-
-| Module | What it does |
-|---|---|
-| [`poly.ts`](src/engine/poly.ts), [`complex.ts`](src/engine/complex.ts) | Polynomials in MATLAB's order, with roots by Aberth–Ehrlich iteration (exact conjugate pairs, exact roots at 0). |
-| [`linalg.ts`](src/engine/linalg.ts) | LU solve, matrix exponential (Padé 6 with scaling and squaring), balancing (LAPACK-style), characteristic polynomial. |
-| [`lti.ts`](src/engine/lti.ts) | Transfer functions with MATLAB's semantics: `feedback` keeps cancelled poles, and `pid` builds only the terms that exist. `c2d` by zero-order hold and by impulse invariance, exact step responses, `filter`, `impz`. |
-| [`stepinfo.ts`](src/engine/stepinfo.ts) | MATLAB R2021a+ definitions, plus TransientTime (the pre-2021 SettlingTime). |
-| [`dsp.ts`](src/engine/dsp.ts) | FFT of any length (radix-2, or Bluestein otherwise), `fftshift` axes, DTFT, `freqz`, `conv`, circular convolution. |
-| [`matlabScript.ts`](src/engine/matlabScript.ts) | Reads the TP scripts themselves: the `%%` cells and the `@param` lines (value, unit, range or choices). `substitute` rewrites values; this is what makes the shown code follow the sliders. |
-| [`tp/`](src/engine/tp/) | One model per TP script. Each mirrors its script **cell by cell, with the script's variable names**. |
-
-**How it is proven: 120 tests, in three layers**
-1. **Engine vs Octave at the scripts' defaults** ([tests/reference/](tests/reference/)). Every cell of every script is compared with `reference/*.json` at 10⁻⁹. Each cell must compare a minimum number of variables, so a renamed variable cannot skip its check. A meta-test changes T by 0.1 % and checks that the comparison **fails**.
-2. **Engine vs closed forms** ([tests/engine/core.test.ts](tests/engine/core.test.ts)), independent of Octave so that a mistake shared by both cannot hide. It covers the FFT against the DFT definition for N = 8, 50, 64, 100, 101, ZOH and impulse discretization, the matrix exponential, the root finder, `stepinfo`, and the script parser.
-3. **"The code follows the sliders"** ([tests/sliders/](tests/sliders/)). Random slider positions are drawn within each `@param` range and written into copies of the scripts with the same `substitute` the site uses. GNU Octave runs them, and the engine must reproduce every result at those positions. CI runs 36 random positions on every push; I ran 60 locally.
-
-**What the random-slider test caught** (all fixed)
-- **A bug in the TP4 script.** For a setpoint below 1.6 m, the tank never overflows, but the script computed the overflow time with the log of a negative number. MATLAB and Octave silently return a **complex** time (45.4 − 157.1j s). The script now returns Inf in that case.
-- **An engine crash.** With the printed L = 0.011 mH, `stepinfo` simulates 400,001 points, and `Math.max(...array)` overflowed the call stack. It would have frozen the page.
-- **Two engine accuracy issues with the stiff motor** (poles −22.9 and −72,700 rad/s). The companion-form realization was ill-conditioned until it was balanced. A pole mapped to e^{−3155} = 0 left an exact z/z factor that Octave cancels.
-- **Two behaviours to match MATLAB.** `pid(kp, 0, 0)` is a plain gain, not 2s/s with a spurious pole at 0. The derivative filter Tf disappears when kd = 0.
-
----
-
-## Phase 1: the MATLAB scripts
-
-These are the files to submit. Open one in MATLAB and run it cell by cell (Ctrl+Enter), or all at once (F5).
-
-| Script | Cells (handout numbering) |
-|---|---|
-| [automatique/tp1_simulink_premier_ordre.m](matlab/automatique/tp1_simulink_premier_ordre.m) | III.1, III.2 |
-| [automatique/tp2_discretisation.m](matlab/automatique/tp2_discretisation.m) | II.1–II.2, III.1–III.6, IV.1–IV.4 |
-| [automatique/tp3_stabilite_precision.m](matlab/automatique/tp3_stabilite_precision.m) | II.3–II.7, III.1–III.6 |
-| [automatique/tp4_regulation_pid.m](matlab/automatique/tp4_regulation_pid.m) | III.1–III.4, IV.5–IV.8 |
-| [signal/tp3_tfd.m](matlab/signal/tp3_tfd.m) *(statement not verified)* | Q1–Q12 |
-| [signal/tp4_filtres_numeriques.m](matlab/signal/tp4_filtres_numeriques.m) *(statement not verified)* | I.1–I.5, invfreqz (outside the handout), II.1–II.3 |
-
-**How each script is written**
-- French comments that give the reasoning and the hand calculation (for example G(z) = (1 − a)/(z − a) with a = e^{−T}). MATLAB's result is checked against the hand result in the same cell.
-- Every value the handout leaves open is on a line tagged `% @param` and explained: T = τ/10, K = 1, the 2 % tolerance, Cr = 0, L = 0.011 H… These are the lines the website's sliders will rewrite (Phase 3).
-- Defaults are computed, not guessed. The "réponse désirée" of TP4 is a stated spec (overshoot ≤ 5 %, zero static error), and both default tunings meet it. Tank: PI kp = 1, ki = 0.02, which cancels the plant pole (0 % overshoot, Ts = 15.6 s). Motor: PID kp = 2, ki = 60, kd = 0.02 (1.8 % overshoot, Ts = 0.086 s).
-
-**How correctness is proven**
-- [`matlab/refs/export_refs.m`](matlab/refs/export_refs.m) runs every script in GNU Octave **cell by cell**. For each question it records every variable the cell creates and writes it to [`reference/*.json`](reference/). This takes about 15 s for all six scripts.
-- The [CI job](.github/workflows/octave-refs.yml) re-runs the scripts on every push and [compares](tools/compare-refs.mjs) the result with the committed JSON (relative tolerance 1e-9). A script changed without regenerating its references turns CI red. The comparator was tested both ways: it passes on a fresh run and catches a 10⁻⁶ change.
-- 38 key results were checked against closed forms computed independently, for example Kmax(0.1 s) = (1 + e^{−0.1})/(1 − e^{−0.1}) = 20.0167, the tank's settling time τ·ln 50, and the DFT line 150 = N·A/2. All 38 match.
-- Every Octave/MATLAB difference found is documented in [matlab/OCTAVE_VS_MATLAB.md](matlab/OCTAVE_VS_MATLAB.md). Octave lacks `stepinfo` and `order`, so `matlab/compat/` has shims that MATLAB never sees. Octave's `lsim` interpolates steps linearly, so the scripts avoid relying on it. One point needs **one line run in MATLAB**: the `'impulse'` method of `c2d`.
-
-**What running them found** (now in the scripts' comments and the errata)
-- With the default T = 5 s, the tank **cannot** reach 2 m within 2 % with a P controller. It needs K ≥ 3.92 but Kmax(5 s) = 1.60, so T must be below 2.04 s. The script computes this.
-- In Signal TP3, zero-padding moves the peak toward the continuous spectrum's peak (107.9 Hz), **not** toward 105 Hz. With 50 samples, the DC component's lobe biases it.
-- Signal TP3 Q8 compares signals of amplitudes 1 and 3 (new errata E-TS10).
-
----
-
-## Phase 0: what was done
-
-### 1. Inventory of every handout question → [COVERAGE.md](COVERAGE.md)
-
-Each known question is listed with its handout number, its exact statement (typos included), its type (calcul à la main / MATLAB / Simulink / interprétation) and the handout page it comes from. Nothing is guessed: anything without a source is marked **needs handout**.
-
-| Course | TP | Questions | Source |
-|---|---|---|---|
-| Automatique | TP1 Initialisation à Matlab Simulink | **III.1–III.2** | ✅ checked against the PDF (p. 5–9) |
-| | TP2 Discrétisation d'un signal à temps continu | **II.1–2, III.1–6, IV.1–4** + Tableau 2.1 | ✅ checked against the PDF (p. 10–11) |
-| | TP3 Stabilité et précision d'un système échantillonné asservi | **II.3–II.7, III.1–III.6** (the handout's numbering really starts at 3) | ✅ checked against the PDF (p. 13–15) |
-| | TP4 Asservissement des systèmes continus | **III.1–III.4, IV.5–IV.8** + Tableau 4.1 | ✅ checked against the PDF (p. 16–18) |
-| Traitement du signal | TP1 Signaux discrets | Outline only (1.1, 1.2, 1.3) | ⏳ exact statements and numbering need the PDF |
-| | TP2 Convolution | Outline only (parts A and B) | ⏳ exact statements and numbering need the PDF |
-| | TP3 TFD | 2.1 + **Q1–Q12** (p. 5) | ⏳ second-hand; §1 missing |
-| | TP4 Filtres numériques | **I.1–I.5, II.1–II.3** (p. 6) | ⏳ second-hand; full "programme fourni" missing |
-
-The Automatique fascicule has **exactly 4 TPs and 33 questions**, 18 of them involving Simulink.
-
-### 2. Errata du fascicule: 37 issues found → [COVERAGE.md, last section](COVERAGE.md#missing-values-and-inconsistencies-feed-the-errata-du-fascicule-page)
-
-These will become a visible *Errata* page in the app. For each issue it gives what the handout says, why it is a problem, the choice made and why. The choice is always exposed as a slider or toggle. The most important ones:
-
-- **The sampling period T is never given**, neither in Automatique TP2 nor in TP3, yet every result depends on it (G(z), Kmax, stability). → slider, default from the rule T ≈ τ/10, and the Kmax(T) curve always shown.
-- **"K pour remplir 2 m"** (TP3 III.4): a proportional controller never reaches exactly 2 m, and no tolerance is given. → tolerance slider plus the derivation K ≥ (1−ε)/(12.5ε), checked against Kmax(T).
-- **The same motor has two inductances**: Tableau 2.1 (TP2) says L = 0.011 **H**, Tableau 4.1 (TP4) says 0.011 **mH**. With 0.011 mH the electrical pole lands near −72 700 rad/s, which is implausible. → proposed default 0.011 H, with a toggle to the printed value (your decision).
-- **TP2's mechanical equation has a sign error**: « JsΩ − kcI − Cr − fΩ = 0 » contradicts its own eq. (2), Ω = (kcI − Cr)/(Js+f). → eq. (2) is used.
-- **TP2 asks for a command 'imp' that does not exist**. The most likely meaning is `c2d(G, T, 'impulse')`, i.e. discretization *without* a hold, compared with `'zoh'`. → both derived and compared.
-- **TP2 says "sinusoïdal de fréquence 1 rad/sec"**: rad/s is a pulsation (ω = 1 rad/s, f ≈ 0.159 Hz). **TP1 writes "G(p) = 9/(s+9)"**, and its Figure 1.6 actually closes the loop, so the scope shows 9/(s+18) settling at 0.5.
-- **Units**: f is printed "N.m" (should be N·m·s/rad); the motor setpoint is "10 V" in the table but "10 rad/s" in the text; the tank setpoint is labelled Qe (an inflow) while it is compared with a height.
-- **The PID in Simulink ≠ `pid()` in MATLAB**: the Simulink `PID Controller` block filters the derivative (N = 100 by default), so the curves differ as soon as kd ≠ 0. → both modelled and compared.
-- **`stepinfo` changed definition in MATLAB R2021a** (settling band measured against |y_final − y_init| instead of the peak error). → both implemented; the version is named on screen.
-- **The IIR filter of Signal TP4 is unstable as printed** (denominator 0.516z² − 1.2z + 1: |poles| = 1.392, in z or in z⁻¹). It is z² − 1.2z + 0.516 with its coefficients reversed; reversing them inverts the poles (|p| = 0.718). → use the stable one and show the printed one as an errata toggle.
-- **The program given in Signal TP4** uses `freqz(Num, Den, 1/Te)`, where 100 is read as a *number of points*, not a frequency. A numerator written in powers of z must be left-padded for `impz`/`freqz`.
-- Ambiguities to settle with the PDF: sine or cosine in Signal TP1 1.2 (at fe = 2f₀ a sine gives only zeros, a cosine gives ±1); the meaning of "fréquence de Nyquist" (fe/2 or 2·fmax); N = 100 or 101 samples in Signal TP3 Q1.
-
-### 3. The tool chain was set up and validated
-
-- **GNU Octave in Docker** ([docker/octave.Dockerfile](docker/octave.Dockerfile)): Ubuntu 24.04, Octave 8.4.0, control 4.0.1, signal 1.4.5. It is the same environment the CI will use to generate every reference value.
-- **Headless figures work.** It took two discoveries: Octave needs the `fonts-freefont-otf` package (otherwise "invalid bounding box, cannot render"), and `gnuplot` or `xvfb` to draw without a screen.
-- **Octave vs MATLAB differences found so far.** `stepinfo`, `order`, `xline` and `yline` do not exist in Octave, and Octave cannot call local functions placed at the end of a script. → Octave-only shims in `matlab/compat/`. The submitted scripts stay pure MATLAB.
-- **MATLAB's exact `stepinfo` definitions** were checked in the MathWorks documentation (R2021a+ and R2020b).
-- **The Python "Run" button is feasible.** Pyodide 0.27.7 loads python-control 0.10.2 in the browser, and its results match Octave: c2d of 1/(s+1) at T = 0.1 s gives 0.09516/(z − 0.90484), and the tank's PI loop gives a 3.888 % overshoot. Its weak point is size (≈ 45 MB), so it will be an opt-in button. One quirk: `step_info` needs an explicit time vector.
-- **Measurement scripts** in [tools/](tools/): a Lighthouse batch runner and a phone (375 px) / offline probe. They will check the performance and accessibility targets.
-
-### 4. The stack was chosen → [PLAN.md §1](PLAN.md#1-stack-chosen-on-its-merits)
-
----
-
-## The plan: what comes next
-
-Full details: [PLAN.md](PLAN.md).
-
-### Priorities (in this order)
-1. **Complete coverage**: every question of every TP, with the handout's numbering. Nothing left "à venir".
-2. **Proven correctness**: one clean MATLAB script per TP (one `%%` cell per question, French comments) is the source of truth. A GitHub Actions job runs them in Octave and writes every reference number to JSON, and the web engine's tests compare against that JSON. No hand-typed values.
-3. **Code that follows the sliders**: the MATLAB shown is the submitted script's cell with the current slider values, so pasting it into MATLAB reproduces the plot on screen. CI proves it by running the substituted cells in Octave.
-4. **Learning**: "predict first" on every question, step-by-step hand derivations, and a **Mode DS** of generated exercises with auto-correction and a full correction.
-5. **The deliverable**: a "Générer le compte rendu" button per TP: cover page, Q&A, derivations, figures at the current parameters, observations, MATLAB annex, A4 PDF.
-6. **Industrial side**: the Simulink models built from code; "Vers le microcontrôleur" C export for Arduino/STM32, compiled in CI.
-7. **Polish**: Lighthouse ≥ 95, offline, phone, keyboard, dark/light themes, SVG figures with clickable blocks, the Errata page, this README.
-
-### Stack (as built)
-| Part | Choice | Why |
-|---|---|---|
-| Pages | **Astro 7** (static) | Pre-rendered HTML: fast even on a phone; only the interactive parts load JavaScript |
-| Interactive parts | **Svelte 5** islands | Tiny runtime; one slider updates figure, formula, code and derivation at once |
-| Figures | **Own SVG plotting module** | No chart library to download; crisp in the PDF report; follows the theme |
-| Formulas | **Native MathML** from an own builder | Nothing to download; selectable and accessible |
-| Engine | **TypeScript, no dependencies** | Tested against the Octave JSON; shared by pages, exercises, report and C export |
-| Offline | **Own service worker** generated at build time | The available PWA plugin for Astro 7 depended on a days-old 0.0.x core; ours is ~70 lines |
-| Tests | **Vitest**, Octave in CI, gcc / arm-none-eabi-gcc / arduino-cli in CI, page-weight budget in CI, Chrome and Lighthouse checks | Numbers, wiring, generated C, weight, phone, offline |
-
-### Architecture
-```
-matlab/                 source of truth: the TP scripts to submit
-  automatique/, signal/ one script per TP, one %% cell per handout question, @param lines = the sliders
-  simulink/             build_models.m (Simulink from code) + test/ (Octave stand-in for Simulink)
-  compat/, refs/        Octave shims (stepinfo, order) and the reference exporter
-reference/              JSON written by Octave in CI from the scripts; never edited by hand
-src/engine/             computations: poly, linalg, lti, stepinfo, dsp, mcu (digital PID, fixed point),
-                        codegen (C), matlabScript (reads the @param lines), tp/ (one model per script)
-src/derive/             step-by-step hand derivations, with the current numbers
-src/exercises/          Mode DS generators (Automatique, Signal)
-src/content/            handout statements (verbatim, with page), errata, TP lists, defaults
-src/components/, src/pages/, src/layouts/   Svelte islands and Astro pages
-tests/                  engine vs Octave, vs closed forms, random slider positions, exercises, C code
-tools/                  reference comparator, number lint, C check, service worker, Lighthouse runner
-```
-**Data flow.** A TP page reads its script (`?raw` import) and parses the `@param` lines into sliders. The engine model of that script runs on the slider values. Every view reads its result: figure, formula, derivation, prediction, MATLAB cell (the script with the values written in), report, C code. CI closes the loop. It runs the same scripts in Octave, at the defaults and at random slider positions, and requires the engine to match.
-
-### Phases
-| Phase | Content | Status |
-|---|---|---|
-| **0** ✅ | Audit, coverage, errata, plan | done |
-| **1** ✅ | MATLAB scripts, Octave shims, the CI job that writes `reference/*.json` | done |
-| **2** ✅ | Engine, tests against the JSON, "code follows sliders" check in CI | done |
-| **3** ✅ | Automatique TP3 end to end, reviewed | done |
-| **4** ✅ | Automatique TP1, TP2, TP4 and Signal TP3, TP4 pages and reports; Mode DS Signal; Simulink builder; C export; offline; number lint; README | done |
-| **5** ✅ | Lighthouse on every page, desktop and phone pass, keyboard, links, page-weight budget in CI, projection mode, pole/zero explorer, deploy workflow (on demand: the repository stays private for now) | done |
-
-Cut from the plan, as foreseen (bottom of the priority list): the in-browser Python "Run" button (Pyodide, ≈ 45 MB). The MATLAB cells are already exact and copyable.
-
-**Known limit.** On Automatique TP4, switching to the printed inductance (0.011 mH) takes about 0.9 s. The motor is then very stiff, and stepinfo uses the same fine grid as the Octave references.
-
----
-
-## What I need from you
-1. **Run two things once in MATLAB at school** (Octave cannot check them):
-   - `build_models` in `matlab/simulink/`: it builds the 9 Simulink models, simulates them and prints a table. Every line should say `OK`. If one says `ÉCART`, send me the table.
-   - The one-line `c2d(…, 'impulse')` check of [matlab/OCTAVE_VS_MATLAB.md](matlab/OCTAVE_VS_MATLAB.md) (TP2 III.6).
-2. **The *Traitement du signal* handout PDF**, if you ever get it. Signal TP1/TP2 stay "needs handout"; TP3/TP4 rest on an unverified transcription. Put it in [handouts/](handouts/) (git-ignored).
-3. **Publishing:** when you want the site online, see [Phase 5](#phase-5-checks-and-ready-to-publish) (three steps; optional email rewrite first).
-
-## Repository layout
-| Path | Content |
-|---|---|
-| [matlab/](matlab/) | The TP scripts (submitted), the Simulink builder (`simulink/`), the Octave shims (`compat/`), the reference exporter (`refs/`), [OCTAVE_VS_MATLAB.md](matlab/OCTAVE_VS_MATLAB.md) |
-| [reference/](reference/) | Reference values generated by Octave from the scripts, per question. Never edited by hand. |
-| [src/](src/) | The site: engine, derivations, exercises, content, components, pages |
-| [tests/](tests/) | Engine vs Octave references, vs closed forms, random slider positions, exercises, generated C (`npm test`) |
-| [tools/](tools/) | Reference comparator, number lint, C check, service worker, Lighthouse batch runner, phone/offline probe |
-| [docs/screenshots/](docs/screenshots/) | The images of this README |
-| [COVERAGE.md](COVERAGE.md) | Every handout question, its source, type and status, plus the errata list |
-| [PLAN.md](PLAN.md) | Stack, architecture, requirements → design → targets, phases, cut order |
-| [CLAUDE.md](CLAUDE.md) | Conventions, commands and decisions, for continuing the work |
-| [docker/octave.Dockerfile](docker/octave.Dockerfile) | Local copy of the CI Octave environment |
-| [handouts/](handouts/) | Where the handout PDFs go (kept local, git-ignored) |
-
-### Run the site
 ```bash
 npm ci
 npm run dev          # http://localhost:4321
-npm test             # engine, exercises, generated C cases
-npm run lint:numbers # no hand-typed number in the prose
-npm run build && npm run preview
 ```
 
-### Run the scripts in Octave and regenerate the references
+The production build, as measured above: `npm run build && npm run preview`.
+
+### Try it in 5 minutes
+
+1. On the home page, move the pointer to the left edge: Fe drops below 2·fmax and the magenta « Repliement spectral » appears. Move it up: K grows until the z-plane turns red.
+2. « Choisir un TP » → Automatique **TP3**. In question 7, type your guess for the limit of K, then « Vérifier ».
+3. In part II, move the slider « Gain du contrôleur K »: the figures and the MATLAB cells follow. « Copier la cellule », then paste it into MATLAB.
+4. « Générer le compte rendu », then print and choose « Enregistrer en PDF ».
+5. Signal **TP4**, part II: set « Dénominateur du filtre » to « imprimé » and watch h[n] diverge. The errata link next to it explains why.
+
+<details>
+<summary><b>Other commands</b>: tests, lints, Octave references, Simulink stand-in, generated C</summary>
+
 ```bash
+npm test                 # engine vs Octave references, closed forms, Mode DS, generated C cases
+npm run typecheck
+npm run lint:numbers     # no hand-typed number in the French prose
+npm run build && npm run check:budget   # page weight, as in CI
+
+# GNU Octave in Docker (the CI environment), then the staleness check CI runs
 docker build -t nyq-octave -f docker/octave.Dockerfile docker/
-docker run --rm -v "$PWD:/w" -w /w nyq-octave octave-cli --eval "addpath('matlab/refs'); export_refs"
-node tools/compare-refs.mjs reference regenerated   # what CI does, after export_refs('regenerated')
+docker run --rm -v "$PWD:/w" -w /w nyq-octave octave-cli --eval "addpath('matlab/refs'); export_refs('regenerated')"
+node tools/compare-refs.mjs reference regenerated
+
+# Simulink stand-in (about 75 s)
+docker run --rm -v "$PWD:/w" -w /w nyq-octave octave-cli --eval "addpath('matlab/simulink/test'); check_models"
+
+# Generated C: write it, then compare with the engine (needs gcc)
+npx vitest run tests/engine/codegen.test.ts && node tools/check-c.mjs
 ```
-(On Windows Git Bash, prefix with `MSYS_NO_PATHCONV=1` and use a `C:/...` path for `-v`.) To use the scripts in your own Octave, run `matlab/octave_setup.m` once.
+
+On Windows Git Bash, prefix the Docker lines with `MSYS_NO_PATHCONV=1` and give `-v` a `C:/...` path. To use the scripts in your own Octave, run `matlab/octave_setup.m` once.
+
+</details>
+
+---
+
+## Labelled honestly
+
+| What you see | What it really is |
+|---|---|
+| Numbers on the pages | **Computed** in your browser by the engine, from the scripts' defaults or your slider values. **Checked** against Octave at the defaults and at 36 random positions per CI run, not at every possible position. |
+| Simulink questions | The diagrams are **built from code** by `build_models.m`. CI runs them in an Octave **stand-in** for Simulink, not in Simulink. The real run is still to do. |
+| Signal TP3–TP4 statements | A **second-hand transcription**, marked « Énoncé transcrit, non vérifié » on screen. Signal TP1–TP2 have no page. |
+| Defaults the handout does not give (T, K, tolerance, load torque, command limits, Fe) | **Choices**, each with an errata entry and a slider. |
+| Lighthouse scores | **Measured** on a local production build, one run per page, simulated throttling. Not a field measurement; scores move between runs (an earlier run gave 81 for the Automatique TP4 report, see [`docs/overview.md`](docs/overview.md)). |
+| Generated C | **Compiled** in CI, and **checked** on a PC against the engine. Never run on a board. |
+| Home-page scene | **Computed** live by the engine, on an illustrative signal, not a TP's. |
+| Screenshots | **Captured** on 26 Nov 2026 from a local build of `main` @ `db58b44` (Chrome, puppeteer). |
+
+## Limits
+
+- **Signal TP1–TP2 are missing**: the author does not have that handout, and nothing is guessed.
+- **Two checks wait for MATLAB**: `build_models` in real Simulink, and the scaling of `c2d(…, 'impulse')`.
+- **Automatique TP4** with the printed inductance (0.011 mH) takes about 0.9 s to recompute: the motor is very stiff, and `stepinfo` uses the same fine grid as the Octave references.
+- **Above target**: 4 pages carry more than 60 KiB of JavaScript; 10 pages score below 100 in mobile performance; Mode DS Automatique shows a layout shift of 0.056 on desktop (target below 0.05).
+- **Browser checks** (console errors, horizontal scroll, keyboard focus, links) were run with scripts kept outside the repository, so `main` cannot replay them.
+- **Not online**: the repository is private, and the [deploy workflow](.github/workflows/deploy.yml) only runs on demand.
+
+---
+
+## Credits and AI use
+
+- **Handout content**: statements quoted word for word, with their page, from the INSAT fascicule *Travaux Pratiques d'Automatique Echantillonnée* (2024–2025) and from a transcription of the *Traitement du signal* handout. The handouts themselves are not in this repository.
+- **Built with**: [Astro](https://astro.build), [Svelte](https://svelte.dev), [TypeScript](https://www.typescriptlang.org), [Vitest](https://vitest.dev), the [IBM Plex Mono](https://github.com/IBM/plex) font (SIL OFL 1.1, via Fontsource). In CI: [GNU Octave](https://octave.org) with the control and signal packages, gcc, `arm-none-eabi-gcc`, `arduino-cli`.
+- **AI use**: Nyquist was written with **Claude Code** (Anthropic), an AI coding assistant: code, tests, documentation and this README. The commits carry no `Co-authored-by` trailer, so `git log` does not show it; this line does. Every number on this page was checked against a file or a run, listed in [`docs/readme-facts.md`](docs/readme-facts.md). Every image is a capture of this project or a diagram drawn for this page.
+- This is a student project. INSAT and the course's teachers have not reviewed or endorsed it.
+
+## Author
+
+**Youssef El Mhamdi**, IIA 3/1, INSAT. Sole author. License: [MIT](LICENSE).
+
+## Documentation
+
+| Doc | What |
+|---|---|
+| [`docs/overview.md`](docs/overview.md) | The build, phase by phase: what was made, measured and found at each step |
+| [`COVERAGE.md`](COVERAGE.md) | Every handout question, its source, type and status, and the errata list |
+| [`matlab/OCTAVE_VS_MATLAB.md`](matlab/OCTAVE_VS_MATLAB.md) | Every Octave/MATLAB difference and how the scripts handle it; the two checks to run in MATLAB |
+| [`PLAN.md`](PLAN.md) | The original plan: stack, architecture, targets, cut order (partly superseded: see the facts file) |
+| [`CLAUDE.md`](CLAUDE.md) | Conventions, commands and decisions, for continuing the work |
+| [`docs/readme-facts.md`](docs/readme-facts.md) | The source of every number on this page, and the contradictions found in the docs |
+
+## Layout
+
+```
+.
+├── matlab/            # the TP scripts you submit (automatique/, signal/), simulink/ builder + stand-in, compat/ shims, refs/ exporter
+├── reference/         # values written by Octave from the scripts, one JSON per script; never edited by hand
+├── src/
+│   ├── engine/        # poly, linalg, lti, stepinfo, dsp, mcu, codegen, matlabScript, tp/ (one model per script)
+│   ├── derive/        # step-by-step hand derivations, with the current numbers
+│   ├── exercises/     # Mode DS generators
+│   ├── content/       # handout statements (verbatim, with page), errata, course list, defaults
+│   ├── scene/         # the home-page sampling chain and the card glyphs
+│   └── components/, pages/, layouts/, styles/
+├── tests/             # engine vs Octave, closed forms, random slider positions, exercises, generated C
+├── tools/             # reference comparator, number lint, C check, page budget, service worker, Lighthouse runner
+├── docker/            # the CI Octave environment
+├── docs/              # overview.md, readme-facts.md, screenshots/ (earlier captures)
+├── assets/readme/     # the images on this page
+└── LICENSE            # MIT
+```
+
+The handout PDFs go in `handouts/`, which git ignores.
