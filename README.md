@@ -31,7 +31,7 @@ An interactive companion for the INSAT IIA 3 MATLAB labs, *Traitement du signal*
 
 ## The handout asks for Kmax. It never gives T.
 
-<img align="right" width="40%" src="assets/readme/errata-ets8.jpg" alt="Errata entry E-TS8 on the site: the handout prints the denominator 0.516z² − 1.2z + 1; its poles have modulus 1,392, so the filter is unstable; it is z² − 1,2z + 0,516 written backwards; the site uses the stable version by default and offers the printed one as an option.">
+<img align="right" width="40%" src="assets/readme/errata-t-k-not-given.jpg" alt="Two entries of the site's Errata page. E-AE1, TP3 parts II and III: the fascicule says « un temps d'échantillonnage T »; problem: the sampling period is never given, yet G(z), the pole and the gain limit depend on it; choice: a slider, T = τ/10 by default (0,1 s then 5 s), with the Kmax(T) curve always shown. E-AE2, TP3 question II.6: the controller gain K is not given; choice: a slider, K = 1 by default.">
 
 Question 7 of Automatique TP3 asks you to « indiquer la valeur limite de K ». That limit depends on the sampling period T, and the fascicule never gives T. Signal TP4 prints a low-pass filter whose poles have modulus 1,392: unstable as printed. TP2 asks for a command 'imp' that MATLAB does not have.
 
@@ -133,7 +133,7 @@ The « Errata » page lists 38 issues ([`src/content/errata.ts`](src/content/err
 
 ## 05 · From the TP to the board.
 
-<img align="right" width="40%" src="assets/readme/mcu-tank-antiwindup.jpg" alt="The « Vers le microcontrôleur » panel of Automatique TP4 for the tank: Te = 0,25 s, command limits 0 and 0,5, anti-windup ticked; the difference equation u[n] = 1,005·e[n] − e[n−1] + u[n−1]; the height with and without anti-windup next to the continuous PID; the saturated command; and the Arduino Uno code reservoir.ino with Timer1 prescaler 64 and OCR1A = 62499.">
+<img align="right" width="40%" src="assets/readme/mcu-tank-antiwindup.jpg" alt="The « Vers le microcontrôleur » panel of Automatique TP4 for the tank: Te = 0,25 s, command limits 0 and 0,5, saturation and anti-windup ticked; the step-by-step text from the continuous PID to the difference equation u[n] = 1,005·e[n] − e[n−1] + u[n−1]; and the height of water with and without anti-windup, next to the continuous PID.">
 
 On a board, the PID becomes a calculation done once per sampling period, with a command the actuator bounds. The « Vers le microcontrôleur » panels of Automatique TP4 (tank, motor) and Signal TP4 (the filter) show exactly that:
 
@@ -160,7 +160,7 @@ No generated program has run on a physical board yet.
 <table>
 <tr>
 <td width="50%" valign="top"><img src="assets/readme/report-cover.jpg" alt="The compte rendu of Automatique TP3 in print view: cover with INSAT, the course, « Compte rendu — TP3 », student, group and date, then the table « Valeurs utilisées » listing each parameter, its value and its origin."><br><b>« Générer le compte rendu »</b><br><sub>Cover, the values used, every question with its answer, derivation and figures at your values, your observations, the script in annex. A4 through the browser's « Enregistrer en PDF ».</sub></td>
-<td width="50%" valign="top"><img src="assets/readme/ds-signal-corrected.jpg" alt="Mode DS, Signal: a generated second-order filter subject, answered and corrected, each answer marked with the expected value and the detailed correction."><br><b>Mode DS</b><br><sub>Generated subjects, three kinds per course, corrected with the full derivation. The subject number sits in the URL. The tests check 1 500 subjects against the hand derivations.</sub></td>
+<td width="50%" valign="top"><img src="assets/readme/ds-signal-corrected.jpg" alt="Mode DS, Signal: subject 42, a generated second-order digital filter; seven questions answered, each marked right or wrong with the expected value, and the score 2 / 7."><br><b>Mode DS</b><br><sub>Generated subjects, three kinds per course, corrected with the full derivation. The subject number sits in the URL. The tests check 1 500 subjects against the hand derivations.</sub></td>
 </tr>
 <tr>
 <td width="50%" valign="top"><img src="assets/readme/pz-explorer.jpg" alt="Pole/zero explorer of Signal TP4: a pair of poles and a pair of zeros on the z-plane, the magnitude response in dB, the impulse response, the stability verdict and the MATLAB coefficients b and a."><br><b>Pole/zero explorer</b> (Signal TP4)<br><sub>Drag a pair of poles and a pair of zeros, with the pointer or the keyboard; the responses and the MATLAB coefficients follow.</sub></td>
@@ -176,9 +176,16 @@ The home page is the course in one picture. The pointer's x sets the sampling fr
 
 <table>
 <tr>
-<td width="33%" valign="top"><img src="assets/readme/scene-shannon.jpg" alt="The scene with Fe = 4,3 Hz above 2·fmax = 1,7 Hz: the samples follow the signal, the spectrum stays below Fe/2, the step response settles, and the poles sit inside the unit circle (K = 0,399, |z|max = 0,802)."><br><b>« Shannon respecté »</b><br><sub>Fe = 4,3 Hz ≥ 2·fmax = 1,7 Hz.</sub></td>
-<td width="33%" valign="top"><img src="assets/readme/scene-aliasing.jpg" alt="The scene with Fe = 1 Hz below 2·fmax = 1,7 Hz: a dashed magenta curve passes through the same samples as the true signal, and magenta arcs fold the spectrum around Fe/2."><br><b>« Repliement spectral »</b><br><sub>Fe = 1 Hz &lt; 1,7 Hz: in magenta, the wrong signal through the same samples.</sub></td>
-<td width="33%" valign="top"><img src="assets/readme/scene-unstable.jpg" alt="The scene with K = 6,4: the poles leave the unit circle (|z|max = 1,09), the circle glows red and the step response oscillates with growing amplitude."><br><b>Unstable loop</b><br><sub>K = 6,4: |z|max = 1,09, in red.</sub></td>
+<td width="22%" valign="top"><b>« Shannon respecté »</b><br><sub>Fe = 4,3 Hz ≥ 2·fmax = 1,7 Hz. The samples follow the signal; the loop is stable (K = 0,399).</sub></td>
+<td><img src="assets/readme/scene-shannon-band.jpg" alt="The scene with Fe = 4,3 Hz above 2·fmax = 1,7 Hz: the cyan signal, its amber samples, the white zero-order hold and the 3-bit quantization; the spectrum stays below Fe/2; the step response settles and the poles sit inside the unit circle (K = 0,399, |z|max = 0,802)."></td>
+</tr>
+<tr>
+<td valign="top"><b>« Repliement spectral »</b><br><sub>Pointer to the left: Fe = 1 Hz &lt; 1,7 Hz. In magenta, a wrong, slower signal through the very same samples, and the spectrum folding around Fe/2.</sub></td>
+<td><img src="assets/readme/scene-aliasing-band.jpg" alt="The scene with Fe = 1 Hz below 2·fmax = 1,7 Hz: a dashed magenta curve passes through the same samples as the true signal, and magenta arcs fold the spectrum around Fe/2."></td>
+</tr>
+<tr>
+<td valign="top"><b>Unstable loop</b><br><sub>Pointer up: K = 6,4. The poles leave the unit circle (|z|max = 1,09) and the step response grows, in red.</sub></td>
+<td><img src="assets/readme/scene-unstable-band.jpg" alt="The scene with K = 6,4: the poles sit outside the unit circle (|z|max = 1,09), the circle glows red and the step response oscillates with growing amplitude."></td>
 </tr>
 </table>
 
