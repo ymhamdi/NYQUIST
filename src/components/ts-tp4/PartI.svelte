@@ -13,6 +13,7 @@
   import Predict from '../Predict.svelte'
   import QuestionHead from '../QuestionHead.svelte'
   import ZPlane from '../ZPlane.svelte'
+  import LazyPanel from '../LazyPanel.svelte'
 
   interface Props {
     report?: boolean
@@ -103,6 +104,13 @@
       <CodeCell script={ts4.script} original={SCRIPT_SOURCE} cell="I.3" filename={SCRIPT_NAME} needs={['I.1']} />
     </Predict>
   </article>
+
+  {#if !report}
+    <article class="no-print">
+      <h3 id="explorer-pz">Explorer : pôles, zéros et réponse</h3>
+      <LazyPanel summary="Ouvrir : déplacer une paire de pôles et une paire de zéros, voir la réponse du filtre" load={() => import('../PzEditor.svelte')} props={{}} />
+    </article>
+  {/if}
 
   <article>
     <QuestionHead q={question('I.4')} part="I" />
