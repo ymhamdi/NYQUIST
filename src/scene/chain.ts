@@ -108,7 +108,6 @@ export function mountScene(canvas: HTMLCanvasElement, opts: SceneOptions): Scene
   const impulses: number[] = []
   const trail: { x: number; y: number; t: number }[] = []
   let redGlow = 0
-  let gateTick = 0
   let paused = opts.paused
   let visible = true
   let raf = 0
@@ -192,7 +191,7 @@ export function mountScene(canvas: HTMLCanvasElement, opts: SceneOptions): Scene
     if (small) {
       // phone: the hero grows to hold the chain, the spectrum and the loop panels below the text
       const ay = Math.min(H * 0.07, 52)
-      const need = Math.ceil(freeTop + 2 * ay * 1.45 + 44 + Math.max(40, H * 0.07) + 30 + 150 + 16)
+      const need = Math.ceil(freeTop + 2 * ay * 1.45 + 44 + Math.max(40, H * 0.07) + (opts.calm ? 24 : 30 + 150 + 16))
       if (H < need) {
         host.style.minHeight = `${need}px`
         return // the ResizeObserver calls resize() again with the new height
@@ -221,6 +220,12 @@ export function mountScene(canvas: HTMLCanvasElement, opts: SceneOptions): Scene
     const band = ay * 1.45 // labels above, status below the chain
     const y0 = Math.max(freeTop + band + 12, H * 0.32)
     const below = y0 + band + 16
+    if (opts.calm) {
+      // course pages: no loop panels, the spectrum takes the whole width
+      const spec = { x: small ? 12 : W * 0.04, y: below + (small ? 22 : 10), w: small ? W - 24 : W * 0.92, h: Math.max(36, Math.min(H * 0.16, H - below - 40)) }
+      const zone = { x: W, y: H, s: 0 }
+      return { xg, xz: W * 0.52, xq: W * 0.74, y0, ay, zone, step: { x: W, y: H, w: 0, h: 0 }, spec }
+    }
     if (small) {
       const spec = { x: 12, y: below + 22, w: W - 24, h: Math.max(40, H * 0.07) }
       const zs = Math.min(W * 0.4, 150, H - (spec.y + spec.h + 30) - 10)
@@ -252,10 +257,8 @@ export function mountScene(canvas: HTMLCanvasElement, opts: SceneOptions): Scene
     if (tNext < now - 2) warmup()
     while (tNext <= now) {
       samples.push({ t: tNext, v: sampleAt(tNext, te) })
-      gateTick = 1
       tNext += te
     }
-    gateTick = Math.max(0, gateTick - dt * 3)
     const keepFrom = now - (W * 0.75) / v - N_FFT * 4.5
     while (samples.length > N_FFT + 4 && samples[0].t < keepFrom) samples.shift()
     while (impulses.length && impulses[0] < now - (W * 0.75) / v - 2) impulses.shift()
@@ -314,13 +317,22 @@ export function mountScene(canvas: HTMLCanvasElement, opts: SceneOptions): Scene
     c.stroke()
     c.setLineDash([])
     const lastS = samples[samples.length - 1]
-    if (lastS && gateTick > 0) {
-      c.globalAlpha = 0.6 * gateTick
+    // the sampling clock: short ticks sliding down the gate, one spacing per period Te
+    // (steady motion, constant brightness: nothing blinks)
+    {
+      const top = y0 - ay * 1.3
+      const len = ay * 2.6
+      const gap = len / 6
+      const phase = (((now * Fe) % 1) + 1) % 1
       c.strokeStyle = col.amber
-      c.lineWidth = 2
+      c.globalAlpha = 0.55
+      c.lineWidth = 1.5
       c.beginPath()
-      c.moveTo(xg - 7, yv(y0, ay, lastS.v))
-      c.lineTo(xg + 7, yv(y0, ay, lastS.v))
+      for (let k = 0; k < 6; k++) {
+        const y = top + ((k + phase) % 6) * gap
+        c.moveTo(xg - 4, y)
+        c.lineTo(xg + 4, y)
+      }
       c.stroke()
       c.globalAlpha = 1
     }

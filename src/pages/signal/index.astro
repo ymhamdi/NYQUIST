@@ -1,0 +1,11 @@
+---
+import CourseView from '../../components/CourseView.astro'
+import { COURSES } from '../../content/courses'
+import Base from '../../layouts/Base.astro'
+
+const course = COURSES.find((c) => c.id === 'signal')!
+---
+
+<Base title={course.name} description="Traitement du signal : signaux discrets, convolution, transformée de Fourier discrète et filtres numériques ; pages interactives, comptes rendus et Mode DS." section="signal">
+  <CourseView course={course} />
+</Base>

@@ -9,6 +9,8 @@ export interface TpEntry {
 export interface Course {
   id: 'automatique' | 'signal'
   name: string
+  /** one sentence for the course card and page */
+  blurb: string
   tps: TpEntry[]
 }
 
@@ -16,6 +18,7 @@ export const COURSES: Course[] = [
   {
     id: 'automatique',
     name: 'Automatique linéaire échantillonnée',
+    blurb: 'Du système continu à la boucle numérique : Simulink, bloqueur d’ordre zéro, transformée en Z, stabilité et précision, régulation PID.',
     tps: [
       { n: 1, title: 'Initialisation à Matlab Simulink', status: 'page interactive', path: 'automatique/tp1/' },
       { n: 2, title: "Discrétisation d'un signal à temps continu", status: 'page interactive', path: 'automatique/tp2/' },
@@ -26,6 +29,7 @@ export const COURSES: Course[] = [
   {
     id: 'signal',
     name: 'Traitement du signal',
+    blurb: 'Signaux discrets, convolution, transformée de Fourier discrète et filtres numériques, des échantillons au spectre.',
     tps: [
       { n: 1, title: 'Signaux discrets', status: 'énoncé manquant' },
       { n: 2, title: 'Convolution des signaux numériques', status: 'énoncé manquant' },

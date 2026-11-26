@@ -1,0 +1,34 @@
+---
+/** A card glyph (src/scene/glyphs.ts), drawn as static SVG; scene.css animates it on hover or focus. */
+import type { Glyph } from '../scene/glyphs'
+
+interface Props {
+  g: Glyph
+  w?: number
+  h?: number
+  /** the wave of a "sine turns into samples" glyph fades on hover */
+  fadeWave?: boolean
+}
+const { g, w = 120, h = 64, fadeWave = false } = Astro.props
+const z = g.zplane
+---
+
+<svg class="glyph" viewBox={`0 0 ${w} ${h}`} aria-hidden="true" focusable="false">
+  {g.band && <rect class="band" x="0" y={g.band.y} width={w} height={g.band.h} />}
+  {g.rules.map((r) => <line class={`rule ${r.cls}`} x1="0" x2={w} y1={r.y} y2={r.y} />)}
+  {
+    z && (
+      <g>
+        <line class="axis" x1={z.cx - z.r * 1.45} x2={z.cx + z.r * 1.45} y1={z.cy} y2={z.cy} />
+        <line class="axis" x1={z.cx} x2={z.cx} y1={z.cy - z.r * 1.3} y2={z.cy + z.r * 1.3} />
+        <circle class="unit" cx={z.cx} cy={z.cy} r={z.r} />
+        <g transform={`translate(${z.cx} ${z.cy})`}>
+          <path class="pole" d="M-4 -4L4 4M-4 4L4 -4" style={`--from:${z.from};--to:${z.to}`} />
+        </g>
+      </g>
+    )
+  }
+  {g.paths.map((p) => <path class={`${p.cls}${fadeWave && p.cls === 'wave' ? ' fades' : ''}`} d={p.d} pathLength={p.cls.includes('draw') ? 1 : undefined} />)}
+  {g.bars.map((b) => <rect class={b.cls} x={b.x} y={b.y} width={b.w} height={b.h} style={`--i:${b.i}`} />)}
+  {g.dots.map((d) => <circle class={d.cls} cx={d.cx} cy={d.cy} r={d.r} style={`--i:${d.i}`} />)}
+</svg>

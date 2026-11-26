@@ -337,3 +337,64 @@ td {
     font-size: 100%;
   }
 }
+
+/* Page transitions: the sampling gate sweeps across the screen and wipes the new page in
+   (cross-document view transitions; browsers without them just navigate). */
+@view-transition {
+  navigation: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+::view-transition-old(root) {
+  animation: none;
+}
+::view-transition-new(root) {
+  animation: vt-wipe 0.55s cubic-bezier(0.55, 0, 0.35, 1) both;
+}
+@keyframes vt-wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.vt-gate {
+  position: fixed;
+  top: 0;
+  left: -4px;
+  width: 2px;
+  height: 100vh;
+  pointer-events: none;
+  view-transition-name: vt-gate;
+  background: repeating-linear-gradient(to bottom, var(--gate) 0 6px, transparent 6px 10px);
+  box-shadow: 0 0 10px 1px var(--gate);
+  --gate: #b25a00;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .vt-gate {
+    --gate: #ffad2e;
+  }
+}
+:root[data-theme='dark'] .vt-gate {
+  --gate: #ffad2e;
+}
+::view-transition-group(vt-gate) {
+  animation: vt-gate 0.55s cubic-bezier(0.55, 0, 0.35, 1) both;
+}
+@keyframes vt-gate {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(100vw + 8px));
+  }
+}
+@media print {
+  .vt-gate {
+    display: none;
+  }
+}

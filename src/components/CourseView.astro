@@ -1,0 +1,68 @@
+---
+/** A course page: a calm version of the scene, then one card per TP. */
+import type { Course } from '../content/courses'
+import SceneHero from './SceneHero.astro'
+import TpCard from './TpCard.astro'
+
+interface Props {
+  course: Course
+}
+const { course } = Astro.props
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/')
+---
+
+<SceneHero calm labelledby="course-title">
+  <p class="kicker">Cours · INSAT IIA 3</p>
+  <h1 id="course-title">{course.name}</h1>
+  <p class="lead">{course.blurb}</p>
+  <div class="cta">
+    <a class="btn" href="#tp">Les TP</a>
+    <a class="btn ghost" href={`${base}ds/${course.id}/`}>Mode DS</a>
+  </div>
+</SceneHero>
+
+<section class="bench below" id="tp" aria-labelledby="tp-title">
+  <div class="wrap">
+    <h2 id="tp-title">Les TP</h2>
+    <div class="grid">
+      {course.tps.map((tp) => <TpCard course={course} tp={tp} />)}
+    </div>
+    <p class="muted foot">
+      Les incohérences et les valeurs manquantes du fascicule, avec le choix fait pour chacune : <a href={`${base}errata/`}>errata</a>.
+    </p>
+  </div>
+</section>
+
+<style>
+  h1 {
+    margin: 0.2rem 0 0.5rem;
+    font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+    line-height: 1.1;
+    color: var(--s-ink);
+  }
+  .lead {
+    margin: 0 0 1rem;
+    color: var(--s-ink);
+  }
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .below {
+    padding: 2rem 0 3rem;
+    border-top: 1px solid var(--s-rule);
+  }
+  .below h2 {
+    margin-top: 0;
+    border: 0;
+    padding: 0;
+    color: var(--s-ink);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 1rem;
+    margin: 1rem 0 1.5rem;
+  }
+</style>

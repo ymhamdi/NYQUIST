@@ -1,0 +1,11 @@
+---
+import CourseView from '../../components/CourseView.astro'
+import { COURSES } from '../../content/courses'
+import Base from '../../layouts/Base.astro'
+
+const course = COURSES.find((c) => c.id === 'automatique')!
+---
+
+<Base title={course.name} description="Automatique linéaire échantillonnée : les quatre TP (Simulink, discrétisation, stabilité et précision, régulation PID), avec leur page interactive, leur compte rendu et le Mode DS." section="automatique">
+  <CourseView course={course} />
+</Base>

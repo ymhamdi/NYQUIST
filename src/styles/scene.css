@@ -1,0 +1,238 @@
+/*
+ * "Bench at night" (landing and course pages): ink blue with a millimetre
+ * grid in the dark theme, white graph paper with ink colours in the light
+ * one. Colours carry meaning: cyan = continuous signal, amber = samples,
+ * soft white = zero-order hold, magenta = aliasing, red = instability.
+ * The TP pages keep the site's plain theme.
+ */
+.bench {
+  --s-bg: #fbfcff;
+  --s-grid: rgb(30 80 200 / 0.07);
+  --s-grid-major: rgb(30 80 200 / 0.15);
+  --s-cyan: #0071b0;
+  --s-amber: #b25a00;
+  --s-zoh: #1b2233;
+  --s-magenta: #b3168f;
+  --s-red: #c62828;
+  --s-ink: #0c1a33;
+  --s-ink-soft: #4a5a78;
+  --s-panel: rgb(251 252 255 / 0.86);
+  --s-scrim: rgb(251 252 255 / 0.84);
+  --s-card: #ffffff;
+  --s-rule: rgb(30 60 120 / 0.18);
+  --s-accent: #0a5a8c;
+  --s-accent-ink: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .bench {
+    --s-bg: #0a1633;
+    --s-grid: rgb(120 160 255 / 0.06);
+    --s-grid-major: rgb(120 160 255 / 0.13);
+    --s-cyan: #4fd2ff;
+    --s-amber: #ffad2e;
+    --s-zoh: #eef2fa;
+    --s-magenta: #ff52d9;
+    --s-red: #ff5c5c;
+    --s-ink: #eef2fb;
+    --s-ink-soft: #a3b3d2;
+    --s-panel: rgb(10 22 51 / 0.78);
+    --s-scrim: rgb(10 22 51 / 0.8);
+    --s-card: #0e1d40;
+    --s-rule: rgb(140 170 230 / 0.22);
+    --s-accent: #4fd2ff;
+    --s-accent-ink: #06122b;
+  }
+}
+:root[data-theme='dark'] .bench {
+  --s-bg: #0a1633;
+  --s-grid: rgb(120 160 255 / 0.06);
+  --s-grid-major: rgb(120 160 255 / 0.13);
+  --s-cyan: #4fd2ff;
+  --s-amber: #ffad2e;
+  --s-zoh: #eef2fa;
+  --s-magenta: #ff52d9;
+  --s-red: #ff5c5c;
+  --s-ink: #eef2fb;
+  --s-ink-soft: #a3b3d2;
+  --s-panel: rgb(10 22 51 / 0.78);
+  --s-scrim: rgb(10 22 51 / 0.8);
+  --s-card: #0e1d40;
+  --s-rule: rgb(140 170 230 / 0.22);
+  --s-accent: #4fd2ff;
+  --s-accent-ink: #06122b;
+}
+
+.bench {
+  color: var(--s-ink);
+  background-color: var(--s-bg);
+  /* millimetre paper (the canvas draws the same grid; this shows before it starts and without JavaScript) */
+  background-image:
+    linear-gradient(var(--s-grid-major) 1px, transparent 1px), linear-gradient(90deg, var(--s-grid-major) 1px, transparent 1px),
+    linear-gradient(var(--s-grid) 1px, transparent 1px), linear-gradient(90deg, var(--s-grid) 1px, transparent 1px);
+  background-size:
+    40px 40px,
+    40px 40px,
+    8px 8px,
+    8px 8px;
+}
+.bench a {
+  color: var(--s-accent);
+}
+.bench .btn {
+  background: var(--s-accent);
+  border-color: var(--s-accent);
+  color: var(--s-accent-ink);
+}
+.bench .btn.ghost {
+  background: transparent;
+  color: var(--s-accent);
+}
+.bench .mono,
+.bench .kicker {
+  font-family: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+.bench .kicker {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--s-ink-soft);
+}
+.bench .muted {
+  color: var(--s-ink-soft);
+}
+
+/* ---- glyphs (cards): static by default, animated on hover or keyboard focus ---- */
+.glyph {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.glyph .wave {
+  fill: none;
+  stroke: var(--s-cyan);
+  stroke-width: 1.6;
+  transition: opacity 0.6s;
+}
+.glyph .response {
+  fill: none;
+  stroke: var(--s-cyan);
+  stroke-width: 1.8;
+}
+.glyph .input {
+  fill: none;
+  stroke: var(--s-ink-soft);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.glyph .hold {
+  fill: none;
+  stroke: var(--s-zoh);
+  stroke-width: 1.6;
+}
+.glyph .rule {
+  stroke: var(--s-ink-soft);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  opacity: 0.8;
+}
+.glyph .rule.level {
+  stroke-dasharray: none;
+  opacity: 0.25;
+}
+.glyph .band {
+  fill: var(--s-cyan);
+  opacity: 0.12;
+}
+.glyph .stem,
+.glyph .head,
+.glyph .bar {
+  fill: var(--s-amber);
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.glyph .head {
+  transform-origin: 50% 50%;
+}
+.glyph .bar.i {
+  fill: var(--s-cyan);
+}
+.glyph .bar.d {
+  fill: var(--s-magenta);
+}
+.glyph .unit {
+  fill: none;
+  stroke: var(--s-ink);
+  stroke-width: 1.2;
+}
+.glyph .axis {
+  stroke: var(--s-ink-soft);
+  stroke-width: 1;
+  opacity: 0.6;
+}
+.glyph .pole {
+  stroke: var(--s-zoh);
+  stroke-width: 2;
+  transform: translateX(calc(var(--from) * 1px));
+}
+
+.card-anim:is(:hover, :focus-within) .glyph .draw {
+  animation: glyph-draw 1.3s ease-out both;
+}
+.card-anim:is(:hover, :focus-within) .glyph .stem,
+.card-anim:is(:hover, :focus-within) .glyph .bar {
+  animation: glyph-grow 0.5s ease-out both;
+  animation-delay: calc(var(--i) * 45ms);
+}
+.card-anim:is(:hover, :focus-within) .glyph .head {
+  animation: glyph-pop 0.5s ease-out both;
+  animation-delay: calc(var(--i) * 45ms);
+}
+.card-anim:is(:hover, :focus-within) .glyph .wave.fades {
+  opacity: 0.25;
+}
+.card-anim:is(:hover, :focus-within) .glyph .pole {
+  animation: glyph-pole 2.4s ease-in-out both;
+}
+@keyframes glyph-draw {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes glyph-grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+@keyframes glyph-pop {
+  from {
+    transform: scale(0);
+  }
+}
+/* the pole walks to −1 and past it: it turns red outside the unit circle */
+@keyframes glyph-pole {
+  0% {
+    transform: translateX(calc(var(--from) * 1px));
+    stroke: var(--s-zoh);
+  }
+  80% {
+    stroke: var(--s-zoh);
+  }
+  90%,
+  100% {
+    transform: translateX(calc(var(--to) * 1px));
+    stroke: var(--s-red);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glyph *,
+  .card-anim:is(:hover, :focus-within) .glyph * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
