@@ -115,9 +115,9 @@ Honest total: **≈ 20–22 hours** for everything above. If time runs short, cu
 | 1 ✅ | MATLAB scripts for AE TP1–TP4 and TS TP3–TP4 (TS TP1–TP2 once the Signal PDF arrives): one `%%` per question, French comments, `@param` tags; `compat/` shims; `export_refs.m`; the `octave-refs` GitHub Actions job writing `reference/*.json`; `OCTAVE_VS_MATLAB.md`; commit | 3 h |
 | 2 ✅ | Engine (control + DSP); Vitest against JSON; code-follows-sliders property test in CI; commit (derivation generators move to Phase 3, with the pages that show them) | done |
 | 3 ✅ | **AE TP3 end to end**: SVG figures and clickable blocks, params → code, predict first, derivations, Mode DS (AE generators), report; commit; **stop for review** | 3 h |
-| 4a | Remaining TPs on the Phase 3 pattern: AE TP1, TP2, TP4 and TS TP1–TP4 | 6.5 h |
-| 4b | Feature 6: Simulink builder, C export with compile checks | 2 h |
-| 4c | Feature 7: PWA, themes, errata page, README with screenshots; Pyodide Run (stretch) | 1.5 h (+1 h stretch) |
+| 4a ✅ | Remaining TPs on the Phase 3 pattern: AE TP1, TP2, TP4 and TS TP3–TP4 (TS TP1–TP2 need the handout); Mode DS Signal; TP switcher | done |
+| 4b ✅ | Feature 6: Simulink builder (checked in CI with an Octave stand-in for Simulink), C export (Arduino Uno, STM32 HAL, portable C) with gcc / arm-none-eabi-gcc / arduino-cli checks in CI | done |
+| 4c ✅ | Feature 7: offline (own service worker), manifest, number lint in CI, errata numbers from the engine, README with screenshots and GIF. **Cut** as planned: Pyodide Run | done |
 | 5 | GitHub Pages deploy, Lighthouse, browser pass at 375/1280 px, originality check, final scorecard | 1.5 h |
 
 **Cut order if time runs short** (first cut first): Pyodide Run → README GIF (keep screenshots) → STM32 variant (keep Arduino) → Mode DS breadth (fewer generator types, still at least 3 per course) → "pick the curve" predict type (keep numeric/choice) → report extras (keep cover + Q&A + figures + annex). Never cut: verbatim coverage, Octave-generated references, numbers from the engine.
@@ -126,3 +126,5 @@ Honest total: **≈ 20–22 hours** for everything above. If time runs short, cu
 1. The *Traitement du signal* handout PDF: **the user does not have it**. TS TP1/TP2 stay "needs handout"; TS TP3/TP4 are built from the second-hand transcription, flagged "énoncé non vérifié".
 2. Decided: motor L = 0.011 H by default (E-AE7); credits Nyquist, Youssef El Mhamdi, IIA 3/1; the repo goes public at deployment, after one more confirmation.
 3. GitHub Pages: enable on the repo (Settings → Pages → GitHub Actions) at Phase 5.
+4. To run once in MATLAB: `build_models` (matlab/simulink/) and the `c2d … 'impulse'` line (OCTAVE_VS_MATLAB.md).
+5. Known limit: AE TP4 with the printed inductance (0.011 mH) takes ≈ 0.9 s to recompute (stiff motor, stepinfo on the same fine grid as the Octave references).

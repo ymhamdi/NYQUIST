@@ -8,10 +8,13 @@ Repository: https://github.com/ymhamdi/NYQUIST-lab
 - **Phase 0 done**: `COVERAGE.md` (inventory of every question + errata) and `PLAN.md` (stack, architecture, phases).
 - **Phase 1 done**: `matlab/automatique/tp1..tp4`, `matlab/signal/tp3, tp4`; `matlab/compat/` (stepinfo R2021a+, order); `matlab/refs/` harness → `reference/*.json`; CI `.github/workflows/octave-refs.yml` + `tools/compare-refs.mjs`; `matlab/OCTAVE_VS_MATLAB.md`.
 - **Phase 2 done**: `src/engine/` (poly, complex, linalg, lti, stepinfo, dsp, matlabScript, tp/<one model per script>); tests: `tests/reference/` (engine vs Octave JSON), `tests/engine/core.test.ts` (closed forms), `tests/sliders/` (random slider positions run in Octave in CI). Next: **Phase 3**, the AE TP3 page end to end (Astro + Svelte), then **stop for the user's review**.
-- **Phase 3 done (2026-11-25), waiting for the user's review** on branch `phase-3`. Astro 7 + Svelte 5 site: `/`, `/automatique/tp3/`, `/rapport/automatique/tp3/`, `/ds/automatique/`, `/errata/`. Lighthouse mobile 99-100 on every page (perf, a11y, BP, SEO); 375 px OK; hydration fix verified (islands hydrate with defaults, `tpStore.restore()` in an `$effect` applies URL/saved values). After the review: merge `phase-3` into `main`, then **Phase 4** on branch `phase-4` (other TP pages on the TP3 pattern, Simulink builder, microcontroller export, PWA, lint for hard-coded numbers).
-- Known for later: errata page numbers are static text (handle with the no-hard-coded-numbers lint in Phase 4c); Simulink builder (Phase 4b) not written yet.
+- **Phase 3 done (2026-11-25), reviewed and merged into `main`** (branch `phase-3`). Astro 7 + Svelte 5 site: `/`, `/automatique/tp3/`, `/rapport/automatique/tp3/`, `/ds/automatique/`, `/errata/`. Lighthouse mobile 99-100 on every page (perf, a11y, BP, SEO); 375 px OK; hydration fix verified (islands hydrate with defaults, `tpStore.restore()` in an `$effect` applies URL/saved values). After the review: merge `phase-3` into `main`, then **Phase 4** on branch `phase-4` (other TP pages on the TP3 pattern, Simulink builder, microcontroller export, PWA, lint for hard-coded numbers).
+- **Phase 4 done (2026-11-26)** on branch `phase-4`: pages + reports for AE TP1, TP2, TP4 and TS TP3, TP4; Mode DS Signal (`/ds/signal/`); TP switcher (`src/content/courses.ts`); Simulink builder `matlab/simulink/build_models.m` checked in CI by an Octave stand-in (`matlab/simulink/test/`); microcontroller export (`src/engine/mcu.ts`, `src/engine/codegen.ts`, `src/components/mcu/`, CI `mcu.yml`); own service worker (`tools/sw-integration.mjs`); number lint (`tools/lint-numbers.mjs`, in CI); errata numbers computed. Pyodide Run cut as planned. **Next: Phase 5** on branch `phase-5` (deploy: ask the user before making the repo public; Lighthouse; browser pass; similarity check and scorecard kept out of the repo).
+- Known limits: AE TP4 with L = 0.011 mH recomputes in ≈ 0.9 s; the user must run `build_models` and the c2d 'impulse' line once in MATLAB.
 
 ## Engine conventions
+- Microcontroller code (`mcu.ts` → `codegen.ts`): the generated C performs the same operations in the same order as mcu.ts; `tools/check-c.mjs` compiles it with gcc in double and requires an exact match (fixed point: identical integers). Change both together. Defaults not in the handout live in `src/content/mcu.ts` (errata E-AE27, E-TS11).
+- Simulink builder: only the API calls the stand-in knows (new_system, add_block, add_line, set_param, save_system, sim with ReturnWorkspaceOutputs); a new block type needs its entry in `matlab/simulink/test/stub/nyq_sl.m`.
 - Polynomials in descending powers (MATLAB order). `tf` = {num, den, Ts}; no automatic cancellation (feedback keeps cancelled poles, like MATLAB).
 - `pid(kp, ki, kd, Tf)` builds only the existing terms (integrator only if ki ≠ 0, filter only if kd ≠ 0).
 - `tf2ss` returns a **balanced** companion form (needed for the stiff motor with L = 0.011 mH).
@@ -38,7 +41,7 @@ Repository: https://github.com/ymhamdi/NYQUIST-lab
 - If time runs short, cut from the bottom of the priority list (PLAN.md §4). Never cut correctness or coverage.
 
 ## Stack (decided in PLAN.md §1)
-Astro 5 (static) · Svelte 5 islands · own SVG plotting module · Temml → MathML · TypeScript engine with no dependencies · @vite-pwa/astro · Vitest · Playwright + axe-core · Lighthouse CI · GitHub Actions (Octave refs, web, deploy).
+As built: Astro 7 (static) · Svelte 5 islands · own SVG plotting module · own MathML builder · TypeScript engine with no dependencies · own service worker (the PWA plugin for Astro 7 rested on a 0.0.x core) · Vitest · Chrome checks with puppeteer scripts (scratchpad) · Lighthouse 12 · GitHub Actions (Octave refs + Simulink stand-in + number lint; microcontroller code).
 
 ## Environment notes
 - Octave runs in Docker: `docker build -t nyq-octave -f docker/octave.Dockerfile docker/` (Ubuntu 24.04, Octave 8.4.0, control 4.0.1, signal 1.4.5, gnuplot, fonts-freefont-otf, xvfb). CI installs the same packages.
@@ -66,8 +69,12 @@ SettlingTime: first T such that |y − y_final| ≤ 2 % · |y_final − y_init| 
 - Random slider positions (what CI does, 6 per script; locally 10 takes ~6 min in Octave):
   `NYQ_VARIANTS=generate NYQ_VARIANTS_PER_SCRIPT=10 npx vitest run tests/sliders` → Octave `export_refs('build/variants-out', 'build/variants/list.txt')` → `NYQ_VARIANTS=compare npx vitest run tests/sliders`
 - Octave in Bash: put test code in a `.m` file. Quoting `.'` inside `bash -c '...'` breaks.
-- Web: `npm ci`, `npm run dev`, `npm test`, `npm run build`, `npm run e2e`, `npm run lh`
+- Web: `npm ci`, `npm run dev`, `npm test`, `npm run typecheck`, `npm run lint:numbers`, `npm run build`, `npm run preview` (browser checks: puppeteer scripts in the session scratchpad, not in the repo)
 - Lighthouse batch: `tools/lh.sh <base-url> <outdir> mobile|desktop <routes…>`; phone/offline probe: `node tools/probe.cjs <base> <shotdir> <routes…>`
+- Number lint: `npm run lint:numbers` (exceptions with a reason in `tools/lint-numbers.allow.json`)
+- Simulink stand-in (what CI does): `docker run … nyq-octave octave-cli --eval "addpath('matlab/simulink/test'); check_models"` (≈ 75 s)
+- Generated C: `npx vitest run tests/engine/codegen.test.ts` writes `build/mcu/`; then `node tools/check-c.mjs` (needs gcc; locally: in the nyq-octave container after `apt-get install gcc libc6-dev nodejs`). STM32: arm-none-eabi-gcc with `-I tests/mcu/stub`; Arduino: `arduino-cli compile --fqbn arduino:avr:uno build/mcu/arduino/<name>`
+- Shell edits: do not pass template literals (`${…}`, backticks) through bash -c / node -e; write an edit script file or use the editor.
 
 ## Decisions log
 - 2026-11-24: stack chosen (PLAN.md §1). Octave-in-Docker environment validated (headless figures OK). Pyodide + python-control verified.

@@ -6,10 +6,65 @@ Interactive companion for the INSAT IIA 3 MATLAB labs:
 Youssef El Mhamdi, IIA 3/1, INSAT. MIT License.
 
 [![Octave references](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/octave-refs.yml/badge.svg)](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/octave-refs.yml)
+[![Microcontroller code](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/mcu.yml/badge.svg)](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/mcu.yml)
 
-> **Status: Phase 3 done, waiting for your review.** The Automatique TP3 page is complete end to end (predictions, derivations, figures, code that follows the sliders, compte rendu, Mode DS, errata). Phases 0–2 are done and green in CI. One branch per phase: `phase-0` … `phase-3`.
+> **Status: Phase 4 done.** Every TP with a handout has its interactive page and its compte rendu: Automatique TP1–TP4, Signal TP3–TP4. Also done: Mode DS for both courses, the Simulink model builder, the microcontroller C export, offline use, and the "no hand-typed number" check. Signal TP1–TP2 still wait for their handout. Next: **Phase 5** (deployment, Lighthouse, browser pass, final scorecard). One branch per phase: `phase-0` … `phase-4`.
 
-**Contents:** [Phase 3: the TP3 page](#phase-3-the-automatique-tp3-page-end-to-end) · [Phase 2: the engine](#phase-2-the-engine) · [Phase 1: the MATLAB scripts](#phase-1-the-matlab-scripts) · [Phase 0: what was done](#phase-0-what-was-done) · [The plan](#the-plan-what-comes-next) · [What I need from you](#what-i-need-from-you) · [Repository layout](#repository-layout)
+**Contents:** [What it looks like](#what-it-looks-like) · [Phase 4](#phase-4-every-tp-simulink-builder-microcontroller-export-offline) · [Phase 3: the TP3 page](#phase-3-the-automatique-tp3-page-end-to-end) · [Phase 2: the engine](#phase-2-the-engine) · [Phase 1: the MATLAB scripts](#phase-1-the-matlab-scripts) · [Phase 0](#phase-0-what-was-done) · [Plan and architecture](#the-plan-what-comes-next) · [What I need from you](#what-i-need-from-you) · [Repository layout](#repository-layout)
+
+---
+
+## What it looks like
+
+| | |
+|---|---|
+| ![A TP page: switcher, handout aim, report and Mode DS buttons, table of questions](docs/screenshots/tp-desktop.jpg) | ![The same page on a phone](docs/screenshots/phone.jpg) |
+
+**The figure and its explanation follow the sliders** (here the gain K of TP3; the MATLAB cell under each question follows too):
+
+![GIF: the response and its final value e·K/(1 + K) change with K](docs/screenshots/sliders.gif)
+
+| One question, answer revealed | Vers le microcontrôleur | Compte rendu (A4) | Mode DS |
+|---|---|---|---|
+| ![Question II.6: prediction, explanation, figure, MATLAB cell](docs/screenshots/question.jpg) | ![PID sampled at Te with saturation and anti-windup, and its C code](docs/screenshots/mcu.jpg) | ![Cover page of the report](docs/screenshots/report.jpg) | ![A generated filter subject, corrected](docs/screenshots/ds.jpg) |
+
+---
+
+## Phase 4: every TP, Simulink builder, microcontroller export, offline
+
+**Pages** (all on the TP3 pattern: predict first, step-by-step derivation, own SVG figures, the script's `%%` cell with the slider values, report):
+
+| Page | What is in it |
+|---|---|
+| Automatique TP1 | Figure 1.6 redrawn (click a block); the loop the Scope really shows (closed loop, errata E-AE15), linearity. |
+| Automatique TP2 | Zero-order hold on a sine (period slider); 9/(s+9) with tf, pole/zero, rlocus, Zero-Pole block, c2d with and without hold; the DC motor (Tableau 2.1, L toggle), its Z-transform, responses with and without hold. |
+| Automatique TP4 | Figure 4.1 (PID built from three branches vs the PID Controller block and its filter N); tank and motor, with and without PID; the effect of kp, ki and kd; stepinfo with both MATLAB definitions. |
+| Signal TP3 | DFT of x1, x2, x3 (lines, constant, delay), resolution and leakage, zero-padding (statement not verified: no handout). |
+| Signal TP4 | tf, roots, zplane, impz (with the z⁻¹ padding derivation), freqz, invfreqz; the second-order IIR low-pass with the printed (unstable) or corrected denominator (statement not verified). |
+| Mode DS, Signal | Generated subjects: DFT lines, resolution and zero-padding, second-order filter. 900 subjects are checked against closed forms in the tests. |
+
+A TP switcher sits at the top of every TP page. Every TP page has its compte rendu (`/rapport/...`).
+
+**Simulink, built from code.** [`matlab/simulink/build_models.m`](matlab/simulink/build_models.m) builds the handout's diagrams with `new_system` / `add_block` / `add_line` (figure 1.6, the TP2 hold and motor, figures 3.1, 3.2, 4.1, 4.2, 4.3) with the scripts' default values. It saves them to `build/simulink/`, simulates each one and compares it with `tf` / `step` / `lsim`. Octave has no Simulink, so CI runs it against a **Simulink stand-in** ([`matlab/simulink/test/`](matlab/simulink/test/)). The stand-in checks library paths, parameter names, ports and algebraic loops, then simulates the diagram. **15 signals in 9 models match**, and a flipped sign is caught (mutation test). The real Simulink run is yours to do once (below).
+
+**Vers le microcontrôleur** (Automatique TP4 tank and motor, Signal TP4 filter):
+- The PID sampled at Te: backward-Euler integral, filtered derivative, command limits and anti-windup. The loop is drawn with exactly what the C code computes, next to the continuous loop. Example: with a flow limit of 0.5, the tank overshoots by 8.99 % without anti-windup and 0 % with it.
+- The filter in floating or fixed point (int16, adjustable fractional bits): quantized coefficients, the poles they give, the frequency response.
+- C code for **Arduino Uno** (Timer1 interrupt, prescaler and OCR1A computed, software divider for long periods), **STM32 HAL** (TIM2 callback, PSC/ARR given) or **portable C**, with the difference equation in comments.
+- **Proof**, in CI ([mcu.yml](.github/workflows/mcu.yml)): the generated C is compiled with gcc and reproduces the engine **exactly** (8 cases, fixed point included). The STM32 files compile for Cortex-M4 (`-Wdouble-promotion -Werror`), and the sketches compile for the Uno with arduino-cli.
+
+**Offline.** An own service worker (no dependency) precaches the whole site: after one visit, every page, report and Mode DS works with no network (checked in Chrome). Web app manifest and icons included.
+
+**No hand-typed numbers.** [`tools/lint-numbers.mjs`](tools/lint-numbers.mjs) runs in CI and rejects numbers typed in the French prose of the pages and of the errata. The errata's numbers are now computed from the engine and the scripts' defaults (e.g. the motor pole with the printed inductance, −72 704 rad/s).
+
+**Checked, and what the checks caught**
+- 130 engine tests pass, and CI is green on every Phase 4 commit (Octave references, Simulink stand-in, microcontroller builds).
+- Every page at 375 px: no horizontal scroll, no console error.
+- Caught and fixed:
+  - the report printed light-grey text when the system was in dark mode (print CSS specificity);
+  - a one-sample delay in the first version of the digital-loop simulation;
+  - an anti-windup sentence that compared two identical runs;
+  - wide tick labels overlapping the y-axis title.
 
 ---
 
@@ -41,7 +96,6 @@ Desktop, TP3 page: 100 / 100 / 100 / 100. All pages fit a 375 px phone with no h
 - **A hydration bug, fixed.** With values in the URL, the formulas showed the script's defaults while the text showed the URL's values. Svelte does not repair mismatched `{@html}` on hydration, so the islands now hydrate with the defaults and apply the saved values just after.
 - **The derivations and 600 generated exercises agree with the engine** (tests). The engine itself is checked against Octave (Phase 2).
 
-**Not yet:** the other TP pages, the Simulink builder and the microcontroller export (Phase 4), deployment (Phase 5).
 
 ---
 
@@ -158,68 +212,88 @@ Full details: [PLAN.md](PLAN.md).
 
 ### Priorities (in this order)
 1. **Complete coverage**: every question of every TP, with the handout's numbering. Nothing left "à venir".
-2. **Proven correctness**: one clean MATLAB script per TP (one `%%` cell per question, French comments) is the source of truth. A GitHub Actions job runs them in Octave and writes every reference number to JSON, and the web engine's tests compare against that JSON. No hand-typed values. A CI badge will go in this README.
-3. **Code that follows the sliders**: the MATLAB shown is the submitted script's cell with the current slider values, so pasting it into MATLAB reproduces the plot on screen. CI proves it by running the substituted cells in Octave. Stretch: a Python "Run" button (Pyodide).
+2. **Proven correctness**: one clean MATLAB script per TP (one `%%` cell per question, French comments) is the source of truth. A GitHub Actions job runs them in Octave and writes every reference number to JSON, and the web engine's tests compare against that JSON. No hand-typed values.
+3. **Code that follows the sliders**: the MATLAB shown is the submitted script's cell with the current slider values, so pasting it into MATLAB reproduces the plot on screen. CI proves it by running the substituted cells in Octave.
 4. **Learning**: "predict first" on every question, step-by-step hand derivations, and a **Mode DS** of generated exercises with auto-correction and a full correction.
-5. **The deliverable**: a "Générer le compte rendu" button that produces a print-quality PDF lab report per TP: cover page, Q&A, derivations, figures at the current parameters, observations, and a MATLAB annex.
-6. **Industrial side**: a MATLAB script that builds the handout's Simulink models from code. "Vers le microcontrôleur" exports C for Arduino/STM32 (difference equation, timer, saturation, anti-windup, fixed-point note), and CI compiles it.
-7. **Polish**: Lighthouse ≥ 95 (performance and accessibility), offline (PWA), phone, keyboard, dark/light themes, SVG figures with clickable blocks, the Errata page, and this README with screenshots.
+5. **The deliverable**: a "Générer le compte rendu" button per TP: cover page, Q&A, derivations, figures at the current parameters, observations, MATLAB annex, A4 PDF.
+6. **Industrial side**: the Simulink models built from code; "Vers le microcontrôleur" C export for Arduino/STM32, compiled in CI.
+7. **Polish**: Lighthouse ≥ 95, offline, phone, keyboard, dark/light themes, SVG figures with clickable blocks, the Errata page, this README.
 
-### Stack
+### Stack (as built)
 | Part | Choice | Why |
 |---|---|---|
-| Pages | **Astro 5** (static) | Pages are pre-rendered HTML, so they display fast even on a phone; only the interactive parts load JavaScript |
-| Interactive parts | **Svelte 5** | Tiny runtime; one slider updates figure, formula, code and derivation at once |
-| Figures | **Own SVG plotting module** (~10 kB) | Light (a general charting library weighs ~1.4 MB), crisp in the PDF report, follows the theme |
-| Formulas | **Temml → MathML** | Native browser math; no fonts to download |
+| Pages | **Astro 7** (static) | Pre-rendered HTML: fast even on a phone; only the interactive parts load JavaScript |
+| Interactive parts | **Svelte 5** islands | Tiny runtime; one slider updates figure, formula, code and derivation at once |
+| Figures | **Own SVG plotting module** | No chart library to download; crisp in the PDF report; follows the theme |
+| Formulas | **Native MathML** from an own builder | Nothing to download; selectable and accessible |
 | Engine | **TypeScript, no dependencies** | Tested against the Octave JSON; shared by pages, exercises, report and C export |
-| Offline | **PWA (Workbox)** | Works with no network after the first visit |
-| Tests | **Vitest, Playwright + axe, Lighthouse CI** | Correctness, phone/keyboard/offline, performance budgets enforced |
+| Offline | **Own service worker** generated at build time | The available PWA plugin for Astro 7 depended on a days-old 0.0.x core; ours is ~70 lines |
+| Tests | **Vitest**, Octave in CI, gcc / arm-none-eabi-gcc / arduino-cli in CI, Chrome checks | Numbers, wiring, generated C, phone, offline |
 
 ### Architecture
 ```
-matlab/        source of truth: the scripts submitted (+ Simulink builder, Octave shims, reference exporter)
-reference/     JSON generated by Octave in CI, never edited by hand
-src/engine/    control + signal computations, hand derivations, exercise generators, MATLAB/C code generation
-src/content/   handout statements (verbatim, with source) + French explanations
-src/components/, src/pages/   Svelte widgets and Astro pages (TPs, Mode DS, report, errata)
-tests/         engine vs Octave, end-to-end (phone, keyboard, offline), "no hard-coded numbers" check
+matlab/                 source of truth: the TP scripts to submit
+  automatique/, signal/ one script per TP, one %% cell per handout question, @param lines = the sliders
+  simulink/             build_models.m (Simulink from code) + test/ (Octave stand-in for Simulink)
+  compat/, refs/        Octave shims (stepinfo, order) and the reference exporter
+reference/              JSON written by Octave in CI from the scripts; never edited by hand
+src/engine/             computations: poly, linalg, lti, stepinfo, dsp, mcu (digital PID, fixed point),
+                        codegen (C), matlabScript (reads the @param lines), tp/ (one model per script)
+src/derive/             step-by-step hand derivations, with the current numbers
+src/exercises/          Mode DS generators (Automatique, Signal)
+src/content/            handout statements (verbatim, with page), errata, TP lists, defaults
+src/components/, src/pages/, src/layouts/   Svelte islands and Astro pages
+tests/                  engine vs Octave, vs closed forms, random slider positions, exercises, C code
+tools/                  reference comparator, number lint, C check, service worker, Lighthouse runner
 ```
-One parameter store per TP feeds the engine. Every view (figure, formula, derivation, code, report, C export) reads the engine's results, and **no number on screen is typed by hand**: a CI check rejects numeric literals in the French text.
+**Data flow.** A TP page reads its script (`?raw` import) and parses the `@param` lines into sliders. The engine model of that script runs on the slider values. Every view reads its result: figure, formula, derivation, prediction, MATLAB cell (the script with the values written in), report, C code. CI closes the loop. It runs the same scripts in Octave, at the defaults and at random slider positions, and requires the engine to match.
 
 ### Phases
-| Phase | Content | Estimate |
+| Phase | Content | Status |
 |---|---|---|
-| **1** ✅ | MATLAB scripts for the 4 Automatique TPs and Signal TP3–TP4 (Signal TP1–TP2 once its PDF arrives) + Octave shims + the CI job that generates `reference/*.json` + the Octave vs MATLAB notes | done |
-| **2** ✅ | Engine (control + signal), tests against the JSON, "code follows sliders" check in CI (the step-by-step derivations come with each page) | done |
-| **3** | **Automatique TP3 end to end** (figures, live code, predict first, derivations, Mode DS, report), then **stop for your review** | 3 h |
-| **4** | The other TPs on the same pattern (Automatique TP1, TP2, TP4; Signal TP1–TP4), the Simulink builder, C export, PWA, themes, errata page | 10 h |
-| **5** | Deploy to GitHub Pages, Lighthouse, check every page at phone and desktop width, originality check, final scorecard | 1.5 h |
+| **0** ✅ | Audit, coverage, errata, plan | done |
+| **1** ✅ | MATLAB scripts, Octave shims, the CI job that writes `reference/*.json` | done |
+| **2** ✅ | Engine, tests against the JSON, "code follows sliders" check in CI | done |
+| **3** ✅ | Automatique TP3 end to end, reviewed | done |
+| **4** ✅ | Automatique TP1, TP2, TP4 and Signal TP3, TP4 pages and reports; Mode DS Signal; Simulink builder; C export; offline; number lint; README | done |
+| **5** | Deploy to GitHub Pages (the repo becomes public: I will ask you first), Lighthouse on every page, desktop and phone pass, originality check, final scorecard | next |
 
-Honest total: **≈ 20–22 h**. If time runs short, cuts come from the bottom of the priority list: Python Run first, then the README GIF, the STM32 variant, Mode DS breadth, the "pick the curve" exercises, and report extras. **Correctness and coverage are never cut.**
+Cut from the plan, as foreseen (bottom of the priority list): the in-browser Python "Run" button (Pyodide, ≈ 45 MB). The MATLAB cells are already exact and copyable.
+
+**Known limit.** On Automatique TP4, switching to the printed inductance (0.011 mH) takes about 0.9 s. The motor is then very stiff, and stepinfo uses the same fine grid as the Octave references.
 
 ---
 
 ## What I need from you
-Decisions already taken (2026-11-24): deadline in a few days (full plan); motor default **L = 0.011 H** with a toggle to the printed 0.011 mH; credits **Nyquist, Youssef El Mhamdi, IIA 3/1**; the repo goes public only at deployment, after one more confirmation. Phase 1 has started.
-
-Still open:
-1. **The *Traitement du signal* handout PDF.** You don't have it, so Signal TP1/TP2 stay "needs handout" and TP3/TP4 are built from an unverified transcription. If you ever get it, put it in [handouts/](handouts/). PDFs there stay local: they are git-ignored, as they are the professor's documents.
-2. **One line to run in MATLAB at school**, to settle an Octave/MATLAB difference (TP2 III.6, the `'impulse'` method): see [matlab/OCTAVE_VS_MATLAB.md](matlab/OCTAVE_VS_MATLAB.md).
+1. **Run two things once in MATLAB at school** (Octave cannot check them):
+   - `build_models` in `matlab/simulink/`: it builds the 9 Simulink models, simulates them and prints a table. Every line should say `OK`. If one says `ÉCART`, send me the table.
+   - The one-line `c2d(…, 'impulse')` check of [matlab/OCTAVE_VS_MATLAB.md](matlab/OCTAVE_VS_MATLAB.md) (TP2 III.6).
+2. **The *Traitement du signal* handout PDF**, if you ever get it. Signal TP1/TP2 stay "needs handout"; TP3/TP4 rest on an unverified transcription. Put it in [handouts/](handouts/) (git-ignored).
+3. **Phase 5:** I will ask you before making the repository public for GitHub Pages.
 
 ## Repository layout
 | Path | Content |
 |---|---|
-| [matlab/](matlab/) | The TP scripts (submitted), the Octave shims (`compat/`), the reference exporter (`refs/`), [OCTAVE_VS_MATLAB.md](matlab/OCTAVE_VS_MATLAB.md) |
+| [matlab/](matlab/) | The TP scripts (submitted), the Simulink builder (`simulink/`), the Octave shims (`compat/`), the reference exporter (`refs/`), [OCTAVE_VS_MATLAB.md](matlab/OCTAVE_VS_MATLAB.md) |
 | [reference/](reference/) | Reference values generated by Octave from the scripts, per question. Never edited by hand. |
-| [src/engine/](src/engine/) | The computation engine (control, signal, script parser, one model per TP) |
-| [tests/](tests/) | Engine vs Octave references, vs closed forms, and at random slider positions (`npm test`) |
+| [src/](src/) | The site: engine, derivations, exercises, content, components, pages |
+| [tests/](tests/) | Engine vs Octave references, vs closed forms, random slider positions, exercises, generated C (`npm test`) |
+| [tools/](tools/) | Reference comparator, number lint, C check, service worker, Lighthouse batch runner, phone/offline probe |
+| [docs/screenshots/](docs/screenshots/) | The images of this README |
 | [COVERAGE.md](COVERAGE.md) | Every handout question, its source, type and status, plus the errata list |
 | [PLAN.md](PLAN.md) | Stack, architecture, requirements → design → targets, phases, cut order |
 | [CLAUDE.md](CLAUDE.md) | Conventions, commands and decisions, for continuing the work |
 | [docker/octave.Dockerfile](docker/octave.Dockerfile) | Local copy of the CI Octave environment |
-| [tools/](tools/) | Reference comparator (CI), Lighthouse batch runner, phone/offline probe |
 | [handouts/](handouts/) | Where the handout PDFs go (kept local, git-ignored) |
+
+### Run the site
+```bash
+npm ci
+npm run dev          # http://localhost:4321
+npm test             # engine, exercises, generated C cases
+npm run lint:numbers # no hand-typed number in the prose
+npm run build && npm run preview
+```
 
 ### Run the scripts in Octave and regenerate the references
 ```bash
