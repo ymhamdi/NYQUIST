@@ -202,7 +202,7 @@
         yDomain={[0, Math.min(60, Math.max(...essais.Kmax_T.filter((x) => x < 60)) * 1.05)]}
         vRules={[{ at: T, label: `T = ${fmt(T, 3)} s`, color: 2 }]}
         hRules={[{ at: K, label: `K = ${fmt(K, 3)}`, color: 3 }]}
-        summary={`Gain limite en fonction de T : décroissant ; ${fmt(Kmax, 4)} pour T = ${fmt(T, 3)} s.`}
+        summary={`Kmax selon T : il baisse quand T augmente ; ${fmt(Kmax, 4)} pour T = ${fmt(T, 3)} s.`}
         height={260}
       />
       <p>Échantillonner plus lentement (T plus grand) réduit le gain admissible : la boucle réagit avec retard aux écarts.</p>

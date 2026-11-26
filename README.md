@@ -5,8 +5,8 @@ Interactive companion for the INSAT IIA 3 MATLAB labs:
 
 Youssef El Mhamdi, IIA 3/1, INSAT. MIT License.
 
-[![Octave references](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/octave-refs.yml/badge.svg)](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/octave-refs.yml)
-[![Microcontroller code](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/mcu.yml/badge.svg)](https://github.com/ymhamdi/NYQUIST-lab./actions/workflows/mcu.yml)
+[![Octave references](https://github.com/ymhamdi/NYQUIST/actions/workflows/octave-refs.yml/badge.svg)](https://github.com/ymhamdi/NYQUIST/actions/workflows/octave-refs.yml)
+[![Microcontroller code](https://github.com/ymhamdi/NYQUIST/actions/workflows/mcu.yml/badge.svg)](https://github.com/ymhamdi/NYQUIST/actions/workflows/mcu.yml)
 
 > **Status: Phase 4 done.** Every TP with a handout has its interactive page and its compte rendu: Automatique TP1–TP4, Signal TP3–TP4. Also done: Mode DS for both courses, the Simulink model builder, the microcontroller C export, offline use, and the "no hand-typed number" check. Signal TP1–TP2 still wait for their handout. Next: **Phase 5** (deployment, Lighthouse, browser pass, final scorecard). One branch per phase: `phase-0` … `phase-4`.
 

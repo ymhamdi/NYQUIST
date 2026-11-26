@@ -2,7 +2,7 @@
 
 Interactive MATLAB lab companion for INSAT IIA 3: *Traitement du signal* (TP1–TP4) and *Automatique linéaire échantillonnée* (every TP of the fascicule).
 Credits: **Nyquist**, Youssef El Mhamdi, IIA 3/1, INSAT (no teammates). Confirmed 2026-11-24.
-Repository: https://github.com/ymhamdi/NYQUIST-lab
+Repository: https://github.com/ymhamdi/NYQUIST (renamed from NYQUIST-lab. on 2026-11-26; the local remote still uses the old URL, which GitHub redirects)
 
 ## Status
 - **Phase 0 done**: `COVERAGE.md` (inventory of every question + errata) and `PLAN.md` (stack, architecture, phases).

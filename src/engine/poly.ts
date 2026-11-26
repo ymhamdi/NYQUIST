@@ -41,16 +41,12 @@ export function mul(p: readonly number[], q: readonly number[]): Poly {
 
 /** Horner evaluation at a real point. */
 export function evalReal(p: readonly number[], x: number): number {
-  let y = 0
-  for (const c of p) y = y * x + c
-  return y
+  return p.reduce((acc, c) => acc * x + c, 0)
 }
 
 /** Horner evaluation at a complex point. */
 export function evalComplex(p: readonly number[], z: Complex): Complex {
-  let y = cx(0)
-  for (const c of p) y = cadd(cmul(y, z), cx(c))
-  return y
+  return p.reduce<Complex>((acc, c) => cadd(cmul(acc, z), cx(c)), cx(0))
 }
 
 export function derivative(p: readonly number[]): Poly {

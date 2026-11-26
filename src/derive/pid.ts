@@ -17,7 +17,7 @@ export function tankWithoutPid(k: number, tau: number, r: number, Hmax: number):
   const Hbo = k * r
   const steps: Step[] = [
     {
-      text: `Boucle ouverte : on impose un débit constant égal à la consigne. La hauteur tend vers k·r = ${fmt(k, 4)} × ${fmt(r, 4)} = ${fmt(Hbo, 4)} m.`,
+      text: `Boucle ouverte : le débit d'entrée est fixé à la valeur de la consigne. La hauteur tend vers k·r = ${fmt(k, 4)} × ${fmt(r, 4)} = ${fmt(Hbo, 4)} m.`,
     },
   ]
   if (Hbo > Hmax)

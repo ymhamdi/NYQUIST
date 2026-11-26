@@ -2,7 +2,7 @@ import svelte from '@astrojs/svelte'
 import { defineConfig } from 'astro/config'
 import serviceWorker from './tools/sw-integration.mjs'
 
-// NYQ_BASE: the sub-path when deployed on GitHub Pages ("/NYQUIST-lab./"); "/" locally.
+// NYQ_BASE: the sub-path when deployed on GitHub Pages ("/NYQUIST/"); "/" locally.
 export default defineConfig({
   site: 'https://ymhamdi.github.io',
   base: process.env.NYQ_BASE ?? '/',

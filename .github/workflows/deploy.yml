@@ -1,0 +1,53 @@
+# Builds the site and publishes it on GitHub Pages, under /NYQUIST/ (the
+# repository's name, hence NYQ_BASE).
+# Manual for now: the repository is private, and Pages needs a public
+# repository on a free plan. To publish: make the repository public,
+# Settings → Pages → Source: GitHub Actions, then run this workflow (or add
+# "push: branches: [main]" below to publish on every push to main).
+name: Deploy to GitHub Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build the static site
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build for /NYQUIST/
+        run: npm run build
+        env:
+          NYQ_BASE: /NYQUIST/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Publish
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

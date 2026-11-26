@@ -94,7 +94,7 @@ Kmax_T = (1 + exp(-T_grille)) ./ (1 - exp(-T_grille));
 figure('Name', 'II.7 - Kmax(T)');
 semilogy(T_grille, Kmax_T, 'LineWidth', 1.5); grid on;
 xlabel('T (s)'); ylabel('K_{max}');
-title('Gain limite de stabilité en fonction de la période d''échantillonnage');
+title('Kmax(T) : au-delà, la boucle diverge');
 
 %% III.1 Réservoir : G(z) en boucle fermée (calcul à la main)
 % G1(s) = H(s)/Qe(s) = 12.5/(50s + 1) : gain 12.5, constante de temps 50 s.
@@ -114,7 +114,7 @@ G0r = c2d(G1r, T_r, 'zoh')
 G_bf_r = feedback(K_r*G0r, 1)
 ecart_r = abs(dcgain(G_bf_r) - dcgain(G_bf_r_main)) + abs(pole(G_bf_r) - pole(G_bf_r_main))
 
-%% III.3 Réponse pour différentes périodes d'échantillonnage (Simulink)
+%% III.3 Effet de la période T sur la réponse (Simulink)
 % Kmax(T) = (1 + b)/(12.5(1 - b)) baisse quand T augmente : avec K = 1, la
 % boucle devient instable dès que Kmax(T) < 1, c'est-à-dire T > T_limite.
 consigne = 2;                   % @param consigne [m] 0.5..20 hauteur visée (2 m dans l'énoncé)
@@ -143,7 +143,7 @@ xlabel('t (s)'); ylabel('H (m)');
 legend(arrayfun(@(v) sprintf('T = %g s', v), T_liste, 'UniformOutput', false), 'Location', 'northeast');
 title(sprintf('Hauteur d''eau, consigne %g m, K = %g', consigne, K_r));
 
-%% III.4 Valeur de K pour remplir 2 m
+%% III.4 K nécessaire pour atteindre 2 m (à une tolérance près)
 % Avec un correcteur proportionnel, H(inf) = consigne * 12.5K/(1 + 12.5K) :
 % la hauteur n'atteint JAMAIS exactement 2 m (il faudrait K infini).
 % L'énoncé ne donne pas de tolérance (errata E-AE6) : on cherche le plus

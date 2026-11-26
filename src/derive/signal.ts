@@ -37,7 +37,7 @@ export function delayPhase(phi: number, f0: number): Step[] {
       text: `cos(2πf₀nTe + φ) avec φ = ${fmt(phi, 4)} rad : la raie à +f₀ est multipliée par e^(jφ), celle à −f₀ par e^(−jφ). Parties réelle et imaginaire changent, le module ne change pas.`,
       math: math(eq(sub(mi('X'), mi('+f₀')), row(frac(mn(1), mn(2)), mo('·'), sup(mi('e'), row(mi('j'), mn(phi, 4)))), row(mn(0.5 * Math.cos(phi), 4), mo(Math.sin(phi) < 0 ? '−' : '+'), mn(Math.abs(0.5 * Math.sin(phi)), 4), mi('j'))), { display: true }),
     },
-    { text: `C'est le même signal retardé de τ = −φ/(2πf₀) = ${fmt(tau, 4)} s : un retard ne modifie que la phase du spectre, jamais son module.` },
+    { text: `C'est le même signal retardé de τ = −φ/(2πf₀) = ${fmt(tau, 4)} s : retarder un signal fait tourner la phase de chaque raie sans toucher à son module.` },
   ]
 }
 

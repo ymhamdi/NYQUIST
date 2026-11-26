@@ -135,5 +135,5 @@ ylabel('phase (rad)'); xlabel('\omega / \pi'); title('Réponse en phase');
 zeros_rii = roots(b)
 poles_rii = roots(a)
 module_poles_rii = abs(poles_rii)
-figure('Name', 'II.3 - Pôles et zéros du filtre RII');
-zplane(zeros_rii, poles_rii); title('Pôles et zéros du filtre RII');
+figure('Name', 'II.3 - Plan z du filtre RII');
+zplane(zeros_rii, poles_rii); title('Plan z du filtre RII');
