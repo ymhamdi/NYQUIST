@@ -8,9 +8,8 @@ export type Poly = number[]
 
 /** Removes leading zeros (keeps at least one coefficient). */
 export function trim(p: readonly number[]): Poly {
-  let i = 0
-  while (i < p.length - 1 && p[i] === 0) i++
-  return p.length ? p.slice(i) : [0]
+  const first = p.findIndex((v) => v !== 0)
+  return first < 0 ? [0] : p.slice(first)
 }
 
 export const degree = (p: readonly number[]): number => trim(p).length - 1
@@ -32,9 +31,12 @@ export const scale = (p: readonly number[], k: number): Poly => p.map((v) => v *
 /** Product = convolution of the coefficient arrays (MATLAB conv). */
 export function mul(p: readonly number[], q: readonly number[]): Poly {
   if (!p.length || !q.length) return []
-  const out = new Array<number>(p.length + q.length - 1).fill(0)
-  for (let i = 0; i < p.length; i++) for (let j = 0; j < q.length; j++) out[i + j] += p[i] * q[j]
-  return out
+  // coefficient k gathers every p[i]·q[k − i], i increasing
+  return Array.from({ length: p.length + q.length - 1 }, (_, k) => {
+    let s = 0
+    for (let i = Math.max(0, k - q.length + 1); i <= Math.min(k, p.length - 1); i++) s += p[i] * q[k - i]
+    return s
+  })
 }
 
 /** Horner evaluation at a real point. */
@@ -59,22 +61,10 @@ export function derivative(p: readonly number[]): Poly {
 
 /** Monic polynomial with the given roots (MATLAB poly). Conjugate pairs give real coefficients. */
 export function fromRoots(rs: readonly Complex[]): Poly {
-  let re: number[] = [1]
-  let im: number[] = [0]
-  for (const r of rs) {
-    // (re + j im)(z − r)
-    const nre = new Array<number>(re.length + 1).fill(0)
-    const nim = new Array<number>(re.length + 1).fill(0)
-    for (let i = 0; i < re.length; i++) {
-      nre[i] += re[i]
-      nim[i] += im[i]
-      nre[i + 1] -= re[i] * r.re - im[i] * r.im
-      nim[i + 1] -= re[i] * r.im + im[i] * r.re
-    }
-    re = nre
-    im = nim
-  }
-  return re
+  // multiply by (z − r) for each root: new c[i] = c[i] − r·c[i − 1], with complex coefficients
+  let c: Complex[] = [{ re: 1, im: 0 }]
+  for (const r of rs) c = [...c, { re: 0, im: 0 }].map((v, i) => (i ? csub(v, cmul(r, c[i - 1])) : v))
+  return c.map((z) => z.re)
 }
 
 /**

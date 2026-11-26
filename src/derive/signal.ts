@@ -48,7 +48,7 @@ export function resolution(tmax: number, f0: number, Fe: number): Step[] {
     { text: `N = tmax·Fe = ${N} points : résolution Δf = Fe/N = 1/tmax = ${fmt(df, 4)} Hz.` },
     {
       text: `${fmt(f0, 4)} Hz = ${fmt(f0 / df, 4)}·Δf. ${
-        Math.abs(f0 / df - Math.round(f0 / df)) < 1e-9 ? 'Entier : la raie est nette, de hauteur exacte.' : "Non entier : l'énergie se répartit sur les raies voisines et le pic est plus bas que sa vraie hauteur."
+        Math.abs(f0 / df - Math.round(f0 / df)) < 1e-9 ? 'Entier : la raie est nette, de hauteur exacte.' : "Non entier : l'énergie s'étale sur plusieurs raies, et le pic reste sous sa vraie hauteur."
       }`,
     },
     { text: "Observer plus longtemps affine toujours la résolution ; la hauteur du pic dépend de la position de la fréquence par rapport aux raies." },

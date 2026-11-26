@@ -32,7 +32,7 @@ ecart_bf = abs(dcgain(G_bf) - dcgain(G_bf_main)) + abs(pole(G_bf) - pole(G_bf_ma
 
 %% II.5 Ordre, pôles, zéros et stabilité (rlocus)
 % Système du premier ordre, sans zéro, un seul pôle : p = a - K(1 - a).
-% Stable si et seulement si |p| < 1 (pôle à l'intérieur du cercle unité).
+% Condition de stabilité : |p| < 1, le pôle doit rester dans le cercle unité.
 ordre = order(G_bf)             % 1
 poles_bf = pole(G_bf)
 zeros_bf = zero(G_bf)           % aucun zéro
@@ -43,8 +43,8 @@ rlocus(G0); grid on; hold on;
 th = linspace(0, 2*pi, 200); plot(cos(th), sin(th), 'k:'); hold off;
 axis([-1.5 1.5 -1.5 1.5]); axis square;   % cercle unité visible en entier
 title(sprintf('Lieu des racines de K G0(z), T = %g s', T));
-% Quand K augmente, le pôle part de z = a (K = 0) et se déplace vers la
-% gauche sur l'axe réel ; il sort du cercle unité en z = -1.
+% Lieu des racines : à K = 0 le pôle vaut a ; chaque hausse de K le fait
+% reculer sur l'axe réel (p = a - K(1 - a)), jusqu'à franchir z = -1 : c'est Kmax.
 
 %% II.6 Réponse du système (Simulink)
 % Simulink montre la sortie CONTINUE s(t) du procédé, entre les instants
@@ -65,14 +65,14 @@ G1_fin = c2d(G1, T/20, 'zoh');  % procédé continu, calculé tous les T/20
 s_continue = lsim(G1_fin, u_maintenue, t_fin).';
 ecart_instants = max(abs(s_continue(1:20:end) - s_k))   % 0 : les deux modèles coïncident en kT
 s_final = e * dcgain(G_bf)      % K/(1+K)*e
-figure('Name', 'II.6 - Réponse de la boucle de la figure 3.1');
+figure('Name', 'II.6 - Boucle fermée (figure 3.1)');
 plot(t_fin, s_continue, 'LineWidth', 1.5); hold on;
 stairs(kk*T, u_k, 'LineWidth', 1);
 stem(kk*T, s_k, 'filled', 'MarkerSize', 3); hold off; grid on;
 xlabel('t (s)'); legend('s(t) continue', 'commande u maintenue', 's(kT)', 'Location', 'east');
 title(sprintf('Réponse indicielle, K = %g, T = %g s', K, T));
 
-%% II.7 Stabilité selon K et valeur limite de K
+%% II.7 Valeur limite de K (stabilité)
 % |p| < 1  <=>  -1 < a - K(1 - a) < 1  <=>  -1 < K < (1 + a)/(1 - a)
 % Valeur limite : Kmax = (1 + a)/(1 - a). Elle diminue quand T augmente :
 % échantillonner lentement déstabilise la boucle.
@@ -163,11 +163,11 @@ poles_r = pole(G_bf_r)
 zeros_r = zero(G_bf_r)
 pole_r_main = b - 12.5*K_r*(1 - b)
 stable_r = abs(poles_r) < 1
-figure('Name', 'III.5 - Lieu des racines du réservoir');
+figure('Name', 'III.5 - Réservoir : rlocus');
 rlocus(G0r); grid on; hold on;
 th = linspace(0, 2*pi, 200); plot(cos(th), sin(th), 'k:'); hold off;
 axis([-1.5 1.5 -1.5 1.5]); axis square;
-title(sprintf('Lieu des racines du réservoir, T = %g s', T_r));
+title(sprintf('rlocus du réservoir, T = %g s', T_r));
 
 %% III.6 Erreur statique
 % Gain statique de G0(z) : G0(1) = 12.5 (le bloqueur conserve le gain).

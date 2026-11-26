@@ -11,9 +11,9 @@ clear; close all; clc;
 
 %% III.1 Réservoir sans et avec régulateur PID (Simulink)
 % « Sans PID » peut se lire de deux façons (errata E-AE9) :
-%  - boucle ouverte : on impose le débit Qe = 2, H(inf) = 2 x 12.5 = 25 m,
+%  - boucle ouverte : on impose le débit Qe = 2, H tend vers 2 x 12.5 = 25 m,
 %    plus que les 20 m du réservoir : il déborde ;
-%  - boucle fermée à retour unitaire (C = 1) : H(inf) = 2 x 12.5/13.5 = 1.85 m.
+%  - boucle fermée à retour unitaire (C = 1) : H tend vers 2 x 12.5/13.5 = 1.85 m.
 % Réglage proposé, par compensation du pôle : ki/kp = 1/50, d'où
 %   C(s)G(s) = 12.5 kp/(50 s)   et   F(s) = 1/(1 + (4/kp) s)
 % boucle fermée du premier ordre : pas de dépassement, erreur nulle, tau = 4/kp.
@@ -32,7 +32,7 @@ ki = 0.02;                      % @param ki 0..1 gain intégral (ki/kp = 1/50 : 
 kd = 0;                         % @param kd 0..30 gain dérivé
 C = pid(kp, ki, kd)
 F = feedback(C*G, 1)
-% Le bloc PID Controller de Simulink filtre la dérivée : kd*s devient
+% Dans Simulink, la dérivée du bloc PID Controller est filtrée : kd*s devient
 % kd*N*s/(s + N), N = 100 par défaut (errata E-AE14). Identique si kd = 0.
 N_filtre = 100;                 % @param N_filtre 1..1000 coefficient de filtre du bloc PID Controller
 F_simulink = feedback(pid(kp, ki, kd, 1/N_filtre)*G, 1);
@@ -111,7 +111,7 @@ cahier_des_charges_respecte = S_avec.Overshoot <= 5 && abs(erreur_avec) < 1e-9
 
 %% IV.5 Moteur à courant continu sans et avec régulateur PID (Simulink)
 % Figure 4.3 : boucle interne par ke (f.c.e.m.), boucle externe de vitesse.
-%   Omega/V = kc / ((Ls+R)(Js+f) + kc ke)
+%   Omega/V = kc / ((L s + R)(J s + f) + ke kc)
 % Tableau 4.1 : L = 0.011 mH, alors que le Tableau 2.1 (même moteur) donne
 % 0.011 H (errata E-AE7). On prend 0.011 H par défaut : L/R = 14 ms, réaliste.
 % U = 10 est la consigne de vitesse (10 rad/s), pas une tension (errata E-AE13).

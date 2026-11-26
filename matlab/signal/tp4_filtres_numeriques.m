@@ -15,7 +15,7 @@ Te = 0.01;
 Num1 = [1 -0.3];      Den1 = [1 -1.3 0.7];
 Num2 = [1 0 -0.3];    Den2 = [1 -1.3 0.7 1.5];
 
-%% I.2 Fonction de transfert en z (sans point-virgule pour l'afficher)
+%% I.2 La TZ avec tf (affichée : pas de point-virgule)
 % Le programme fourni utilise dfilt.df1, un ancien objet de la Signal
 % Processing Toolbox ; tf(Num, Den, Te) donne la TZ avec sa période
 % d'échantillonnage (errata E-TS7, « %H=ft(...) » se lit tf).

@@ -80,15 +80,16 @@ export function expm(a: Mat): Mat {
   const s = nrm > 0.5 ? Math.ceil(Math.log2(nrm / 0.5)) : 0
   const A = matscale(a, 2 ** -s)
   const c = [1, 1 / 2, 5 / 44, 1 / 66, 1 / 792, 1 / 15840, 1 / 665280]
-  let X = eye(n)
-  let N = eye(n)
-  let D = eye(n)
+  // numerator P(A) = Σ c_k A^k and denominator Q(A) = Σ (−1)^k c_k A^k
+  let power = eye(n)
+  let num = eye(n)
+  let den = eye(n)
   for (let k = 1; k <= 6; k++) {
-    X = matmul(A, X)
-    N = matadd(N, matscale(X, c[k]))
-    D = matadd(D, matscale(X, (k % 2 ? -1 : 1) * c[k]))
+    power = matmul(A, power)
+    num = matadd(num, matscale(power, c[k]))
+    den = matadd(den, matscale(power, (k % 2 ? -1 : 1) * c[k]))
   }
-  let E = solve(D, N)
+  let E = solve(den, num)
   for (let k = 0; k < s; k++) E = matmul(E, E)
   return E
 }

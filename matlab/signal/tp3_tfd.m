@@ -21,7 +21,7 @@ figure('Name', 'Q1 - x1[n]');
 stem(n*Te, x1, 'filled', 'MarkerSize', 3); grid on;
 xlabel('t = nT_e (s)'); ylabel('x_1[n]'); title('x_1[n] = 3 cos(2\pi 100 n T_e)');
 
-%% Q2 Parties réelle et imaginaire de X1(f) (fft, fftshift, stem)
+%% Q2 Re et Im de X1(f) sur deux lignes (fft, fftshift, stem)
 % Après fftshift, la case k correspond à f = (k - floor(N/2)) Fe/N : l'axe va
 % de -Fe/2 à Fe/2 avec un pas delta_f = Fe/N (valable pour N pair ou impair).
 % Avec N = 100, x1 contient un nombre entier de périodes (10) : il est pair
@@ -111,7 +111,7 @@ figure('Name', 'Q9 - |X4(f)|/N');
 stem(f9, abs(X4), 'MarkerSize', 3); grid on; xlabel('f (Hz)'); title('|X_4(f)|/N, t_{max} = 0.1 s');
 pic_x4 = max(abs(X4(f9 > 50)))  % < 0.5 : fuite spectrale
 
-%% Q10 tmax = 0.05 s et 0.2 s
+%% Q10 Deux autres durées d'acquisition (0.05 s, 0.2 s)
 % delta_f = 1/tmax : 20 Hz (0.05 s), 10 Hz (0.1 s), 5 Hz (0.2 s).
 % 105 Hz est un multiple de 5 Hz : seule tmax = 0.2 s donne une raie nette
 % d'amplitude 0.5. Plus on observe longtemps, plus la résolution est fine.
@@ -150,7 +150,7 @@ L = 2^p
 % calculent plus de points sur la même courbe (la TFTD de x4). Le spectre
 % est interpolé et le pic calculé se rapproche du pic de la TFTD.
 % Attention : avec seulement 50 points, le pic de la TFTD n'est pas à
-% 105 Hz. Le lobe de la composante continue (5, dix fois plus grande) et la
+% 105 Hz : la raie continue (amplitude 5, dix fois celle à 105 Hz) et la
 % raie image à -105 Hz débordent sur le lobe à 105 Hz et le décalent
 % (f_pic_tftd ci-dessous). Ajouter des zéros ne corrige pas ce biais : seule
 % une durée d'observation plus longue (ou une fenêtre) le réduit.
