@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "refs:compare": "node tools/compare-refs.mjs reference regenerated",
-    "lint:numbers": "node tools/lint-numbers.mjs"
+    "lint:numbers": "node tools/lint-numbers.mjs",
+    "check:budget": "node tools/check-budget.mjs"
   },
   "devDependencies": {
     "@types/node": "24.19.2",

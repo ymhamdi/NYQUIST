@@ -54,6 +54,11 @@ jobs:
       - name: Engine tests against the references
         run: npm test
 
+      - name: Build the site and check the page-weight budget
+        run: |
+          npm run build
+          npm run check:budget
+
       - name: Random slider positions - write the substituted scripts
         run: npx vitest run tests/sliders
         env:

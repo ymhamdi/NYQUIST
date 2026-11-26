@@ -35,6 +35,7 @@ const nav = [
       try {
         const t = localStorage.getItem('nyq-theme')
         if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t
+        if (localStorage.getItem('nyq-projection') === 'on') document.documentElement.dataset.projection = 'on'
       } catch {}
     </script>
     {
@@ -73,6 +74,12 @@ const nav = [
             }
           </ul>
         </nav>
+        <button class="theme" type="button" id="projection-toggle" aria-pressed="false" aria-label="Mode projection (touche P)" title="Mode projection : texte agrandi, contraste renforcé, sans navigation (touche P)">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"></rect>
+            <path d="M12 16v4M8 20h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+        </button>
         <button class="theme" type="button" id="theme-toggle" aria-label="Changer de thème (clair / sombre)">
           <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
             <path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"></path>
@@ -92,6 +99,24 @@ const nav = [
       </div>
     </footer>
     <script is:inline>
+      // Mode projection: larger type, full contrast, no navigation (button or P key)
+      const proj = document.getElementById('projection-toggle')
+      const setProjection = (on) => {
+        const root = document.documentElement
+        if (on) root.dataset.projection = 'on'
+        else delete root.dataset.projection
+        proj?.setAttribute('aria-pressed', String(on))
+        try {
+          localStorage.setItem('nyq-projection', on ? 'on' : 'off')
+        } catch {}
+      }
+      proj?.setAttribute('aria-pressed', String(document.documentElement.dataset.projection === 'on'))
+      proj?.addEventListener('click', () => setProjection(document.documentElement.dataset.projection !== 'on'))
+      addEventListener('keydown', (e) => {
+        const t = e.target
+        const typing = t instanceof HTMLElement && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))
+        if (!typing && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === 'p' || e.key === 'P')) setProjection(document.documentElement.dataset.projection !== 'on')
+      })
       document.getElementById('theme-toggle')?.addEventListener('click', () => {
         const root = document.documentElement
         const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches
@@ -171,6 +196,11 @@ const nav = [
     background: transparent;
     color: var(--ink);
     cursor: pointer;
+  }
+  .theme[aria-pressed='true'] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
   }
   main {
     outline: none;

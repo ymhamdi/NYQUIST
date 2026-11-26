@@ -14,7 +14,7 @@
   import Predict from '../Predict.svelte'
   import QuestionHead from '../QuestionHead.svelte'
   import StepInfoTable from '../StepInfoTable.svelte'
-  import McuPid from '../mcu/McuPid.svelte'
+  import LazyPanel from '../LazyPanel.svelte'
   import { SETTLING_DIVISOR, samplingFromSettling } from '../../engine/mcu'
   import { MCU_DEFAULTS } from '../../content/mcu'
 
@@ -97,23 +97,27 @@
   {#if !report}
     <article class="no-print">
       <h3 id="mcu-reservoir">Vers le microcontrôleur</h3>
-      <McuPid
-        name="reservoir"
-        title="Hauteur d'eau du réservoir (TP4, partie III)"
-        plant={c1.G}
-        {kp}
-        {ki}
-        {kd}
-        N={v.N_filtre as number}
-        setpoint={H0}
-        duration={c1.t.at(-1)!}
-        TsDefault={samplingFromSettling(c4.S_avec.SettlingTime)}
-        limitsDefault={MCU_DEFAULTS.reservoir}
-        measure="hauteur"
-        command="débit Qe"
-        unitMeasure="m"
-        unitCommand="u.d."
-        note={`Te par défaut : temps de réponse à 2 % divisé par ${SETTLING_DIVISOR}, arrondi. Le débit d'entrée ne peut pas être négatif et son maximum n'est pas donné (u.d. : unités de débit). Choix non donnés par le fascicule : errata E-AE27.`}
+      <LazyPanel
+        summary="Ouvrir : simuler le régulateur sur une carte et générer son code C (Arduino, STM32)"
+        load={() => import('../mcu/McuPid.svelte')}
+        props={{
+          name: "reservoir",
+          title: "Hauteur d'eau du réservoir (TP4, partie III)",
+          plant: c1.G,
+          kp,
+          ki,
+          kd,
+          N: v.N_filtre as number,
+          setpoint: H0,
+          duration: c1.t.at(-1)!,
+          TsDefault: samplingFromSettling(c4.S_avec.SettlingTime),
+          limitsDefault: MCU_DEFAULTS.reservoir,
+          measure: "hauteur",
+          command: "débit Qe",
+          unitMeasure: "m",
+          unitCommand: "u.d.",
+          note: `Te par défaut : temps de réponse à 2 % divisé par ${SETTLING_DIVISOR}, arrondi. Le débit d'entrée ne peut pas être négatif et son maximum n'est pas donné (u.d. : unités de débit). Choix non donnés par le fascicule : errata E-AE27.`,
+        }}
       />
     </article>
   {/if}

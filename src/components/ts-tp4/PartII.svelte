@@ -12,7 +12,7 @@
   import Predict from '../Predict.svelte'
   import QuestionHead from '../QuestionHead.svelte'
   import ZPlane from '../ZPlane.svelte'
-  import McuFilter from '../mcu/McuFilter.svelte'
+  import LazyPanel from '../LazyPanel.svelte'
   import { MCU_DEFAULTS } from '../../content/mcu'
 
   interface Props {
@@ -140,13 +140,17 @@
   {#if !report}
     <article class="no-print">
       <h3 id="mcu-rii">Vers le microcontrôleur</h3>
-      <McuFilter
-        name="filtre_rii"
-        title="Filtre passe-bas RII du second ordre (TP4, partie II)"
-        b={c1.b}
-        a={c1.a}
-        FeDefault={MCU_DEFAULTS.filtreFe}
-        note={`La fréquence d'échantillonnage n'est pas donnée : ${fmt(MCU_DEFAULTS.filtreFe)} Hz par défaut (errata E-TS11). Elle ne change que l'axe des fréquences et le réglage du timer.`}
+      <LazyPanel
+        summary="Ouvrir : le filtre sur une carte, en virgule flottante ou fixe, et son code C (Arduino, STM32)"
+        load={() => import('../mcu/McuFilter.svelte')}
+        props={{
+          name: "filtre_rii",
+          title: "Filtre passe-bas RII du second ordre (TP4, partie II)",
+          b: c1.b,
+          a: c1.a,
+          FeDefault: MCU_DEFAULTS.filtreFe,
+          note: `La fréquence d'échantillonnage n'est pas donnée : ${fmt(MCU_DEFAULTS.filtreFe)} Hz par défaut (errata E-TS11). Elle ne change que l'axe des fréquences et le réglage du timer.`,
+        }}
       />
     </article>
   {/if}

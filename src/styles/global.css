@@ -319,3 +319,21 @@ td {
     break-inside: avoid;
   }
 }
+
+/* Mode projection (button in the header, or the P key): for a projector in class */
+:root[data-projection='on'] {
+  font-size: 125%;
+  --measure: 64rem;
+  --ink-soft: var(--ink);
+}
+:root[data-projection='on'] header.site nav,
+:root[data-projection='on'] .tps,
+:root[data-projection='on'] .how,
+:root[data-projection='on'] footer.site {
+  display: none;
+}
+@media print {
+  :root[data-projection='on'] {
+    font-size: 100%;
+  }
+}

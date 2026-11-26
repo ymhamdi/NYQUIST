@@ -14,7 +14,7 @@
   import Predict from '../Predict.svelte'
   import QuestionHead from '../QuestionHead.svelte'
   import StepInfoTable from '../StepInfoTable.svelte'
-  import McuPid from '../mcu/McuPid.svelte'
+  import LazyPanel from '../LazyPanel.svelte'
   import { SETTLING_DIVISOR, samplingFromSettling } from '../../engine/mcu'
   import { MCU_DEFAULTS } from '../../content/mcu'
 
@@ -171,23 +171,27 @@
   {#if !report}
     <article class="no-print">
       <h3 id="mcu-moteur">Vers le microcontrôleur</h3>
-      <McuPid
-        name="moteur"
-        title="Vitesse du moteur à courant continu (TP4, partie IV)"
-        plant={m.Gm}
-        kp={m.kp_m}
-        ki={m.ki_m}
-        kd={m.kd_m}
-        N={v.N_filtre as number}
-        setpoint={m.U}
-        duration={m.tm.at(-1)!}
-        TsDefault={samplingFromSettling(c8.Sm_avec.SettlingTime)}
-        limitsDefault={MCU_DEFAULTS.moteur}
-        measure="vitesse"
-        command="tension"
-        unitMeasure="rad/s"
-        unitCommand="V"
-        note={`Te par défaut : temps de réponse à 2 % divisé par ${SETTLING_DIVISOR}, arrondi. Tension bornée par l'alimentation du Tableau 2.1 ; le couple résistant n'est pas simulé ici ; dérivée filtrée avec le N du bloc PID Controller. Errata E-AE27.`}
+      <LazyPanel
+        summary="Ouvrir : simuler le régulateur sur une carte et générer son code C (Arduino, STM32)"
+        load={() => import('../mcu/McuPid.svelte')}
+        props={{
+          name: "moteur",
+          title: "Vitesse du moteur à courant continu (TP4, partie IV)",
+          plant: m.Gm,
+          kp: m.kp_m,
+          ki: m.ki_m,
+          kd: m.kd_m,
+          N: v.N_filtre as number,
+          setpoint: m.U,
+          duration: m.tm.at(-1)!,
+          TsDefault: samplingFromSettling(c8.Sm_avec.SettlingTime),
+          limitsDefault: MCU_DEFAULTS.moteur,
+          measure: "vitesse",
+          command: "tension",
+          unitMeasure: "rad/s",
+          unitCommand: "V",
+          note: `Te par défaut : temps de réponse à 2 % divisé par ${SETTLING_DIVISOR}, arrondi. Tension bornée par l'alimentation du Tableau 2.1 ; le couple résistant n'est pas simulé ici ; dérivée filtrée avec le N du bloc PID Controller. Errata E-AE27.`,
+        }}
       />
     </article>
   {/if}
