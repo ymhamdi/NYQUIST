@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="960" height="400" role="img" aria-labelledby="t d">
+  <title id="t">One script, every view</title>
+  <desc id="d">The TP script's @param lines become the page's sliders. The engine model of that script, written cell by cell with the script's variable names, runs on the slider values. Every view reads its result: the figure, the formula, the hand derivation, the script's MATLAB cell with the values written in, the compte rendu and, on the TP4 pages, the C code for a microcontroller. In CI, GNU Octave runs the same script file and the engine must match it.</desc>
+  <defs>
+    <pattern id="g1" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M8 0H0V8" fill="none" stroke="#7aa0ff" stroke-opacity=".07"/></pattern>
+    <pattern id="g5" width="40" height="40" patternUnits="userSpaceOnUse"><rect width="40" height="40" fill="url(#g1)"/><path d="M40 0H0V40" fill="none" stroke="#7aa0ff" stroke-opacity=".14"/></pattern>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a3b3d2"/></marker>
+  </defs>
+  <style>
+    text { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; fill: #eef2fb; }
+    .k { font-size: 12.5px; font-weight: 600; fill: #a3b3d2; letter-spacing: .08em; }
+    .h { font-size: 17px; font-weight: 600; }
+    .s { font-size: 13.5px; fill: #a3b3d2; }
+    .m { font-family: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 13px; }
+    .c { fill: #7f93b8; }
+    .v { fill: #ffad2e; font-weight: 700; }
+    .box { fill: #0e1d40; stroke: #3a5384; stroke-width: 1.5; }
+    .chip { fill: #0e1d40; stroke: #4fd2ff; stroke-opacity: .55; stroke-width: 1.3; }
+    .line { stroke: #a3b3d2; stroke-width: 2; fill: none; }
+    .dash { stroke: #a3b3d2; stroke-width: 1.5; fill: none; stroke-dasharray: 5 5; }
+  </style>
+  <rect x="1" y="1" width="958" height="398" rx="14" fill="#0a1633"/>
+  <rect x="1" y="1" width="958" height="398" rx="14" fill="url(#g5)" stroke="#3a5384" stroke-width="1.5"/>
+
+  <text class="k" x="28" y="38">THE SCRIPT YOU SUBMIT</text>
+  <rect class="box" x="28" y="50" width="330" height="128" rx="10"/>
+  <text class="m c" x="44" y="76">%% II.3 … (one cell per question)</text>
+  <text class="m" x="44" y="102">T = <tspan class="v">0.1</tspan>;  <tspan class="c">% @param T [s] 0.01..3</tspan></text>
+  <text class="m" x="44" y="126">K = <tspan class="v">1</tspan>;    <tspan class="c">% @param K 0..30</tspan></text>
+  <text class="m c" x="44" y="152">tp3_stabilite_precision.m</text>
+
+  <path class="line" d="M358 114 H 392" marker-end="url(#a)"/>
+
+  <text class="k" x="398" y="38">SLIDERS</text>
+  <rect class="box" x="398" y="50" width="210" height="128" rx="10"/>
+  <text class="m" x="414" y="84">T</text>
+  <line x1="436" y1="80" x2="590" y2="80" stroke="#3a5384" stroke-width="4" stroke-linecap="round"/>
+  <line x1="436" y1="80" x2="470" y2="80" stroke="#ffad2e" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="470" cy="80" r="7" fill="#ffad2e"/>
+  <text class="m" x="414" y="122">K</text>
+  <line x1="436" y1="118" x2="590" y2="118" stroke="#3a5384" stroke-width="4" stroke-linecap="round"/>
+  <line x1="436" y1="118" x2="520" y2="118" stroke="#ffad2e" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="520" cy="118" r="7" fill="#ffad2e"/>
+  <text class="s" x="414" y="160">read from the @param lines</text>
+
+  <path class="line" d="M608 114 H 642" marker-end="url(#a)"/>
+
+  <text class="k" x="648" y="38">ENGINE MODEL</text>
+  <rect class="box" x="648" y="50" width="284" height="128" rx="10"/>
+  <text class="h" x="664" y="80">src/engine/tp/aeTp3.ts</text>
+  <text class="s" x="664" y="106">one model per script: same cells,</text>
+  <text class="s" x="664" y="128">same variable names, no dependency</text>
+  <text class="s" x="664" y="150">runs in the browser, at every move</text>
+
+  <path class="line" d="M790 178 V 204 H 92 V 226" marker-end="url(#a)"/>
+  <path class="line" d="M260 204 V 226" marker-end="url(#a)"/>
+  <path class="line" d="M428 204 V 226" marker-end="url(#a)"/>
+  <path class="line" d="M596 204 V 226" marker-end="url(#a)"/>
+  <path class="line" d="M764 204 V 226" marker-end="url(#a)"/>
+  <path class="line" d="M890 204 V 226" marker-end="url(#a)"/>
+
+  <rect class="chip" x="28" y="230" width="128" height="44" rx="8"/><text class="h" x="92" y="258" text-anchor="middle">Figure</text>
+  <rect class="chip" x="196" y="230" width="128" height="44" rx="8"/><text class="h" x="260" y="258" text-anchor="middle">Formula</text>
+  <rect class="chip" x="364" y="230" width="128" height="44" rx="8"/><text class="h" x="428" y="258" text-anchor="middle">Derivation</text>
+  <rect class="chip" x="532" y="230" width="128" height="44" rx="8"/><text class="h" x="596" y="258" text-anchor="middle">MATLAB cell</text>
+  <rect class="chip" x="700" y="230" width="128" height="44" rx="8"/><text class="h" x="764" y="258" text-anchor="middle">Compte rendu</text>
+  <rect class="chip" x="846" y="230" width="86" height="44" rx="8"/><text class="h" x="889" y="258" text-anchor="middle">C (TP4)</text>
+  <text class="s" x="532" y="296">the script's cell, slider values written in</text>
+
+  <text class="k" x="28" y="330">IN CI, ON EVERY PUSH</text>
+  <rect class="box" x="28" y="342" width="904" height="40" rx="8"/>
+  <text class="s" x="44" y="367">GNU Octave runs the same file, at its defaults and at random slider positions → the engine must give the same numbers</text>
+</svg>
